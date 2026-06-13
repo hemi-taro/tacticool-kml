@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.5", () => {
-  assert.equal(context.APP_VERSION, "0.10.5");
+test("app version is v0.10.6", () => {
+  assert.equal(context.APP_VERSION, "0.10.6");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -155,6 +155,15 @@ test("aviation keyboard stays fixed to the layout viewport bottom", () => {
   assert.doesNotMatch(html, /function positionAviationKeyboard/);
   assert.doesNotMatch(html, /visualViewport\.addEventListener/);
   assert.match(html, /#aviation-keyboard\s*\{[^}]*inset:\s*auto 0 0/s);
+});
+
+test("aviation keyboard locks body scrolling and restores position on close", () => {
+  assert.match(html, /function lockAviationPage/);
+  assert.match(html, /function unlockAviationPage/);
+  assert.match(html, /Object\.assign\(document\.body\.style,\{position:"fixed"/);
+  assert.match(html, /window\.scrollTo\(0,aviationScrollY\)/);
+  assert.match(html, /function bindAviationPageDrag/);
+  assert.match(html, /touchmove/);
 });
 
 test("SAM center method labels remain short enough for iPad", () => {
