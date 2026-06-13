@@ -12,8 +12,27 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.11.3", () => {
-  assert.equal(context.APP_VERSION, "0.11.3");
+test("app version is v0.12.0", () => {
+  assert.equal(context.APP_VERSION, "0.12.0");
+});
+
+test("field layout follows the v0.12 section order", () => {
+  assert.ok(html.indexOf("<h2>Magnetic Variation</h2>") < html.indexOf("<h2>Bullseye</h2>"));
+  const bull = html.match(/<h2>Bullseye<\/h2>([\s\S]*?)<\/section>/)?.[1] || "";
+  assert.ok(bull.indexOf('id="bull-coordinates"') < bull.indexOf('id="bull-name"'));
+  for (const [formId, buttonText, nameId] of [["sam-form","Add SAM Ring","sam-name"],["axis-form","Add Axis","axis-name"],["mission-form","Add Mission Line","mission-name"]]) {
+    const form = html.match(new RegExp(`<form id="${formId}">([\\s\\S]*?)<\\/form>`))?.[1] || "";
+    assert.match(form, new RegExp(`<div class="actions add-with-name">[\\s\\S]*?<button type="submit">${buttonText}<\\/button>[\\s\\S]*?id="${nameId}"`));
+  }
+  const toolbar = html.match(/<div class="section-toolbar">([\s\S]*?)<\/div>\s*<\/div>\s*<ul id="object-list"/)?.[1] || "";
+  assert.match(toolbar, /id="coordinate-format"/);
+  assert.match(toolbar, /id="clear-all"/);
+});
+
+test("successful KML download message clears automatically", () => {
+  assert.match(html, /function showTemporaryExportMessage/);
+  assert.match(html, /setTimeout\(\(\)=>\{if\(message\.textContent===text\)message\.textContent=""\;\},3000\)/);
+  assert.match(html, /showTemporaryExportMessage\("KML download started\."\)/);
 });
 
 test("coordinate fields use single-line textareas with the standard text keyboard", () => {

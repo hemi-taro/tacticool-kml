@@ -2,6 +2,17 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [0.12.0] - 2026-06-13
+
+### Changed
+
+- Magnetic Variationを独立セクションとして画面最上部へ移動
+- BullseyeのCoordinatesをNameより上へ移動
+- SAM Ring、Axis、Mission LineのName欄を追加ボタン右横へ移動
+- Object ListのClear Allを座標表示切替と同じ上部段へ移動
+- KMLダウンロード開始メッセージを3秒後に自動消去
+- PWAキャッシュをv0.12.0へ更新
+
 ## [0.11.3] - 2026-06-13
 
 ### Fixed
