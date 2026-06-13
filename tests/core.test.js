@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.0", () => {
-  assert.equal(context.APP_VERSION, "0.10.0");
+test("app version is v0.10.1", () => {
+  assert.equal(context.APP_VERSION, "0.10.1");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -47,8 +47,12 @@ test("PWA metadata and service worker registration are present", () => {
   assert.match(html, /navigator\.serviceWorker\.register\("\.\/service-worker\.js"\)/);
 });
 
-test("KML export prefers the share sheet and falls back to download", () => {
-  assert.match(html, /async function exportKml/);
+test("KML export provides separate share and file-save actions", () => {
+  assert.match(html, /id="share-kml"/);
+  assert.match(html, /id="save-kml"/);
+  assert.match(html, /async function shareKml/);
+  assert.match(html, /function saveKml/);
+  assert.match(html, /function createKmlFile/);
   assert.match(html, /navigator\.canShare/);
   assert.match(html, /navigator\.share/);
   assert.match(html, /downloadKmlFile/);
