@@ -2,6 +2,17 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [0.10.5] - 2026-06-13
+
+### Changed
+
+- SAM Center methodの選択肢を`B/E Bearing / Range`へ短縮
+- PWAキャッシュをv0.10.5へ更新
+
+### Fixed
+
+- Visual Viewport位置補正を撤回し、専用キーボードがページ途中へ固定される問題を修正
+
 ## [0.10.4] - 2026-06-13
 
 ### Changed

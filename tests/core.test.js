@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.4", () => {
-  assert.equal(context.APP_VERSION, "0.10.4");
+test("app version is v0.10.5", () => {
+  assert.equal(context.APP_VERSION, "0.10.5");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -151,11 +151,15 @@ test("PWA header uses the top safe area and provides an update action", () => {
   assert.match(html, /caches\.keys\(\)/);
 });
 
-test("aviation keyboard follows the visible viewport only while open", () => {
-  assert.match(html, /function positionAviationKeyboard/);
-  assert.match(html, /if\(!aviationInput\|\|keyboard\.hidden\)return/);
-  assert.match(html, /window\.visualViewport\.addEventListener\("scroll",positionAviationKeyboard\)/);
-  assert.match(html, /window\.visualViewport\.addEventListener\("resize",positionAviationKeyboard\)/);
+test("aviation keyboard stays fixed to the layout viewport bottom", () => {
+  assert.doesNotMatch(html, /function positionAviationKeyboard/);
+  assert.doesNotMatch(html, /visualViewport\.addEventListener/);
+  assert.match(html, /#aviation-keyboard\s*\{[^}]*inset:\s*auto 0 0/s);
+});
+
+test("SAM center method labels remain short enough for iPad", () => {
+  assert.match(html, />B\/E Bearing \/ Range</);
+  assert.doesNotMatch(html, />Bearing \/ Range from B\/E</);
 });
 
 test("successful object creation clears transient geometry fields", () => {

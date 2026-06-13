@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.10.4
+\# MSN Line Tool v0.10.5
 
 
 
@@ -33,8 +33,6 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 \- Closed custom aviation keyboard is fully removed from display
 
 \- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
-
-\- Custom aviation keyboard follows the visible iOS viewport while the page remains scrollable
 
 \- Successful SAM, Axis, and Mission Line creation clears transient geometry input fields
 
