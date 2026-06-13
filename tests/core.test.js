@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.14.1", () => {
-  assert.equal(context.APP_VERSION, "0.14.1");
+test("app version is v0.14.2", () => {
+  assert.equal(context.APP_VERSION, "0.14.2");
 });
 
 test("Axis and Mission Line appear before the collapsed SAM and Custom panels", () => {

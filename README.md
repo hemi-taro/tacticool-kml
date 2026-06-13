@@ -1,79 +1,54 @@
-# Tacticool KML v0.14.1
+# Tacticool KML v0.14.2
 
-PWAとしてインストール後は完全オフラインで動作する、Bullseye基準のミッションライン作成・KML出力ツールです。外部ライブラリ、地図、バックエンドは使用しません。
+Bullseye基準のAxis、Mission Line、SAM Ring、Custom Line / Areaを作成し、KMLとして出力するPWAです。インストール後は完全オフラインで動作します。
 
-## GitHub Pages / PWA
+## Open App
 
-1. GitHub PagesのURLをiPhoneまたはiPadのSafariで開きます。
-2. Safariの共有ボタンから`ホーム画面に追加`を選びます。
-3. 以後はホーム画面のアイコンからオフライン起動できます。
+[Tacticool KML](https://hemi-taro.github.io/tacticool-kml/)
 
-`Export KML`でKMLファイルを保存できます。古い画面が残る場合は、ヘッダー右端の更新アイコンを押して最新版を再読み込みできます。この操作にはインターネット接続が必要です。
+## Install on iPhone / iPad
 
-## 使い方
+1. 上記URLをSafariで開きます。
+2. Safariの共有ボタンから`ホーム画面に追加`を選択します。
+3. ホーム画面のアイコンから起動します。
 
-1. `index.html` をSafariで開きます。iPad上でHTTP配信する場合は、a-Shellなどで次を実行します。
+古いバージョンが表示される場合は、アプリ右上の更新アイコンを押してください。更新確認にはインターネット接続が必要です。
 
-   ```sh
-   python3 -m http.server 8765
-   ```
+## Basic Use
 
-2. Bullseyeの緯度・経度を単一欄へ入力します。緯度と経度は`/`または`,`で区切り、DD・DDM・DMSを自動判定します。
-3. 折りたたまれたSAM RingまたはCustom Line / Areaを必要に応じて展開し、Axisなどと合わせて形状を追加します。Axis作成時にTickmarkを有効にすると、距離目盛り線も同時に作成されます。
-4. Mission Lineを作る場合は、作成済みAxisを選択し、B/Eからの距離と幅を指定します。
-5. Export欄のプレビューで相対配置を確認し、KML Line Widthを指定して`Export KML`を押します。Document Nameが空欄の場合、出力時のローカル日時が名前になります。
+1. Magnetic VariationをAutoまたはManualから選択します。
+2. Bullseye座標を入力します。
+3. Axis、Mission Line、SAM Ring、Custom Line / Areaを追加します。
+4. Object Listで内容を確認し、必要に応じて並べ替えます。
+5. プレビューを確認して`Export KML`を押します。
 
-Object Listでは、項目をタップして座標一覧を表示できます。ドラッグハンドルで並べ替えた順序はプレビューとKML出力へ反映されます。右側の`DD / DDM / DMS`で表示形式を切り替えられます。Import KMLはLineStringとPolygon外周を読み込みます。
+Object Listの並び順はプレビューとKML出力順へ反映されます。Import KMLはLineStringとPolygon外周を読み込みます。
 
-## 座標・方位の規則
+## Coordinate Input
 
-- 距離単位: nautical miles (NM)
-- 入力方位: magnetic degrees
-- 磁気偏差: 東偏を正、西偏を負
-- Auto magnetic variation: Bullseye座標、現在日付、海面高度からWMM2025で計算
-- Manual magnetic variation: 必要な場合に手動値へ切替可能
-- 真方位: `magnetic bearing + magnetic variation`
-- DD例: `35.508333`, `135.333333`
-- DDM例: `3530.500N`, `13520.000E`
-- DMS例: `353030N`, `1352000E`
-- B/Eペア例: `3530.500N / 13520.000E`
-- Google Maps例: `33.6767373218162, 131.0185685567963`
+緯度と経度は`/`または`,`で区切ります。DD・DDM・DMSを自動判定します。
+
+- DD: `35.508333, 135.333333`
+- DDM: `3530.500N / 13520.000E`
+- DMS: `353030N / 1352000E`
 - KML座標順: `longitude,latitude,altitude`
 
-## SAM Fill
+距離単位はNMです。入力方位は磁方位で、東偏を正、西偏を負として真方位へ変換します。Auto magnetic variationはBullseye座標、現在日付、海面高度からWMM2025で計算します。
 
-既定ではSAM Ringを半透明のKML `Polygon` として出力します。`Enable polygon fill` を無効にすると、閉じたKML `LineString` として出力します。
+## Privacy
 
-## Custom Line / Area
-
-直接座標またはB/EからのBearing / Rangeでポイントを追加できます。2点以上はLineStringとして、`Close shape as area`を有効にした3点以上は半透明のPolygonとして追加されます。確定前のポイントは削除・並べ替えできます。
+This app does not collect or transmit data.
 
 ## Disclaimer
 
 Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.
 
-This app does not collect or transmit data.
+Copyright © 2026 Hemi-Taro. All rights reserved. Permission to reuse, redistribute, or modify this software has not been granted.
 
-Copyright © 2026 Hemi-Taro. All rights reserved.
+## Development
 
-## テスト
-
-Node.jsが利用可能な環境で次を実行します。
+Node.jsでテストを実行できます。
 
 ```sh
 node --test tests/*.test.js
 ```
-
-テストは、WMM2025磁気偏差、DDM変換、方位変換、測地線上の目的地点、円生成、KML色と座標順を検証します。
-
-## バージョン管理
-
-- バグ修正のみ: パッチ番号を上げる（例: `0.2.0` → `0.2.1`）
-- 機能追加・仕様変更: マイナー番号を上げる（例: `0.2.1` → `0.3.0`）
-- 安定版として公開するとき: `1.0.0`
-
-アプリのバージョンは`index.html`内の`APP_VERSION`を基準とし、変更内容は`CHANGELOG.md`へ記録します。
-
-## WMM2025について
-
-Auto magnetic variationはWMM2025標準モデルを完全オフラインで計算します。Axis長や各形状の位置ごとには再計算せず、Bullseye地点の偏差を共通利用します。WMMは局地的・一時的な磁気異常を表現しないため、必要に応じてManual値を使用してください。
