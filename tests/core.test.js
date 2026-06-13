@@ -12,8 +12,19 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.14.0", () => {
-  assert.equal(context.APP_VERSION, "0.14.0");
+test("app version is v0.14.1", () => {
+  assert.equal(context.APP_VERSION, "0.14.1");
+});
+
+test("Axis and Mission Line appear before the collapsed SAM and Custom panels", () => {
+  assert.ok(html.indexOf("<h2>Add Axis</h2>") < html.indexOf('id="sam-panel"'));
+  assert.ok(html.indexOf("<h2>Add Mission Line</h2>") < html.indexOf('id="sam-panel"'));
+  assert.ok(html.indexOf('id="sam-panel"') < html.indexOf('id="custom-panel"'));
+});
+
+test("SAM and Custom use pale default fill colors", () => {
+  assert.match(html, /id="sam-fill-color" type="color" value="#f6d6d6"/);
+  assert.match(html, /id="custom-fill-color" type="color" value="#dadddf"/);
 });
 
 test("SAM and Custom Line Area panels are initially collapsed", () => {

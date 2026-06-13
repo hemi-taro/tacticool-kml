@@ -1,4 +1,4 @@
-\# Tacticool KML v0.14.0
+\# Tacticool KML v0.14.1
 
 
 
@@ -75,6 +75,8 @@ The tool lets the user define a Bullseye point, then generate:
 \- Object List order can be changed with drag handles and determines preview and KML export order.
 
 \- SAM polygon fill is enabled by default and exported with semi-transparent fill.
+
+\- SAM Ring and Custom Area use pale default fill colors.
 
 \- Custom Line requires at least two points. Custom Area requires at least three points and closes the polygon automatically.
 

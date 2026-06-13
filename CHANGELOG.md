@@ -2,6 +2,15 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [0.14.1] - 2026-06-14
+
+### Changed
+
+- Axis、Mission Lineの後にSAM Ring、Custom Line / Areaを配置
+- Custom Line / AreaのLine colorとFill color配置をSAM Ringと統一
+- SAM RingとCustom Areaの既定Fill colorを薄い色へ変更
+- PWAキャッシュをv0.14.1へ更新
+
 ## [0.14.0] - 2026-06-14
 
 ### Added
