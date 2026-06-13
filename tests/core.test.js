@@ -12,8 +12,37 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.13.1", () => {
-  assert.equal(context.APP_VERSION, "0.13.1");
+test("app version is v0.14.0", () => {
+  assert.equal(context.APP_VERSION, "0.14.0");
+});
+
+test("SAM and Custom Line Area panels are initially collapsed", () => {
+  assert.match(html, /<details id="sam-panel" class="panel">\s*<summary>Add SAM Ring<\/summary>/);
+  assert.match(html, /<details id="custom-panel" class="panel">\s*<summary>Add Custom Line \/ Area<\/summary>/);
+  assert.match(html, /id="sam-fill-enabled" type="checkbox" checked/);
+});
+
+test("Custom Line Area supports direct and Bullseye points", () => {
+  for (const id of ["custom-form", "custom-point-mode", "custom-coordinates", "custom-bearing", "custom-range", "custom-add-point", "custom-point-list", "custom-close-shape", "custom-line-color", "custom-fill-color", "custom-name"]) {
+    assert.match(html, new RegExp(`id="${id}"`));
+  }
+  assert.match(html, /const customPoints = \[\]/);
+  assert.match(html, /type: closeShape \? "Custom Area" : "Custom Line"/);
+});
+
+test("Object and pending point lists use Pointer Events reordering", () => {
+  assert.match(html, /function bindPointerReorder/);
+  assert.match(html, /pointerdown/);
+  assert.match(html, /pointermove/);
+  assert.match(html, /pointerup/);
+  assert.match(html, /className = "drag-handle"/);
+  assert.match(html, /moveArrayItem/);
+});
+
+test("public disclaimer and privacy statement are present", () => {
+  assert.match(html, /Copyright © 2026 Hemi-Taro\. All rights reserved\./);
+  assert.match(html, /Do not use this tool as the sole source/);
+  assert.match(html, /does not collect or transmit data/);
 });
 
 test("application name is Tacticool KML", () => {
@@ -229,6 +258,16 @@ test("KML export applies document line width", () => {
     coordinates: [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }]
   }], 4);
   assert.match(kml, /<width>4<\/width>/);
+});
+
+test("KML export preserves object list order and creates filled polygons", () => {
+  const kml = context.buildKml("Mission", [
+    { name: "First", color: "#123456", coordinates: [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }] },
+    { name: "Area", color: "#455a64", fillColor: "#87abbd", coordinates: [{ lat: 35, lon: 135 }, { lat: 35, lon: 136 }, { lat: 36, lon: 136 }, { lat: 35, lon: 135 }] }
+  ], 4);
+  assert.ok(kml.indexOf("<name>First</name>") < kml.indexOf("<name>Area</name>"));
+  assert.match(kml, /<Polygon>/);
+  assert.match(kml, /<PolyStyle><color>55bdab87<\/color><\/PolyStyle>/);
 });
 
 test("preview projection fits coordinates into SVG viewbox", () => {

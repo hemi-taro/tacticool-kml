@@ -35,6 +35,6 @@
 **Files:**
 - Create: `README.md`
 
-- [ ] Document local use, DDM format, magnetic variation convention, and ForeFlight export.
+- [ ] Document local use, DDM format, magnetic variation convention, and KML export.
 - [ ] Run the full Node test suite.
 - [ ] Serve locally and perform a browser smoke test.

@@ -1,4 +1,4 @@
-# Tacticool KML v0.13.1
+# Tacticool KML v0.14.0
 
 PWAとしてインストール後は完全オフラインで動作する、Bullseye基準のミッションライン作成・KML出力ツールです。外部ライブラリ、地図、バックエンドは使用しません。
 
@@ -19,11 +19,11 @@ PWAとしてインストール後は完全オフラインで動作する、Bulls
    ```
 
 2. Bullseyeの緯度・経度を単一欄へ入力します。緯度と経度は`/`または`,`で区切り、DD・DDM・DMSを自動判定します。
-3. SAM RingまたはAxisを追加します。SAM直接座標もB/Eと同様に単一欄へ入力できます。Axis作成時にTickmarkを有効にすると、距離目盛り線も同時に作成されます。
+3. 折りたたまれたSAM RingまたはCustom Line / Areaを必要に応じて展開し、Axisなどと合わせて形状を追加します。Axis作成時にTickmarkを有効にすると、距離目盛り線も同時に作成されます。
 4. Mission Lineを作る場合は、作成済みAxisを選択し、B/Eからの距離と幅を指定します。
-5. Export欄のプレビューで相対配置を確認し、KML Line Widthを指定して`Download KML`を押します。Document Nameが空欄の場合、出力時のローカル日時が名前になります。
+5. Export欄のプレビューで相対配置を確認し、KML Line Widthを指定して`Export KML`を押します。Document Nameが空欄の場合、出力時のローカル日時が名前になります。
 
-Object Listでは、項目をタップして座標一覧を表示できます。右側の`DD / DDM / DMS`で表示形式を切り替えられます。Import KMLはLineStringとPolygon外周を読み込みます。
+Object Listでは、項目をタップして座標一覧を表示できます。ドラッグハンドルで並べ替えた順序はプレビューとKML出力へ反映されます。右側の`DD / DDM / DMS`で表示形式を切り替えられます。Import KMLはLineStringとPolygon外周を読み込みます。
 
 ## 座標・方位の規則
 
@@ -42,7 +42,19 @@ Object Listでは、項目をタップして座標一覧を表示できます。
 
 ## SAM Fill
 
-既定ではSAM Ringを閉じたKML `LineString` として出力します。`Enable polygon fill` を有効にすると、半透明のKML `Polygon` として出力します。
+既定ではSAM Ringを半透明のKML `Polygon` として出力します。`Enable polygon fill` を無効にすると、閉じたKML `LineString` として出力します。
+
+## Custom Line / Area
+
+直接座標またはB/EからのBearing / Rangeでポイントを追加できます。2点以上はLineStringとして、`Close shape as area`を有効にした3点以上は半透明のPolygonとして追加されます。確定前のポイントは削除・並べ替えできます。
+
+## Disclaimer
+
+Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.
+
+This app does not collect or transmit data.
+
+Copyright © 2026 Hemi-Taro. All rights reserved.
 
 ## テスト
 

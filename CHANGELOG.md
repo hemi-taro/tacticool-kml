@@ -2,6 +2,21 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [0.14.0] - 2026-06-14
+
+### Added
+
+- 直接座標またはB/E Bearing / Rangeからポイントを追加するCustom Line / Area
+- アプリ内の免責事項、プライバシー表示、著作権表示
+
+### Changed
+
+- Object ListとCustomポイント一覧をドラッグハンドルで並べ替え可能に変更
+- Object Listの順序をプレビューとKML出力順へ反映
+- SAM RingとCustom Line / Areaを初期状態で閉じた折りたたみパネルへ変更
+- SAM RingのPolygon fillを既定で有効化
+- PWAキャッシュをv0.14.0へ更新
+
 ## [0.13.1] - 2026-06-14
 
 ### Fixed
@@ -142,7 +157,7 @@
 ### Changed
 
 - KML出力を`Share KML`と`Save KML to Files`の二つに分離
-- ForeFlightが共有候補に表示されない場合は、ファイルアプリ経由で共有できる案内を表示
+- 共有候補に対象アプリが表示されない場合は、ファイルアプリ経由で共有できる案内を表示
 - PWAキャッシュをv0.10.1へ更新
 
 ## [0.10.0] - 2026-06-13

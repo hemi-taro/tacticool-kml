@@ -1,4 +1,4 @@
-\# Tacticool KML v0.13.1
+\# Tacticool KML v0.14.0
 
 
 
@@ -6,7 +6,7 @@
 
 
 
-Create a small, standalone, fully offline iPad web tool for generating mission geometry lines and exporting them as KML files importable into ForeFlight.
+Create a small, standalone, fully offline iPad web tool for generating mission geometry lines and exporting them as KML files.
 
 
 
@@ -66,8 +66,23 @@ The tool lets the user define a Bullseye point, then generate:
 
 4\. Individual Mission Lines perpendicular to a selected Axis
 
-5\. Import supported KML geometry and export all objects for ForeFlight
+5\. Custom Line / Area geometry from direct coordinates or Bullseye bearing/range
 
+6\. Import supported KML geometry and export all objects
+
+\- SAM Ring and Custom Line / Area panels are initially collapsed and retain entered values while collapsed.
+
+\- Object List order can be changed with drag handles and determines preview and KML export order.
+
+\- SAM polygon fill is enabled by default and exported with semi-transparent fill.
+
+\- Custom Line requires at least two points. Custom Area requires at least three points and closes the polygon automatically.
+
+\- The app does not collect or transmit data.
+
+\- Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Users must independently verify coordinates, magnetic variation, and generated KML. Accuracy and completeness are not guaranteed.
+
+\- Copyright © 2026 Hemi-Taro. All rights reserved.
 
 
 \## Important Aviation Assumptions
@@ -89,3 +104,4 @@ The tool lets the user define a Bullseye point, then generate:
 ```text
 
 trueBearing = magneticBearing + magVarEastPositive
+```
