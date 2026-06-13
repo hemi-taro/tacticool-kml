@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.13.0", () => {
-  assert.equal(context.APP_VERSION, "0.13.0");
+test("app version is v0.13.1", () => {
+  assert.equal(context.APP_VERSION, "0.13.1");
 });
 
 test("application name is Tacticool KML", () => {
