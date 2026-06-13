@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.11.2", () => {
-  assert.equal(context.APP_VERSION, "0.11.2");
+test("app version is v0.11.3", () => {
+  assert.equal(context.APP_VERSION, "0.11.3");
 });
 
 test("coordinate fields use single-line textareas with the standard text keyboard", () => {
@@ -42,6 +42,9 @@ test("numeric fields use the standard decimal keyboard without step restrictions
 });
 
 test("KML import uses FileReader for iOS compatibility", () => {
+  const fileInput = html.match(/<input id="import-kml-file"[^>]*>/)?.[0] || "";
+  assert.ok(fileInput, "KML file input must exist");
+  assert.doesNotMatch(fileInput, /accept=/);
   assert.match(html, /new FileReader\(\)/);
   assert.match(html, /readAsText\(file\)/);
   assert.doesNotMatch(html, /await file\.text\(\)/);

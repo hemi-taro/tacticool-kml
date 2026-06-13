@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.11.2
+\# MSN Line Tool v0.11.3
 
 
 
@@ -35,6 +35,8 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 \- Coordinate fields request that iOS disable autocomplete, autocorrect, capitalization, and spellcheck
 
 \- Coordinate fields are single-line textareas; Enter closes the keyboard without adding a line break
+
+\- KML Import does not filter the iOS file picker; selected files are validated after reading
 
 \- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
 
