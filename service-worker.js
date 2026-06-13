@@ -1,4 +1,4 @@
-const CACHE_NAME = "msn-line-tool-v0.12.0";
+const CACHE_NAME = "tacticool-kml-v0.13.0";
 const APP_SHELL = [
   "./",
   "./index.html",

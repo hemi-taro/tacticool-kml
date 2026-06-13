@@ -8,6 +8,8 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "u
 const worker = fs.readFileSync(path.join(root, "service-worker.js"), "utf8");
 
 test("manifest supports standalone offline installation", () => {
+  assert.equal(manifest.name, "Tacticool KML");
+  assert.equal(manifest.short_name, "Tacticool KML");
   assert.equal(manifest.start_url, "./");
   assert.equal(manifest.scope, "./");
   assert.equal(manifest.display, "standalone");
@@ -15,7 +17,7 @@ test("manifest supports standalone offline installation", () => {
 });
 
 test("service worker caches the PWA shell and removes old caches", () => {
-  assert.match(worker, /msn-line-tool-v0\.12\.0/);
+  assert.match(worker, /tacticool-kml-v0\.13\.0/);
   for (const file of ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"]) {
     assert.match(worker, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

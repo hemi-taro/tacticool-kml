@@ -1,12 +1,12 @@
 {
-  "name": "MSN Line Tool",
-  "short_name": "MSN Line",
+  "name": "Tacticool KML",
+  "short_name": "Tacticool KML",
   "description": "Offline Bullseye geometry and KML export",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef1f4",
-  "theme_color": "#152536",
+  "background_color": "#0B121F",
+  "theme_color": "#0B121F",
   "icons": [
     {
       "src": "./icon-192.png",

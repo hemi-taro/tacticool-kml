@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0B121F"/>
+  <defs>
+    <clipPath id="doc">
+      <path d="M132 70h164l84 84v288H132c-22 0-40-18-40-40V110c0-22 18-40 40-40z"/>
+    </clipPath>
+  </defs>
+  <path d="M132 70h164l84 84v288H132c-22 0-40-18-40-40V110c0-22 18-40 40-40z" fill="#87ABBD" stroke="#fff" stroke-width="12" stroke-linejoin="round"/>
+  <g clip-path="url(#doc)">
+    <path d="M76 88c72-34 118 18 179-2 50-16 70-46 126-32v128c-58 23-91-15-139 11-63 34-98 23-166-3z" fill="#293B49"/>
+    <path d="M72 286c66-42 112 29 174 7 55-20 72-53 143-22v177H72z" fill="#293B49"/>
+    <path d="M296 70v84h84z" fill="#293B49" stroke="#fff" stroke-width="12" stroke-linejoin="round"/>
+  </g>
+  <rect x="54" y="205" width="404" height="128" rx="24" fill="#293B49" stroke="#fff" stroke-width="8"/>
+  <text x="256" y="296" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="104" font-weight="700" text-anchor="middle">KML</text>
+</svg>

@@ -12,8 +12,14 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.12.0", () => {
-  assert.equal(context.APP_VERSION, "0.12.0");
+test("app version is v0.13.0", () => {
+  assert.equal(context.APP_VERSION, "0.13.0");
+});
+
+test("application name is Tacticool KML", () => {
+  assert.match(html, /<title>Tacticool KML<\/title>/);
+  assert.match(html, /<h1>Tacticool KML <span id="app-version"><\/span><\/h1>/);
+  assert.match(html, /document\.title = `Tacticool KML v\$\{APP_VERSION\}`/);
 });
 
 test("field layout follows the v0.12 section order", () => {
