@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.6", () => {
-  assert.equal(context.APP_VERSION, "0.10.6");
+test("app version is v0.10.7", () => {
+  assert.equal(context.APP_VERSION, "0.10.7");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -152,7 +152,7 @@ test("PWA header uses the top safe area and provides an update action", () => {
 });
 
 test("aviation keyboard stays fixed to the layout viewport bottom", () => {
-  assert.doesNotMatch(html, /function positionAviationKeyboard/);
+  assert.match(html, /function positionAviationKeyboardDown/);
   assert.doesNotMatch(html, /visualViewport\.addEventListener/);
   assert.match(html, /#aviation-keyboard\s*\{[^}]*inset:\s*auto 0 0/s);
 });
@@ -164,6 +164,25 @@ test("aviation keyboard locks body scrolling and restores position on close", ()
   assert.match(html, /window\.scrollTo\(0,aviationScrollY\)/);
   assert.match(html, /function bindAviationPageDrag/);
   assert.match(html, /touchmove/);
+});
+
+test("iPhone standalone keyboard is shifted down without changing iPad position", () => {
+  assert.match(html, /function aviationKeyboardBottomOffset/);
+  assert.match(html, /matchMedia\("\(display-mode: standalone\)"\)/);
+  assert.match(html, /return 34/);
+  assert.match(html, /keyboard\.style\.bottom=`-\$\{aviationKeyboardBottomOffset\(\)\}px`/);
+});
+
+test("aviation field navigation keeps fields visible above and below", () => {
+  const visibleFunction = html.match(/function keepAviationInputVisible\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
+  assert.match(visibleFunction, /if \(top<viewTop\)/);
+  assert.match(visibleFunction, /else if \(bottom>keyboardTop-24\)/);
+});
+
+test("outside pointer gestures close keyboard only after a tap completes", () => {
+  assert.match(html, /function bindAviationOutsideTap/);
+  assert.match(html, /document\.addEventListener\("pointerup"/);
+  assert.match(html, /Math\.hypot/);
 });
 
 test("SAM center method labels remain short enough for iPad", () => {
