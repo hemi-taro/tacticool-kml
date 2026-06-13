@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.11.1
+\# MSN Line Tool v0.11.2
 
 
 
@@ -33,6 +33,8 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 \- Coordinate and name fields use the standard iOS text keyboard
 
 \- Coordinate fields request that iOS disable autocomplete, autocorrect, capitalization, and spellcheck
+
+\- Coordinate fields are single-line textareas; Enter closes the keyboard without adding a line break
 
 \- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
 

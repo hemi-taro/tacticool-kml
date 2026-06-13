@@ -12,14 +12,16 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.11.1", () => {
-  assert.equal(context.APP_VERSION, "0.11.1");
+test("app version is v0.11.2", () => {
+  assert.equal(context.APP_VERSION, "0.11.2");
 });
 
-test("coordinate fields use the standard text keyboard", () => {
+test("coordinate fields use single-line textareas with the standard text keyboard", () => {
   for (const id of ["bull-coordinates", "sam-coordinates"]) {
-    const field = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0];
+    const field = html.match(new RegExp(`<textarea id="${id}"[^>]*>`))?.[0];
     assert.ok(field, `${id} must exist`);
+    assert.match(field, /class="coordinate-field"/);
+    assert.match(field, /rows="1"/);
     assert.match(field, /inputmode="text"/);
     assert.match(field, /autocomplete="off"/);
     assert.match(field, /autocorrect="off"/);
@@ -27,6 +29,7 @@ test("coordinate fields use the standard text keyboard", () => {
     assert.match(field, /spellcheck="false"/);
     assert.match(field, /name="coordinate-entry"/);
   }
+  assert.match(html, /document\.querySelectorAll\("\.coordinate-field"\)\.forEach\(preventFieldNewline\)/);
 });
 
 test("numeric fields use the standard decimal keyboard without step restrictions", () => {
