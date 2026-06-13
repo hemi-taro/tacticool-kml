@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.1", () => {
-  assert.equal(context.APP_VERSION, "0.10.1");
+test("app version is v0.10.2", () => {
+  assert.equal(context.APP_VERSION, "0.10.2");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -47,14 +47,12 @@ test("PWA metadata and service worker registration are present", () => {
   assert.match(html, /navigator\.serviceWorker\.register\("\.\/service-worker\.js"\)/);
 });
 
-test("KML export provides separate share and file-save actions", () => {
-  assert.match(html, /id="share-kml"/);
-  assert.match(html, /id="save-kml"/);
-  assert.match(html, /async function shareKml/);
-  assert.match(html, /function saveKml/);
+test("KML export uses one file-download action", () => {
+  assert.match(html, /id="export-kml"/);
+  assert.doesNotMatch(html, /id="share-kml"/);
+  assert.doesNotMatch(html, /navigator\.share/);
+  assert.match(html, /function exportKml/);
   assert.match(html, /function createKmlFile/);
-  assert.match(html, /navigator\.canShare/);
-  assert.match(html, /navigator\.share/);
   assert.match(html, /downloadKmlFile/);
 });
 
@@ -128,6 +126,14 @@ test("aviation keyboard transitions cancel stale work and use tap completion", (
   assert.match(html, /pointercancel/);
   assert.match(html, /Math\.hypot/);
   assert.doesNotMatch(html, /input\.addEventListener\("pointerdown",\s*event\s*=>\s*\{\s*event\.preventDefault\(\);\s*openAviationKeyboardAfterBlur/);
+});
+
+test("aviation keyboard height follows visible key bounds and resets on close", () => {
+  assert.match(html, /function aviationLayoutHeight/);
+  assert.match(html, /Math\.max\(\.\.\.layout\.keys\.map/);
+  const closeFunction = html.match(/function closeAviationKeyboard\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
+  assert.match(closeFunction, /keyboard\.style\.bottom=""|keyboard\.style\.removeProperty\("bottom"\)/);
+  assert.match(closeFunction, /document\.documentElement\.style\.setProperty\("--aviation-keyboard-height","0px"\)/);
 });
 
 test("coordinate parser detects DD DDM and DMS by decimal and digit count", () => {
