@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.3", () => {
-  assert.equal(context.APP_VERSION, "0.10.3");
+test("app version is v0.10.4", () => {
+  assert.equal(context.APP_VERSION, "0.10.4");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -135,19 +135,34 @@ test("aviation keyboard height follows visible key bounds and resets on close", 
   assert.match(closeFunction, /document\.documentElement\.style\.setProperty\("--aviation-keyboard-height","0px"\)/);
 });
 
-test("closed aviation keyboard is fully hidden without visual viewport positioning", () => {
+test("closed aviation keyboard is fully hidden", () => {
   assert.match(html, /<aside id="aviation-keyboard"[^>]*hidden/);
   assert.match(html, /function showAviationKeyboard/);
   assert.match(html, /function hideAviationKeyboard/);
-  assert.doesNotMatch(html, /function positionAviationKeyboard/);
-  assert.doesNotMatch(html, /visualViewport\.addEventListener/);
 });
 
 test("PWA header uses the top safe area and provides an update action", () => {
   assert.match(html, /header\s*\{[^}]*env\(safe-area-inset-top\)/s);
-  assert.match(html, /id="update-app"/);
+  const updateButton = html.match(/<button id="update-app"[^>]*>/)?.[0] || "";
+  assert.match(updateButton, /aria-label="Check for Updates \/ Clear Cache"/);
+  assert.match(updateButton, /title="Check for Updates \/ Clear Cache"/);
+  assert.match(html, /<header>[\s\S]*id="update-app"[\s\S]*<\/header>/);
   assert.match(html, /function refreshAppCache/);
   assert.match(html, /caches\.keys\(\)/);
+});
+
+test("aviation keyboard follows the visible viewport only while open", () => {
+  assert.match(html, /function positionAviationKeyboard/);
+  assert.match(html, /if\(!aviationInput\|\|keyboard\.hidden\)return/);
+  assert.match(html, /window\.visualViewport\.addEventListener\("scroll",positionAviationKeyboard\)/);
+  assert.match(html, /window\.visualViewport\.addEventListener\("resize",positionAviationKeyboard\)/);
+});
+
+test("successful object creation clears transient geometry fields", () => {
+  assert.match(html, /function clearAviationFields/);
+  assert.match(html, /clearAviationFields\(\["sam-name","sam-coordinates","sam-bearing","sam-range","sam-radius"\]\)/);
+  assert.match(html, /clearAviationFields\(\["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-interval","tick-width"\]\)/);
+  assert.match(html, /clearAviationFields\(\["mission-name","mission-distance","mission-width"\]\)/);
 });
 
 test("coordinate parser detects DD DDM and DMS by decimal and digit count", () => {
