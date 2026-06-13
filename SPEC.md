@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.11.0
+\# MSN Line Tool v0.11.1
 
 
 
@@ -31,6 +31,8 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 \- Installed PWA header respects the iOS top safe area
 
 \- Coordinate and name fields use the standard iOS text keyboard
+
+\- Coordinate fields request that iOS disable autocomplete, autocorrect, capitalization, and spellcheck
 
 \- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
 

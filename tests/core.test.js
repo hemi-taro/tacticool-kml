@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.11.0", () => {
-  assert.equal(context.APP_VERSION, "0.11.0");
+test("app version is v0.11.1", () => {
+  assert.equal(context.APP_VERSION, "0.11.1");
 });
 
 test("coordinate fields use the standard text keyboard", () => {
@@ -21,6 +21,11 @@ test("coordinate fields use the standard text keyboard", () => {
     const field = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0];
     assert.ok(field, `${id} must exist`);
     assert.match(field, /inputmode="text"/);
+    assert.match(field, /autocomplete="off"/);
+    assert.match(field, /autocorrect="off"/);
+    assert.match(field, /autocapitalize="characters"/);
+    assert.match(field, /spellcheck="false"/);
+    assert.match(field, /name="coordinate-entry"/);
   }
 });
 
