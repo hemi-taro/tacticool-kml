@@ -1,4 +1,4 @@
-const CACHE_NAME = "msn-line-tool-v0.10.7";
+const CACHE_NAME = "msn-line-tool-v0.11.0";
 const APP_SHELL = [
   "./",
   "./index.html",

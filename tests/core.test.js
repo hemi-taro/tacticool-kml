@@ -12,25 +12,23 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.7", () => {
-  assert.equal(context.APP_VERSION, "0.10.7");
+test("app version is v0.11.0", () => {
+  assert.equal(context.APP_VERSION, "0.11.0");
 });
 
-test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
+test("coordinate fields use the standard text keyboard", () => {
   for (const id of ["bull-coordinates", "sam-coordinates"]) {
-    const field = html.match(new RegExp(`<div id="${id}"[^>]*>`))?.[0];
+    const field = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0];
     assert.ok(field, `${id} must exist`);
-    assert.match(field, /data-aviation="coordinate"/);
-    assert.match(field, /role="textbox"/);
-    assert.doesNotMatch(html, new RegExp(`<input id="${id}"`));
+    assert.match(field, /inputmode="text"/);
   }
 });
 
-test("distance fields use custom input without HTML step restrictions", () => {
+test("numeric fields use the standard decimal keyboard without step restrictions", () => {
   for (const id of ["sam-range", "sam-radius", "axis-length", "tick-start", "tick-end", "tick-interval", "tick-width", "mission-distance", "mission-width"]) {
-    const field = html.match(new RegExp(`<div id="${id}"[^>]*>`))?.[0];
+    const field = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0];
     assert.ok(field, `${id} must exist`);
-    assert.match(field, /data-aviation="numeric"/);
+    assert.match(field, /inputmode="decimal"/);
     assert.doesNotMatch(field, /step=/);
   }
 });
@@ -56,133 +54,14 @@ test("KML export uses one file-download action", () => {
   assert.match(html, /downloadKmlFile/);
 });
 
-test("aviation keyboard is wired to coordinate and numeric inputs", () => {
-  assert.match(html, /id="aviation-keyboard"/);
-  for (const id of ["bull-coordinates", "sam-coordinates", "sam-bearing", "axis-heading", "mission-distance"]) {
-    const field = html.match(new RegExp(`<div id="${id}"[^>]*>`))?.[0];
-    assert.ok(field, `${id} must be a non-input aviation field`);
-    assert.match(field, /data-aviation=/);
-    assert.match(field, /role="textbox"/);
-  }
-  assert.match(html, /function openAviationKeyboard/);
-  assert.match(html, /function keepAviationInputVisible/);
-  assert.match(html, /function initializeAviationFields/);
+test("custom aviation keyboard is removed", () => {
+  assert.doesNotMatch(html, /data-aviation/);
+  assert.doesNotMatch(html, /aviation-keyboard/);
+  assert.doesNotMatch(html, /function openAviationKeyboard/);
 });
 
-test("iOS zoom and keyboard handoff protections are present", () => {
+test("standard iOS inputs retain 16px text to prevent zoom", () => {
   assert.match(html, /input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*16px/s);
-  assert.match(html, /function handoffToStandardInput/);
-  assert.match(html, /hideAviationKeyboard\(\)/);
-});
-
-test("iPhone aviation keyboard toolbar and text field attributes are present", () => {
-  assert.match(html, /id="aviation-toolbar"/);
-  assert.match(html, /function openAviationKeyboardAfterBlur/);
-  for (const id of ["bull-name", "sam-name", "axis-name", "mission-name", "document-name"]) {
-    const field = html.match(new RegExp(`<textarea id="${id}"[^>]*>`))?.[0];
-    assert.match(field, /rows="1"/);
-    assert.match(field, /autocomplete="off"/);
-    assert.match(field, /autocorrect="off"/);
-    assert.match(field, /autocapitalize="sentences"/);
-    assert.match(field, /spellcheck="true"/);
-  }
-  assert.match(html, /function preventNameFieldNewline/);
-  assert.match(html, /\.name-field/);
-});
-
-test("aviation inputs stay focusless and same-input taps bypass viewport waiting", () => {
-  const openFunction = html.match(/function openAviationKeyboard\(input\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  const afterBlurFunction = html.match(/function openAviationKeyboardAfterBlur\(input\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  assert.doesNotMatch(openFunction, /\.focus\(/);
-  assert.doesNotMatch(openFunction, /input\.focus\(/);
-  assert.match(afterBlurFunction, /aviationInput===input/);
-  assert.match(afterBlurFunction, /if\(aviationInput===input&&document\.body\.classList\.contains\("aviation-open"\)\)\{return;\}/);
-});
-
-test("aviation visibility scrolling does not inspect the whole section", () => {
-  const visibleFunction = html.match(/function keepAviationInputVisible\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  assert.doesNotMatch(visibleFunction, /closest\("section"\)/);
-  assert.doesNotMatch(visibleFunction, /section\?\.querySelector/);
-  assert.match(visibleFunction, /nextElementSibling/);
-});
-
-test("aviation keyboard uses explicit allowed-key rules for each input mode", () => {
-  assert.match(html, /function aviationKeyAllowed\(area,mode\)/);
-  assert.match(html, /coordinateKeys/);
-  assert.match(html, /numericKeys/);
-  assert.match(html, /signedKeys/);
-  const updateFunction = html.match(/function updateAviationKeys\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  assert.match(updateFunction, /aviationKeyAllowed\(key\.dataset\.area,aviationInput\?\.dataset\.aviation\)/);
-  assert.doesNotMatch(updateFunction, /mode!==aviationInput\?\.dataset\.aviation/);
-});
-
-test("aviation keyboard transitions cancel stale work and use tap completion", () => {
-  assert.match(html, /let aviationTransitionId\s*=\s*0/);
-  assert.match(html, /function cancelAviationTransition/);
-  assert.match(html, /function scheduleAviationVisibility/);
-  assert.match(html, /function bindAviationFieldTap/);
-  assert.match(html, /pointerup/);
-  assert.match(html, /pointercancel/);
-  assert.match(html, /Math\.hypot/);
-  assert.doesNotMatch(html, /input\.addEventListener\("pointerdown",\s*event\s*=>\s*\{\s*event\.preventDefault\(\);\s*openAviationKeyboardAfterBlur/);
-});
-
-test("aviation keyboard height follows visible key bounds and resets on close", () => {
-  assert.match(html, /function aviationLayoutHeight/);
-  assert.match(html, /Math\.max\(\.\.\.layout\.keys\.map/);
-  const closeFunction = html.match(/function closeAviationKeyboard\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  assert.match(closeFunction, /keyboard\.style\.bottom=""|keyboard\.style\.removeProperty\("bottom"\)/);
-  assert.match(closeFunction, /document\.documentElement\.style\.setProperty\("--aviation-keyboard-height","0px"\)/);
-});
-
-test("closed aviation keyboard is fully hidden", () => {
-  assert.match(html, /<aside id="aviation-keyboard"[^>]*hidden/);
-  assert.match(html, /function showAviationKeyboard/);
-  assert.match(html, /function hideAviationKeyboard/);
-});
-
-test("PWA header uses the top safe area and provides an update action", () => {
-  assert.match(html, /header\s*\{[^}]*env\(safe-area-inset-top\)/s);
-  const updateButton = html.match(/<button id="update-app"[^>]*>/)?.[0] || "";
-  assert.match(updateButton, /aria-label="Check for Updates \/ Clear Cache"/);
-  assert.match(updateButton, /title="Check for Updates \/ Clear Cache"/);
-  assert.match(html, /<header>[\s\S]*id="update-app"[\s\S]*<\/header>/);
-  assert.match(html, /function refreshAppCache/);
-  assert.match(html, /caches\.keys\(\)/);
-});
-
-test("aviation keyboard stays fixed to the layout viewport bottom", () => {
-  assert.match(html, /function positionAviationKeyboardDown/);
-  assert.doesNotMatch(html, /visualViewport\.addEventListener/);
-  assert.match(html, /#aviation-keyboard\s*\{[^}]*inset:\s*auto 0 0/s);
-});
-
-test("aviation keyboard locks body scrolling and restores position on close", () => {
-  assert.match(html, /function lockAviationPage/);
-  assert.match(html, /function unlockAviationPage/);
-  assert.match(html, /Object\.assign\(document\.body\.style,\{position:"fixed"/);
-  assert.match(html, /window\.scrollTo\(0,aviationScrollY\)/);
-  assert.match(html, /function bindAviationPageDrag/);
-  assert.match(html, /touchmove/);
-});
-
-test("iPhone standalone keyboard is shifted down without changing iPad position", () => {
-  assert.match(html, /function aviationKeyboardBottomOffset/);
-  assert.match(html, /matchMedia\("\(display-mode: standalone\)"\)/);
-  assert.match(html, /return 34/);
-  assert.match(html, /keyboard\.style\.bottom=`-\$\{aviationKeyboardBottomOffset\(\)\}px`/);
-});
-
-test("aviation field navigation keeps fields visible above and below", () => {
-  const visibleFunction = html.match(/function keepAviationInputVisible\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
-  assert.match(visibleFunction, /if \(top<viewTop\)/);
-  assert.match(visibleFunction, /else if \(bottom>keyboardTop-24\)/);
-});
-
-test("outside pointer gestures close keyboard only after a tap completes", () => {
-  assert.match(html, /function bindAviationOutsideTap/);
-  assert.match(html, /document\.addEventListener\("pointerup"/);
-  assert.match(html, /Math\.hypot/);
 });
 
 test("SAM center method labels remain short enough for iPad", () => {
@@ -191,10 +70,10 @@ test("SAM center method labels remain short enough for iPad", () => {
 });
 
 test("successful object creation clears transient geometry fields", () => {
-  assert.match(html, /function clearAviationFields/);
-  assert.match(html, /clearAviationFields\(\["sam-name","sam-coordinates","sam-bearing","sam-range","sam-radius"\]\)/);
-  assert.match(html, /clearAviationFields\(\["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-interval","tick-width"\]\)/);
-  assert.match(html, /clearAviationFields\(\["mission-name","mission-distance","mission-width"\]\)/);
+  assert.match(html, /function clearFields/);
+  assert.match(html, /clearFields\(\["sam-name","sam-coordinates","sam-bearing","sam-range","sam-radius"\]\)/);
+  assert.match(html, /clearFields\(\["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-interval","tick-width"\]\)/);
+  assert.match(html, /clearFields\(\["mission-name","mission-distance","mission-width"\]\)/);
 });
 
 test("coordinate parser detects DD DDM and DMS by decimal and digit count", () => {

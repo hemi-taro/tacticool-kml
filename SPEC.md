@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.10.7
+\# MSN Line Tool v0.11.0
 
 
 
@@ -30,13 +30,13 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 
 \- Installed PWA header respects the iOS top safe area
 
-\- Closed custom aviation keyboard is fully removed from display
+\- Coordinate and name fields use the standard iOS text keyboard
 
 \- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
 
 \- Successful SAM, Axis, and Mission Line creation clears transient geometry input fields
 
-\- While the custom keyboard is open, page position is locked and content above the keyboard can be dragged without moving the keyboard
+\- Numeric geometry fields request the standard iOS decimal keyboard
 
 \- Prefer a single `index.html` with embedded CSS and JavaScript
 
@@ -83,4 +83,3 @@ The tool lets the user define a Bullseye point, then generate:
 ```text
 
 trueBearing = magneticBearing + magVarEastPositive
-
