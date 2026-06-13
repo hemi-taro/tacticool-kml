@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aviation Keyboard Layout Editor</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, sans-serif; color: #17202a; background: #e9edf1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; }
+    header { padding: 13px 18px; background: #122333; color: white; }
+    header h1 { margin: 0; font-size: 1.1rem; }
+    header p { margin: 4px 0 0; color: #c8d3dc; font-size: .78rem; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 12px; padding: 12px; }
+    .panel { border: 1px solid #c9d1d8; border-radius: 8px; background: white; padding: 11px; }
+    .toolbar { display: flex; gap: 7px; flex-wrap: wrap; align-items: end; margin-bottom: 10px; }
+    label { display: grid; gap: 3px; font-size: .72rem; font-weight: 700; color: #52606c; }
+    input, select, textarea, button { font: inherit; border: 1px solid #aeb9c4; border-radius: 5px; }
+    input, select { min-height: 34px; padding: 5px 7px; }
+    input[type="number"] { width: 70px; }
+    button { min-height: 34px; padding: 5px 10px; background: #1769aa; color: white; border: 0; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #52616f; }
+    button.danger { background: #a63232; }
+    button:disabled { opacity: .45; cursor: default; }
+    .stage-wrap { overflow: auto; padding: 20px; min-height: calc(100vh - 130px); background: #d8dee4; border-radius: 7px; }
+    #stage {
+      position: relative;
+      margin: auto;
+      background-color: #122333;
+      background-image:
+        linear-gradient(#ffffff16 1px, transparent 1px),
+        linear-gradient(90deg, #ffffff16 1px, transparent 1px);
+      border: 2px solid #0b1720;
+      border-radius: 9px;
+      box-shadow: 0 5px 15px #0003;
+      user-select: none;
+    }
+    .layout-key {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #77818b;
+      border-radius: 7px;
+      background: #626973;
+      box-shadow: 0 2px 0 #080d11;
+      color: white;
+      font-size: 20px;
+      cursor: move;
+    }
+    .layout-key.selected { outline: 3px solid #55b7e9; outline-offset: 1px; }
+    .layout-key.control { background: #35404a; font-size: 15px; font-weight: 700; }
+    .resize-handle {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 13px;
+      height: 13px;
+      border-right: 3px solid #dce7ee;
+      border-bottom: 3px solid #dce7ee;
+      cursor: nwse-resize;
+    }
+    h2 { margin: 0 0 9px; font-size: .95rem; }
+    .properties { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .properties .wide { grid-column: 1 / -1; }
+    .properties input { width: 100%; }
+    textarea { width: 100%; min-height: 260px; padding: 8px; resize: vertical; font: .75rem ui-monospace, SFMono-Regular, monospace; }
+    .help { font-size: .76rem; color: #62717d; line-height: 1.55; }
+    .status { min-height: 1.3em; color: #1769aa; font-size: .76rem; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Aviation Keyboard Layout Editor</h1>
+    <p>開発補助ツール。配置JSONをCodexへ渡すためのエディターです。</p>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="toolbar">
+        <label>Canvas
+          <select id="device">
+            <option value="iphone">iPhone 390 × 360</option>
+            <option value="ipad" selected>iPad 1024 × 420</option>
+          </select>
+        </label>
+        <label>Grid
+          <input id="grid-size" type="number" min="4" max="40" value="10">
+        </label>
+        <label>Gap
+          <input id="gap-size" type="number" min="0" max="30" value="6">
+        </label>
+        <button id="add-key">Add Key</button>
+        <button id="duplicate-key" class="secondary" disabled>Duplicate</button>
+        <button id="delete-key" class="danger" disabled>Delete</button>
+        <button id="reset-layout" class="secondary">Reset ForeFlight Draft</button>
+      </div>
+      <div class="stage-wrap">
+        <div id="stage"></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Selected Key</h2>
+      <div class="properties">
+        <label class="wide">Label<input id="prop-label" disabled></label>
+        <label>X<input id="prop-x" type="number" disabled></label>
+        <label>Y<input id="prop-y" type="number" disabled></label>
+        <label>Width<input id="prop-width" type="number" min="10" disabled></label>
+        <label>Height<input id="prop-height" type="number" min="10" disabled></label>
+        <label class="wide">Style
+          <select id="prop-style" disabled><option value="key">Normal</option><option value="control">Control</option></select>
+        </label>
+      </div>
+      <p class="help">キーをドラッグして移動。右下の角をドラッグしてサイズ変更。数値欄からも正確に調整できます。</p>
+      <h2>Layout JSON</h2>
+      <textarea id="json-output" spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button id="copy-json">Copy JSON</button>
+        <button id="download-json">Download JSON</button>
+        <button id="load-json" class="secondary">Load JSON</button>
+      </div>
+      <p id="status" class="status"></p>
+    </aside>
+  </main>
+
+  <script>
+    const presets = {
+      iphone: { width: 390, height: 360 },
+      ipad: { width: 1024, height: 420 }
+    };
+    const stage = document.querySelector("#stage");
+    let keys = [];
+    let selectedId = null;
+    let drag = null;
+    let nextId = 1;
+
+    function draftKeys() {
+      return [
+        ["▲", 10, 10, 100, 62, "control"], ["▼", 10, 82, 100, 62, "control"],
+        ["Paste", 10, 154, 48, 62, "control"], ["Clear", 62, 154, 48, 62, "control"],
+        ["◀", 10, 226, 48, 62, "control"], ["▶", 62, 226, 48, 62, "control"],
+        ["Done", 10, 298, 100, 62, "control"],
+        ["−", 245, 10, 72, 62], ["+", 327, 10, 72, 62],
+        ["N", 409, 10, 72, 62], ["S", 491, 10, 72, 62], ["W", 573, 10, 72, 62], ["E", 655, 10, 72, 62],
+        ["°", 245, 82, 154, 62], ["1", 409, 82, 72, 62], ["2", 491, 82, 72, 62], ["3", 573, 82, 72, 62],
+        ["'", 245, 154, 154, 62], ["4", 409, 154, 72, 62], ["5", 491, 154, 72, 62], ["6", 573, 154, 72, 62],
+        ['"', 245, 226, 154, 62], ["7", 409, 226, 72, 62], ["8", 491, 226, 72, 62], ["9", 573, 226, 72, 62],
+        ["space", 245, 298, 236, 62], ["0", 491, 298, 154, 62], [".", 655, 298, 72, 62],
+        ["⌫", 850, 10, 164, 62, "control"], ["/", 850, 82, 164, 134], ["▼", 850, 298, 164, 62, "control"]
+      ].map(([label, x, y, width, height, style = "key"]) => ({ id: nextId++, label, x, y, width, height, style }));
+    }
+
+    function snap(value) {
+      const size = Number(document.querySelector("#grid-size").value) || 1;
+      return Math.round(value / size) * size;
+    }
+
+    function configureStage() {
+      const preset = presets[document.querySelector("#device").value];
+      stage.style.width = `${preset.width}px`;
+      stage.style.height = `${preset.height}px`;
+      const grid = Number(document.querySelector("#grid-size").value);
+      stage.style.backgroundSize = `${grid}px ${grid}px`;
+    }
+
+    function selectedKey() { return keys.find(key => key.id === selectedId); }
+
+    function render() {
+      configureStage();
+      stage.replaceChildren();
+      keys.forEach(key => {
+        const node = document.createElement("div");
+        node.className = `layout-key ${key.style === "control" ? "control" : ""} ${key.id === selectedId ? "selected" : ""}`;
+        node.dataset.id = key.id;
+        Object.assign(node.style, { left: `${key.x}px`, top: `${key.y}px`, width: `${key.width}px`, height: `${key.height}px` });
+        node.append(document.createTextNode(key.label));
+        const handle = document.createElement("span");
+        handle.className = "resize-handle";
+        node.append(handle);
+        stage.append(node);
+      });
+      syncProperties();
+      updateJson();
+    }
+
+    function select(id) { selectedId = id; render(); }
+
+    function syncProperties() {
+      const key = selectedKey();
+      const controls = ["prop-label", "prop-x", "prop-y", "prop-width", "prop-height", "prop-style"];
+      controls.forEach(id => document.querySelector(`#${id}`).disabled = !key);
+      document.querySelector("#duplicate-key").disabled = !key;
+      document.querySelector("#delete-key").disabled = !key;
+      if (!key) return;
+      document.querySelector("#prop-label").value = key.label;
+      document.querySelector("#prop-x").value = key.x;
+      document.querySelector("#prop-y").value = key.y;
+      document.querySelector("#prop-width").value = key.width;
+      document.querySelector("#prop-height").value = key.height;
+      document.querySelector("#prop-style").value = key.style;
+    }
+
+    function layoutData() {
+      return {
+        device: document.querySelector("#device").value,
+        canvas: presets[document.querySelector("#device").value],
+        grid: Number(document.querySelector("#grid-size").value),
+        gap: Number(document.querySelector("#gap-size").value),
+        keys: keys.map(({ id, label, x, y, width, height, style }) => ({ id, label, x, y, width, height, style }))
+      };
+    }
+
+    function updateJson() { document.querySelector("#json-output").value = JSON.stringify(layoutData(), null, 2); }
+    function status(message) { document.querySelector("#status").textContent = message; setTimeout(() => document.querySelector("#status").textContent = "", 2200); }
+
+    stage.addEventListener("pointerdown", event => {
+      const node = event.target.closest(".layout-key");
+      if (!node) { select(null); return; }
+      event.preventDefault();
+      const id = Number(node.dataset.id);
+      selectedId = id;
+      const key = selectedKey();
+      drag = {
+        mode: event.target.classList.contains("resize-handle") ? "resize" : "move",
+        startX: event.clientX, startY: event.clientY,
+        x: key.x, y: key.y, width: key.width, height: key.height
+      };
+      node.setPointerCapture(event.pointerId);
+      render();
+    });
+
+    stage.addEventListener("pointermove", event => {
+      if (!drag) return;
+      const key = selectedKey();
+      if (drag.mode === "move") {
+        key.x = Math.max(0, snap(drag.x + event.clientX - drag.startX));
+        key.y = Math.max(0, snap(drag.y + event.clientY - drag.startY));
+      } else {
+        key.width = Math.max(20, snap(drag.width + event.clientX - drag.startX));
+        key.height = Math.max(20, snap(drag.height + event.clientY - drag.startY));
+      }
+      const node = stage.querySelector(`[data-id="${key.id}"]`);
+      Object.assign(node.style, { left: `${key.x}px`, top: `${key.y}px`, width: `${key.width}px`, height: `${key.height}px` });
+      syncProperties();
+      updateJson();
+    });
+    stage.addEventListener("pointerup", () => { drag = null; render(); });
+    stage.addEventListener("pointercancel", () => drag = null);
+
+    ["prop-label", "prop-x", "prop-y", "prop-width", "prop-height", "prop-style"].forEach(id => {
+      document.querySelector(`#${id}`).addEventListener("input", event => {
+        const key = selectedKey();
+        if (!key) return;
+        const property = id.replace("prop-", "");
+        key[property] = ["label", "style"].includes(property) ? event.target.value : Number(event.target.value);
+        render();
+      });
+    });
+
+    document.querySelector("#add-key").addEventListener("click", () => {
+      const key = { id: nextId++, label: "New", x: 10, y: 10, width: 80, height: 60, style: "key" };
+      keys.push(key); select(key.id);
+    });
+    document.querySelector("#duplicate-key").addEventListener("click", () => {
+      const source = selectedKey();
+      if (!source) return;
+      const key = { ...source, id: nextId++, x: source.x + 20, y: source.y + 20 };
+      keys.push(key); select(key.id);
+    });
+    document.querySelector("#delete-key").addEventListener("click", () => {
+      keys = keys.filter(key => key.id !== selectedId); selectedId = null; render();
+    });
+    document.querySelector("#reset-layout").addEventListener("click", () => {
+      document.querySelector("#device").value = "ipad"; keys = draftKeys(); selectedId = null; render();
+    });
+    document.querySelector("#device").addEventListener("change", render);
+    document.querySelector("#grid-size").addEventListener("input", render);
+    document.querySelector("#gap-size").addEventListener("input", updateJson);
+    document.querySelector("#copy-json").addEventListener("click", async () => {
+      const output = document.querySelector("#json-output");
+      try {
+        await navigator.clipboard.writeText(output.value);
+        status("JSON copied");
+        return;
+      } catch {}
+      output.focus();
+      output.select();
+      output.setSelectionRange(0, output.value.length);
+      try {
+        if (document.execCommand("copy")) {
+          status("JSON copied using compatibility mode");
+          return;
+        }
+      } catch {}
+      status("Copy unavailable. JSON is selected; press Ctrl+C or Command+C.");
+    });
+    document.querySelector("#download-json").addEventListener("click", () => {
+      const device = document.querySelector("#device").value;
+      const blob = new Blob([document.querySelector("#json-output").value], { type: "application/json;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${device}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      status(`${device}.json downloaded`);
+    });
+    document.querySelector("#load-json").addEventListener("click", () => {
+      try {
+        const data = JSON.parse(document.querySelector("#json-output").value);
+        if (!Array.isArray(data.keys)) throw new Error();
+        if (data.device && presets[data.device]) document.querySelector("#device").value = data.device;
+        if (data.grid) document.querySelector("#grid-size").value = data.grid;
+        if (data.gap !== undefined) document.querySelector("#gap-size").value = data.gap;
+        keys = data.keys.map(key => ({ ...key, id: Number(key.id) || nextId++ }));
+        nextId = Math.max(nextId, ...keys.map(key => key.id + 1));
+        selectedId = null; render(); status("JSON loaded");
+      } catch { status("Invalid layout JSON"); }
+    });
+
+    keys = draftKeys();
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+{
+  "device": "iphone",
+  "canvas": {
+    "width": 390,
+    "height": 360
+  },
+  "grid": 10,
+  "gap": 6,
+  "keys": [
+    {
+      "id": 158,
+      "label": "Paste",
+      "x": 10,
+      "y": 235,
+      "width": 60,
+      "height": 45,
+      "style": "control"
+    },
+    {
+      "id": 159,
+      "label": "C",
+      "x": 90,
+      "y": 10,
+      "width": 60,
+      "height": 50,
+      "style": "control"
+    },
+    {
+      "id": 160,
+      "label": "◀",
+      "x": 10,
+      "y": 290,
+      "width": 60,
+      "height": 60,
+      "style": "control"
+    },
+    {
+      "id": 161,
+      "label": "▶",
+      "x": 90,
+      "y": 290,
+      "width": 60,
+      "height": 60,
+      "style": "control"
+    },
+    {
+      "id": 163,
+      "label": "-",
+      "x": 90,
+      "y": 235,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 164,
+      "label": "+",
+      "x": 90,
+      "y": 180,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 165,
+      "label": "N",
+      "x": 90,
+      "y": 70,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 166,
+      "label": "S",
+      "x": 10,
+      "y": 10,
+      "width": 60,
+      "height": 22,
+      "style": "key"
+    },
+    {
+      "id": 167,
+      "label": "W",
+      "x": 10,
+      "y": 40,
+      "width": 60,
+      "height": 22,
+      "style": "key"
+    },
+    {
+      "id": 168,
+      "label": "E",
+      "x": 90,
+      "y": 125,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 169,
+      "label": "°",
+      "x": 10,
+      "y": 70,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 170,
+      "label": "1",
+      "x": 180,
+      "y": 80,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 171,
+      "label": "2",
+      "x": 250,
+      "y": 80,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 172,
+      "label": "3",
+      "x": 320,
+      "y": 80,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 173,
+      "label": "'",
+      "x": 10,
+      "y": 125,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 174,
+      "label": "4",
+      "x": 180,
+      "y": 150,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 175,
+      "label": "5",
+      "x": 250,
+      "y": 150,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 176,
+      "label": "6",
+      "x": 320,
+      "y": 150,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 177,
+      "label": "\"",
+      "x": 10,
+      "y": 180,
+      "width": 60,
+      "height": 45,
+      "style": "key"
+    },
+    {
+      "id": 178,
+      "label": "7",
+      "x": 180,
+      "y": 220,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 179,
+      "label": "8",
+      "x": 250,
+      "y": 220,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 180,
+      "label": "9",
+      "x": 320,
+      "y": 220,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 181,
+      "label": "space",
+      "x": 180,
+      "y": 10,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 182,
+      "label": "0",
+      "x": 180,
+      "y": 290,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 183,
+      "label": ".",
+      "x": 250,
+      "y": 290,
+      "width": 130,
+      "height": 60,
+      "style": "key"
+    },
+    {
+      "id": 187,
+      "label": "⌫",
+      "x": 320,
+      "y": 10,
+      "width": 60,
+      "height": 60,
+      "style": "control"
+    },
+    {
+      "id": 189,
+      "label": "/",
+      "x": 250,
+      "y": 10,
+      "width": 60,
+      "height": 60,
+      "style": "key"
+    }
+  ]
+}

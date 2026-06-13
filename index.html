@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#152536">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>MSN Line Tool</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, sans-serif; --aviation-keyboard-height: 0px; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: #eef1f4; color: #17202a; }
+    header { background: #152536; color: white; padding: 16px max(16px, env(safe-area-inset-left)); }
+    header h1 { font-size: 1.25rem; margin: 0; }
+    header p { margin: 5px 0 0; color: #cbd5df; font-size: .85rem; }
+    main { max-width: 980px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
+    section { background: white; border: 1px solid #d7dde3; border-radius: 9px; padding: 14px; }
+    h2 { margin: 0 0 12px; font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .ddm { display: grid; grid-template-columns: 1fr 1fr 70px; gap: 7px; }
+    label { display: grid; gap: 4px; font-size: .78rem; font-weight: 650; color: #3d4b59; }
+    input, select, textarea, button { font: inherit; min-height: 42px; border-radius: 6px; border: 1px solid #aeb9c4; }
+    input, select, textarea { padding: 8px; width: 100%; background: white; font-size: 16px; }
+    .name-field { height: 42px; resize: none; overflow: hidden; white-space: nowrap; }
+    input[type="color"] { padding: 3px; }
+    input[type="checkbox"] { width: 22px; min-height: 22px; }
+    .check { display: flex; align-items: center; gap: 7px; align-self: end; min-height: 42px; }
+    button { border: 0; padding: 9px 14px; background: #1769aa; color: white; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #52616f; }
+    button.danger { background: #a63232; }
+    button.small { min-height: 34px; padding: 5px 10px; }
+    .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .message { min-height: 1.3em; margin: 9px 0 0; font-size: .85rem; color: #a12828; }
+    .summary { margin: 10px 0 0; font-size: .86rem; color: #425466; }
+    #object-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    #object-list li { display: flex; align-items: center; gap: 9px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; }
+    .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #888; flex: 0 0 auto; }
+    .object-text { flex: 1; min-width: 0; }
+    .object-text strong, .object-text span { display: block; overflow-wrap: anywhere; }
+    .object-text span { font-size: .78rem; color: #65727e; margin-top: 2px; }
+    .empty { color: #6a7680; font-size: .88rem; }
+    .preview { width: 100%; height: auto; margin-top: 12px; background: #f7f9fb; border: 1px solid #d7dde3; border-radius: 6px; }
+    .section-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .section-toolbar h2 { margin: 0; }
+    .format-toggle { display: flex; border: 1px solid #aeb9c4; border-radius: 7px; overflow: hidden; }
+    .format-toggle button { min-height: 42px; border-radius: 0; background: white; color: #364553; padding: 8px 14px; }
+    .format-toggle button.active { background: #1769aa; color: white; }
+    .object-row { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
+    .coordinate-list { margin: 8px 0 0 27px; padding: 8px; background: #f7f9fb; border-radius: 5px; font: .75rem ui-monospace, SFMono-Regular, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+    body.aviation-open { padding-bottom: calc(var(--aviation-keyboard-height) + env(safe-area-inset-bottom)); }
+    [data-aviation] { display: flex; align-items: center; min-height: 42px; padding: 8px; width: 100%; border-radius: 6px; border: 1px solid #aeb9c4; background: white; color: #17202a; font-size: 16px; font-weight: 400; cursor: text; overflow-wrap: anywhere; }
+    [data-aviation]:empty::before { content: attr(data-placeholder); color: #8b949e; }
+    [data-aviation].aviation-active { border-color: #56b5e7; box-shadow: 0 0 0 3px #56b5e733; }
+    #aviation-keyboard { position: fixed; z-index: 20; inset: auto 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(#142431,#101d27); box-shadow: 0 -2px 12px #0005; transform: translateY(110%); transition: transform .16s ease-out; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+    #aviation-keyboard.aviation-no-transition { transition: none; }
+    body.aviation-open #aviation-keyboard { transform: translateY(0); }
+    #aviation-toolbar { display: none; height: 44px; margin: -6px -6px 6px; padding: 0 12px; align-items: center; justify-content: space-between; background: #464646; }
+    #aviation-toolbar-left { display: flex; gap: 24px; }
+    .aviation-toolbar-button { color: #35a8ff; font-size: 1.1rem; font-weight: 700; }
+    .aviation-toolbar-button.disabled { opacity: .35; }
+    #aviation-keys { position: relative; width: min(100%,1024px); margin: auto; }
+    .aviation-key { position: absolute; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: #626973; box-shadow: 0 2px 0 #080d11; color: white; font-size: 1.25rem; touch-action: manipulation; }
+    .aviation-key.control { background: #35404a; font-size: .82rem; font-weight: 700; }
+    .aviation-key.disabled { background: #29343e; color: #ffffff45; }
+    .aviation-key.paste-success { background: #168c7a; }
+    .aviation-key.paste-failure { background: #b83b3b; }
+    @media (max-width: 680px) {
+      .grid { grid-template-columns: 1fr; }
+      .ddm { grid-template-columns: 1fr 1fr 64px; }
+      #aviation-toolbar { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MSN Line Tool <span id="app-version"></span></h1>
+    <p>Offline Bullseye geometry and KML export</p>
+  </header>
+  <main>
+    <section>
+      <h2>Bullseye</h2>
+      <div class="grid">
+        <label>Name<textarea id="bull-name" class="name-field" rows="1" placeholder="B/E" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
+        <label>Magnetic variation mode<select id="bull-magvar-mode"><option value="auto">Auto (WMM2025)</option><option value="manual">Manual</option></select></label>
+        <label id="bull-magvar-manual" hidden>Manual magnetic variation (E + / W -)<div id="bull-magvar" data-value="0" data-aviation="signed" role="textbox"></div></label>
+        <label>Coordinates (Lat / Lon)<div id="bull-coordinates" data-placeholder="Separate latitude and longitude with / or ," data-aviation="coordinate" role="textbox"></div></label>
+      </div>
+      <p id="bull-summary" class="summary"></p>
+      <p id="bull-message" class="message"></p>
+    </section>
+
+    <section>
+      <h2>Add SAM Ring</h2>
+      <form id="sam-form">
+        <div class="grid">
+          <label>Name<textarea id="sam-name" class="name-field" rows="1" placeholder="SAM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
+          <label>Center method<select id="sam-center-mode"><option value="direct">Direct coordinates</option><option value="bullseye">Bearing / Range from B/E</option></select></label>
+        </div>
+        <div id="sam-bullseye-center" class="grid" hidden>
+          <label>Bearing from Bullseye (magnetic °)<div id="sam-bearing" data-aviation="numeric" role="textbox"></div></label>
+          <label>Range from Bullseye (NM)<div id="sam-range" data-aviation="numeric" role="textbox"></div></label>
+        </div>
+        <div id="sam-direct-center" class="grid">
+          <label>Center coordinates (Lat / Lon)<div id="sam-coordinates" data-placeholder="Separate latitude and longitude with / or ," data-aviation="coordinate" role="textbox"></div></label>
+        </div>
+        <div class="grid">
+          <label>Ring radius (NM)<div id="sam-radius" data-aviation="numeric" role="textbox"></div></label>
+          <label>Line color<input id="sam-color" type="color" value="#d32f2f"></label>
+          <label class="check"><input id="sam-fill-enabled" type="checkbox"> Enable polygon fill</label>
+          <label>Fill color<input id="sam-fill-color" type="color" value="#d32f2f"></label>
+        </div>
+        <div class="actions"><button type="submit">Add SAM Ring</button></div>
+        <p class="message"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Add Axis</h2>
+      <form id="axis-form">
+        <div class="grid">
+          <label>Heading (magnetic °)<div id="axis-heading" data-aviation="numeric" role="textbox"></div></label>
+          <label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
+          <label>Length (NM)<div id="axis-length" data-aviation="numeric" role="textbox"></div></label>
+          <label>Color<input id="axis-color" type="color" value="#1565c0"></label>
+          <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
+        </div>
+        <div id="axis-tick-settings" class="grid" hidden>
+          <label>Tickmark start distance (NM)<div id="tick-start" data-placeholder="0" data-aviation="numeric" role="textbox"></div></label>
+          <label>Tickmark end distance (NM)<div id="tick-end" data-placeholder="Axis length" data-aviation="numeric" role="textbox"></div></label>
+          <label>Tickmark interval (NM)<div id="tick-interval" data-placeholder="10" data-aviation="numeric" role="textbox"></div></label>
+          <label>Tickmark width (NM)<div id="tick-width" data-placeholder="10" data-aviation="numeric" role="textbox"></div></label>
+          <label>Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
+        </div>
+        <div class="actions"><button type="submit">Add Axis</button></div>
+        <p class="message"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Add Mission Line</h2>
+      <form id="mission-form">
+        <div class="grid">
+          <label>Axis<select id="mission-axis" required></select></label>
+          <label>Name<textarea id="mission-name" class="name-field" rows="1" placeholder="Distance NM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
+          <label>Distance from B/E (NM)<div id="mission-distance" data-aviation="numeric" role="textbox"></div></label>
+          <label>Width (NM)<div id="mission-width" data-placeholder="40" data-aviation="numeric" role="textbox"></div></label>
+          <label>Line color<input id="mission-color" type="color" value="#455a64"></label>
+        </div>
+        <div class="actions"><button type="submit">Add Mission Line</button></div>
+        <p class="message"></p>
+      </form>
+    </section>
+
+    <section>
+      <div class="section-toolbar">
+        <div class="actions" style="margin-top:0"><button id="import-kml" class="secondary" type="button">Import KML</button><input id="import-kml-file" type="file" accept=".kml,.xml,application/vnd.google-earth.kml+xml,application/xml,text/xml" hidden></div>
+        <h2>Object List</h2>
+        <div id="coordinate-format" class="format-toggle" aria-label="Coordinate display format">
+          <button type="button" data-format="dd">DD</button>
+          <button type="button" data-format="ddm" class="active">DDM</button>
+          <button type="button" data-format="dms">DMS</button>
+        </div>
+      </div>
+      <ul id="object-list"></ul>
+      <div class="actions"><button id="clear-all" class="danger" type="button">Clear All</button></div>
+    </section>
+
+    <section>
+      <h2>Export KML</h2>
+      <div class="grid">
+        <label>Document name<textarea id="document-name" class="name-field" rows="1" placeholder="YYYY-MM-DD-HHMM (download time)" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
+        <label>KML line width<div id="kml-line-width" data-placeholder="4" data-aviation="numeric" role="textbox"></div></label>
+      </div>
+      <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
+      <div class="actions"><button id="export-kml" type="button">Download KML</button></div>
+      <p id="export-message" class="message"></p>
+    </section>
+  </main>
+  <aside id="aviation-keyboard" aria-label="Aviation keyboard"><div id="aviation-toolbar"><div id="aviation-toolbar-left"><span class="aviation-toolbar-button" data-action="previous">▲</span><span class="aviation-toolbar-button" data-action="next">▼</span></div><span class="aviation-toolbar-button" data-action="done">Done</span></div><div id="aviation-keys"></div></aside>
+
+  <script id="core-logic">
+    var APP_VERSION = "0.10.0";
+    var EARTH_RADIUS_NM = 3440.065;
+    var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
+    var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
+    var WMM2025_DG = [0,12,9.7,-11.6,-5.2,-8,-1.3,-4.2,0.4,-15.6,-1.6,-2.4,-6,5.6,-7,0.6,1.4,0,0.6,2.2,0.9,-0.2,-0.4,0.9,1.2,-0.9,0.3,0.9,0,-0.1,-0.1,0.5,-0.1,-0.8,-0.8,0.8,-0.1,0.2,0,0.5,-0.1,0.3,0.2,0,0.2,0,-0.1,0.1,0.3,-0.3,0,0.3,-0.1,0.1,-0.1,0.1,0,0.1,0.1,0,-0.3,0,-0.1,-0.1,0,0,0,0,0,0,0,-0.1,0,0,-0.1,-0.1,-0.1,-0.1,0,0,0,0,0,0,0.1,0,0,0,-0.1,0,-0.1];
+    var WMM2025_DH = [0,0,-21.5,0,-27.7,-12.1,0,4,-0.3,-4.1,0,-1.1,4.1,1.6,-4.4,0,-0.5,2.2,0.4,1.7,1.9,0,0.3,-1.6,-0.4,0.9,0.7,0.9,0,0.6,0.5,-0.8,0,-1,0.6,-0.2,0,-0.2,0.5,-0.4,0.4,-0.5,-0.6,0.3,0.2,0,-0.3,0.3,-0.3,0.3,0.2,-0.1,-0.2,0.4,0.1,0,0,0,-0.2,0.1,-0.1,0.1,0,-0.1,0.2,0,0,0,0.1,0,0.1,0,0,0.1,0,0,0,0,0,0,0,-0.1,0.1,0,0,0,0,0,0,0,0,-0.1];
+
+    function toRadians(degrees) { return degrees * Math.PI / 180; }
+    function toDegrees(radians) { return radians * 180 / Math.PI; }
+
+    function ddmToDecimal(degrees, minutes, hemisphere) {
+      const deg = Number(degrees);
+      const min = Number(minutes);
+      const hemi = String(hemisphere).toUpperCase();
+      if (!Number.isFinite(deg) || deg < 0 || !Number.isFinite(min) || min < 0 || min >= 60 ||
+          !["N", "S", "E", "W"].includes(hemi)) {
+        throw new Error("Invalid DDM coordinate.");
+      }
+      const sign = hemi === "S" || hemi === "W" ? -1 : 1;
+      return sign * (deg + min / 60);
+    }
+
+    function parseCoordinateInput(value, isLat) {
+      const raw = String(value ?? "").trim().toUpperCase();
+      if (!raw) throw new Error("Coordinate is required.");
+      const hemi = raw.match(/[NSEW]/)?.[0] || "";
+      const sign = raw.startsWith("-") || hemi === "S" || hemi === "W" ? -1 : 1;
+      const text = raw.replace(/[NSEW+\-\s,°'"]/g, "");
+      const degDigits = isLat ? 2 : 3;
+      const maxAbs = isLat ? 90 : 180;
+      if (!/^\d+(\.\d+)?$/.test(text)) throw new Error("Invalid coordinate format.");
+      const decimalIndex = text.indexOf(".");
+      const intPart = decimalIndex >= 0 ? text.slice(0, decimalIndex) : text;
+      let deg, min = 0, sec = 0;
+      if (intPart.length <= degDigits) {
+        deg = Number(text);
+      } else {
+        const padded = intPart.padStart(degDigits + 2, "0");
+        deg = Number(padded.slice(0, degDigits));
+        min = Number(padded.slice(degDigits, degDigits + 2) || "0");
+        if (decimalIndex >= 0 && intPart.length <= degDigits + 2) {
+          min = Number(`${padded.slice(degDigits, degDigits + 2)}${text.slice(decimalIndex)}`);
+        } else if (intPart.length > degDigits + 2) {
+          const secInt = padded.slice(degDigits + 2) || "0";
+          sec = Number(decimalIndex >= 0 ? `${secInt}${text.slice(decimalIndex)}` : secInt);
+        }
+        if (min >= 60 || sec >= 60) throw new Error("Invalid coordinate minutes or seconds.");
+        deg += min / 60 + sec / 3600;
+      }
+      const result = sign * deg;
+      if (Math.abs(result) > maxAbs) throw new Error("Invalid coordinate range.");
+      return result;
+    }
+
+    function parseCoordinatePair(value) {
+      const raw = String(value ?? "").trim();
+      const separator = raw.includes("/") ? "/" : raw.includes(",") ? "," : "";
+      if (!separator) throw new Error("Coordinate separator must be / or ,.");
+      const parts = raw.split(separator).map(part => part.trim());
+      if (parts.length !== 2 || parts.some(part => !part)) throw new Error("Coordinate pair must contain latitude and longitude.");
+      return validateLatLon(parseCoordinateInput(parts[0], true), parseCoordinateInput(parts[1], false));
+    }
+
+    function formatMissionLineName(distanceNm) {
+      return `${Number(Number(distanceNm).toFixed(6))}NM`;
+    }
+
+    function formatCoordinate(value, isLat, format) {
+      const hemisphere = value < 0 ? (isLat ? "S" : "W") : (isLat ? "N" : "E");
+      const absolute = Math.abs(value);
+      if (format === "dd") return `${absolute.toFixed(6)}${hemisphere}`;
+      const degrees = Math.floor(absolute);
+      const minutesFull = (absolute - degrees) * 60;
+      if (format === "ddm") return `${degrees}° ${minutesFull.toFixed(4)}' ${hemisphere}`;
+      let minutes = Math.floor(minutesFull);
+      let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
+      if (seconds >= 60) {
+        minutes += 1;
+        seconds = 0;
+      }
+      return `${degrees}° ${String(minutes).padStart(2, "0")}' ${seconds.toFixed(2).padStart(5, "0")}" ${hemisphere}`;
+    }
+
+    function parseKmlCoordinateText(text) {
+      return String(text).trim().split(/\s+/).filter(Boolean).map(tuple => {
+        const [lon, lat] = tuple.split(",").map(Number);
+        return validateLatLon(lat, lon);
+      });
+    }
+
+    function validateLatLon(lat, lon) {
+      if (!Number.isFinite(lat) || Math.abs(lat) > 90) throw new Error("Latitude must be between -90 and 90 degrees.");
+      if (!Number.isFinite(lon) || Math.abs(lon) > 180) throw new Error("Longitude must be between -180 and 180 degrees.");
+      return { lat, lon };
+    }
+
+    function normalizeBearing(degrees) {
+      return ((Number(degrees) % 360) + 360) % 360;
+    }
+
+    function formatAxisName(magneticHeading) {
+      const format = value => String(Math.round(normalizeBearing(value))).padStart(3, "0");
+      return `${format(magneticHeading)}/${format(Number(magneticHeading) + 180)}`;
+    }
+
+    function formatLocalDateTime(date) {
+      const pad = value => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}`;
+    }
+
+    function resolveDocumentName(inputName, downloadTime) {
+      return String(inputName).trim() || formatLocalDateTime(downloadTime);
+    }
+
+    function parseRequiredNumber(value, label) {
+      if (String(value).trim() === "") throw new Error(`${label} is required.`);
+      const number = Number(value);
+      if (!Number.isFinite(number)) throw new Error(`${label} is invalid.`);
+      return number;
+    }
+
+    function parseOptionalNumber(value, fallback, label) {
+      return String(value).trim() === "" ? fallback : parseRequiredNumber(value, label);
+    }
+
+    function magToTrue(magneticDegrees, magVarEastPositive) {
+      return normalizeBearing(Number(magneticDegrees) + Number(magVarEastPositive));
+    }
+
+    function calculateWmmDeclination(lat, lon, date) {
+      const modelDate = date instanceof Date ? date : new Date(date);
+      const year = modelDate.getUTCFullYear();
+      const decimalYear = year + (modelDate.valueOf() - Date.UTC(year, 0, 1)) / (1000 * 3600 * 24 * 365);
+      const dyear = decimalYear - 2025;
+      const a = 6378.137, b = 6356.7523142, re = 6371.2;
+      const phi = toRadians(lat), lambda = toRadians(lon);
+      const epssq = 1 - (b * b) / (a * a);
+      const rc = a / Math.sqrt(1 - epssq * Math.sin(phi) ** 2);
+      const xp = rc * Math.cos(phi);
+      const zp = rc * (1 - epssq) * Math.sin(phi);
+      const r = Math.sqrt(xp * xp + zp * zp);
+      const phig = Math.asin(zp / r);
+      const x = Math.sin(phig), z = Math.sqrt((1 - x) * (1 + x));
+      const pcup = [1], dpcup = [0], norm = [1];
+      for (let n = 1; n <= 12; n++) {
+        for (let m = 0; m <= n; m++) {
+          const i = n * (n + 1) / 2 + m;
+          if (n === m) {
+            const i1 = (n - 1) * n / 2 + m - 1;
+            pcup[i] = z * pcup[i1];
+            dpcup[i] = z * dpcup[i1] + x * pcup[i1];
+          } else if (n === 1) {
+            pcup[i] = x * pcup[0];
+            dpcup[i] = x * dpcup[0] - z * pcup[0];
+          } else {
+            const i1 = (n - 2) * (n - 1) / 2 + m;
+            const i2 = (n - 1) * n / 2 + m;
+            if (m > n - 2) {
+              pcup[i] = x * pcup[i2];
+              dpcup[i] = x * dpcup[i2] - z * pcup[i2];
+            } else {
+              const k = ((n - 1) ** 2 - m ** 2) / ((2 * n - 1) * (2 * n - 3));
+              pcup[i] = x * pcup[i2] - k * pcup[i1];
+              dpcup[i] = x * dpcup[i2] - z * pcup[i2] - k * dpcup[i1];
+            }
+          }
+        }
+      }
+      for (let n = 1; n <= 12; n++) {
+        let i = n * (n + 1) / 2;
+        norm[i] = norm[(n - 1) * n / 2] * (2 * n - 1) / n;
+        for (let m = 1; m <= n; m++) {
+          i = n * (n + 1) / 2 + m;
+          norm[i] = norm[i - 1] * Math.sqrt(((n - m + 1) * (m === 1 ? 2 : 1)) / (n + m));
+        }
+      }
+      for (let i = 1; i < pcup.length; i++) {
+        pcup[i] *= norm[i];
+        dpcup[i] *= -norm[i];
+      }
+      const cosM = [1, Math.cos(lambda)], sinM = [0, Math.sin(lambda)];
+      for (let m = 2; m <= 12; m++) {
+        cosM[m] = cosM[m - 1] * cosM[1] - sinM[m - 1] * sinM[1];
+        sinM[m] = cosM[m - 1] * sinM[1] + sinM[m - 1] * cosM[1];
+      }
+      const rr = [(re / r) ** 2];
+      for (let n = 1; n <= 12; n++) rr[n] = rr[n - 1] * re / r;
+      let bx = 0, by = 0, bz = 0;
+      for (let n = 1; n <= 12; n++) {
+        for (let m = 0; m <= n; m++) {
+          const i = n * (n + 1) / 2 + m;
+          const g = WMM2025_G[i] + dyear * WMM2025_DG[i];
+          const h = WMM2025_H[i] + dyear * WMM2025_DH[i];
+          bz -= rr[n] * (g * cosM[m] + h * sinM[m]) * (n + 1) * pcup[i];
+          by += rr[n] * (g * sinM[m] - h * cosM[m]) * m * pcup[i];
+          bx -= rr[n] * (g * cosM[m] + h * sinM[m]) * dpcup[i];
+        }
+      }
+      by /= Math.cos(phig);
+      const psi = phig - phi;
+      const bxGeo = bx * Math.cos(psi) - bz * Math.sin(psi);
+      return toDegrees(Math.atan2(by, bxGeo));
+    }
+
+    function destinationPoint(lat, lon, bearingDegTrue, distanceNm) {
+      const lat1 = toRadians(Number(lat));
+      const lon1 = toRadians(Number(lon));
+      const bearing = toRadians(normalizeBearing(bearingDegTrue));
+      const angularDistance = Number(distanceNm) / EARTH_RADIUS_NM;
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(angularDistance) +
+        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing)
+      );
+      const lon2 = lon1 + Math.atan2(
+        Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(lat1),
+        Math.cos(angularDistance) - Math.sin(lat1) * Math.sin(lat2)
+      );
+      return { lat: toDegrees(lat2), lon: ((toDegrees(lon2) + 540) % 360) - 180 };
+    }
+
+    function generateCircle(centerLat, centerLon, radiusNm, numPoints) {
+      const points = [];
+      for (let index = 0; index <= numPoints; index += 1) {
+        points.push(destinationPoint(centerLat, centerLon, index * 360 / numPoints, radiusNm));
+      }
+      return points;
+    }
+
+    function generatePerpendicularLine(origin, axisBearingTrue, distanceFromOriginNm, widthNm) {
+      const center = destinationPoint(origin.lat, origin.lon, axisBearingTrue, distanceFromOriginNm);
+      return [
+        destinationPoint(center.lat, center.lon, axisBearingTrue - 90, widthNm / 2),
+        destinationPoint(center.lat, center.lon, axisBearingTrue + 90, widthNm / 2)
+      ];
+    }
+
+    function generateTickmarks(origin, axisBearingTrue, startNm, endNm, intervalNm, widthNm) {
+      const count = Math.floor((endNm - startNm) / intervalNm + 1e-9) + 1;
+      return Array.from({ length: count }, (_, index) => {
+        const distanceNm = startNm + index * intervalNm;
+        return {
+          distanceNm,
+          coordinates: generatePerpendicularLine(origin, axisBearingTrue, distanceNm, widthNm)
+        };
+      });
+    }
+
+    function escapeXml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"
+      })[character]);
+    }
+
+    function toKmlColor(htmlColor, alpha) {
+      const hex = String(htmlColor).replace("#", "");
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) throw new Error("Invalid color.");
+      return `${alpha || "ff"}${hex.slice(4, 6)}${hex.slice(2, 4)}${hex.slice(0, 2)}`.toLowerCase();
+    }
+
+    function coordinatesToKml(coordinates) {
+      return coordinates.map(point => `${point.lon.toFixed(6)},${point.lat.toFixed(6)},0`).join("\n");
+    }
+
+    function projectPreviewCoordinates(coordinates, width, height, padding) {
+      if (!coordinates.length) return [];
+      const minLon = Math.min(...coordinates.map(point => point.lon));
+      const maxLon = Math.max(...coordinates.map(point => point.lon));
+      const minLat = Math.min(...coordinates.map(point => point.lat));
+      const maxLat = Math.max(...coordinates.map(point => point.lat));
+      const lonSpan = Math.max(maxLon - minLon, 1e-9);
+      const latSpan = Math.max(maxLat - minLat, 1e-9);
+      const scale = Math.min((width - padding * 2) / lonSpan, (height - padding * 2) / latSpan);
+      const drawnWidth = lonSpan * scale;
+      const drawnHeight = latSpan * scale;
+      const offsetX = (width - drawnWidth) / 2;
+      const offsetY = (height - drawnHeight) / 2;
+      return coordinates.map(point => ({
+        x: offsetX + (point.lon - minLon) * scale,
+        y: height - (offsetY + (point.lat - minLat) * scale)
+      }));
+    }
+
+    function buildKml(documentName, objects, lineWidth) {
+      const width = Number.isFinite(Number(lineWidth)) ? Number(lineWidth) : 2;
+      const placemarks = objects.map((object, index) => {
+        const id = `style-${index}`;
+        const style = object.fillColor
+          ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle><PolyStyle><color>${toKmlColor(object.fillColor, "55")}</color></PolyStyle></Style>`
+          : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle></Style>`;
+        const geometry = object.fillColor
+          ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
+          : `<LineString><tessellate>1</tessellate><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LineString>`;
+        return `${style}<Placemark><name>${escapeXml(object.name)}</name><styleUrl>#${id}</styleUrl>${geometry}</Placemark>`;
+      }).join("");
+      return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${escapeXml(documentName)}</name>${placemarks}</Document></kml>`;
+    }
+  </script>
+
+  <script>
+    (() => {
+      const objects = [];
+      let nextId = 1;
+      let coordinateFormat = "ddm";
+      const expandedObjectIds = new Set();
+      const $ = id => document.getElementById(id);
+      const numberValue = id => Number($(id).value);
+      const requiredNumber = (id, label) => parseRequiredNumber($(id).value, label);
+      $("app-version").textContent = `v${APP_VERSION}`;
+      document.title = `MSN Line Tool v${APP_VERSION}`;
+      function initializeAviationFields() {
+        document.querySelectorAll("[data-aviation]").forEach(field => {
+          let value=field.dataset.value||"";
+          Object.defineProperty(field,"value",{get:()=>value,set:next=>{value=String(next??"");field.textContent=value;}});
+          Object.defineProperty(field,"placeholder",{get:()=>field.dataset.placeholder||"",set:next=>{field.dataset.placeholder=String(next??"");}});
+          field.value=value;
+        });
+      }
+      initializeAviationFields();
+      let aviationInput = null;
+      let aviationCaret = 0;
+      let aviationRepeat = null;
+      let pasteTimer = null;
+      let aviationTransitionId = 0;
+      const aviationDefinitions = [
+        ["up","▲","previous","",1],["paste","Paste","paste","",1],["clear","Clear","clear","",1],["left","◀","left","",1],["right","▶","right","",1],["done","Done","done","",1],
+        ["minus","−","","-",0,"signed"],["plus","+","","+ ",0,"signed"],["n","N","","N",0,"coordinate"],["s","S","","S",0,"coordinate"],["w","W","","W",0,"coordinate"],["e","E","","E",0,"coordinate"],
+        ["degree","°","","°",0,"coordinate"],["one","1","","1"],["two","2","","2"],["three","3","","3"],["minute","'","", "'",0,"coordinate"],
+        ["four","4","","4"],["five","5","","5"],["six","6","","6"],["second",'"',"",'"',0,"coordinate"],["seven","7","","7"],["eight","8","","8"],["nine","9","","9"],
+        ["space","space",""," ",0,"coordinate"],["zero","0","","0"],["dot",".","","."],["back","⌫","back","",1],["slash","/","","/",0,"coordinate"],["down","▼","next","",1]
+      ];
+      const aviationLayouts = {
+        ipad: { width:1024,height:420, keys:[["up",10,10,150,65],["paste",10,210,150,65],["clear",10,110,150,65],["left",440,210,72,90],["right",520,210,72,90],["done",10,310,250,90],["minus",280,235,65,66],["plus",355,235,65,66],["n",520,10,70,90],["s",440,10,72,90],["w",440,110,72,90],["e",520,110,72,90],["degree",280,10,140,65],["one",610,10,90,90],["two",710,10,90,90],["three",810,10,90,90],["minute",280,85,140,65],["four",610,110,90,90],["five",710,110,90,90],["six",810,110,90,90],["second",280,160,140,65],["seven",610,210,90,90],["eight",710,210,90,90],["nine",810,210,90,90],["space",280,310,420,90],["zero",710,310,90,90],["dot",810,310,90,90],["back",920,10,90,90],["slash",920,110,90,190],["down",920,310,90,90]] },
+        iphone: { width:390,height:360, keys:[["paste",10,235,60,45],["clear",90,10,60,50],["left",10,290,60,60],["right",90,290,60,60],["minus",90,235,60,45],["plus",90,180,60,45],["n",90,70,60,45],["s",10,10,60,22],["w",10,40,60,22],["e",90,125,60,45],["degree",10,70,60,45],["one",180,80,60,60],["two",250,80,60,60],["three",320,80,60,60],["minute",10,125,60,45],["four",180,150,60,60],["five",250,150,60,60],["six",320,150,60,60],["second",10,180,60,45],["seven",180,220,60,60],["eight",250,220,60,60],["nine",320,220,60,60],["space",180,10,60,60],["zero",180,290,60,60],["dot",250,290,130,60],["back",320,10,60,60],["slash",250,10,60,60]] }
+      };
+
+      function buildAviationKeyboard() {
+        const container = $("aviation-keys");
+        aviationDefinitions.forEach(([area,label,action,key,control,mode]) => {
+          const node = document.createElement("div");
+          node.className = `aviation-key${control ? " control" : ""}`;
+          node.dataset.area = area;
+          if (action) node.dataset.action = action;
+          if (key) node.dataset.key = key;
+          if (mode) node.dataset.mode = mode;
+          node.setAttribute("role","button");
+          node.textContent = label;
+          container.append(node);
+        });
+      }
+
+      function layoutAviationKeyboard() {
+        const layout = aviationLayouts[window.innerWidth < 600 ? "iphone" : "ipad"];
+        const container = $("aviation-keys");
+        const scale = Math.min(1, (window.innerWidth - 12) / layout.width);
+        container.style.width = `${layout.width * scale}px`;
+        container.style.height = `${layout.height * scale}px`;
+        container.querySelectorAll(".aviation-key").forEach(key=>key.hidden=true);
+        layout.keys.forEach(([area,x,y,w,h]) => { const key=container.querySelector(`[data-area="${area}"]`); key.hidden=false; Object.assign(key.style,{left:`${x*scale}px`,top:`${y*scale}px`,width:`${w*scale}px`,height:`${h*scale}px`}); });
+        container.querySelector('[data-area="clear"]').textContent = layout === aviationLayouts.iphone ? "C" : "Clear";
+        document.documentElement.style.setProperty("--aviation-keyboard-height", `${$("aviation-keyboard").offsetHeight}px`);
+        positionAviationKeyboard();
+      }
+
+      function positionAviationKeyboard() {
+        const viewport=window.visualViewport, keyboard=$("aviation-keyboard");
+        keyboard.style.bottom=viewport?`${Math.max(0,window.innerHeight-(viewport.offsetTop+viewport.height))}px`:"0px";
+      }
+
+      function aviationInputs() { return [...document.querySelectorAll("[data-aviation]")].filter(input => !input.closest("[hidden]")); }
+      function dispatchAviationInput() { aviationInput.dispatchEvent(new Event("input",{bubbles:true})); }
+      function setAviationValue(value,caret) { aviationInput.value=value; aviationCaret=Math.max(0,Math.min(caret,value.length)); dispatchAviationInput(); }
+      function keepAviationInputVisible() {
+        if (!aviationInput) return;
+        requestAnimationFrame(() => {
+          const field=aviationInput.closest("label")||aviationInput, next=field.nextElementSibling;
+          const note=next?.matches(".summary,.message")&&next.textContent.trim()?next:null;
+          const bottom=Math.max(field.getBoundingClientRect().bottom,note?.getBoundingClientRect().bottom||0);
+          const keyboardTop=$("aviation-keyboard").getBoundingClientRect().top;
+          if (bottom>keyboardTop-24) window.scrollBy({top:bottom-(keyboardTop-24),behavior:"smooth"});
+        });
+      }
+      function cancelAviationTransition() { aviationTransitionId += 1; }
+      function scheduleAviationVisibility(transitionId) {
+        setTimeout(()=>{if(transitionId===aviationTransitionId)keepAviationInputVisible();},40);
+      }
+      function aviationKeyAllowed(area,mode) {
+        const commonKeys=new Set(["up","paste","clear","left","right","done","back","down"]);
+        const numericKeys=new Set(["one","two","three","four","five","six","seven","eight","nine","zero","dot"]);
+        const coordinateKeys=new Set([...numericKeys,"n","s","w","e","degree","minute","second","space","slash"]);
+        const signedKeys=new Set([...numericKeys,"minus","plus"]);
+        if(commonKeys.has(area))return true;
+        if(mode==="coordinate")return coordinateKeys.has(area);
+        if(mode==="signed")return signedKeys.has(area);
+        return numericKeys.has(area);
+      }
+      function updateAviationKeys() {
+        $("aviation-keys").querySelectorAll(".aviation-key").forEach(key => {
+          const disabled=!aviationKeyAllowed(key.dataset.area,aviationInput?.dataset.aviation);
+          key.dataset.disabled=disabled?"true":"";
+          key.classList.toggle("disabled",disabled);
+        });
+        const list=aviationInputs(),index=list.indexOf(aviationInput);
+        document.querySelectorAll('[data-action="previous"]').forEach(key=>key.classList.toggle("disabled",index<=0));
+        document.querySelectorAll('[data-action="next"]').forEach(key=>key.classList.toggle("disabled",index<0||index>=list.length-1));
+      }
+      function openAviationKeyboard(input,transitionId=aviationTransitionId) {
+        if(transitionId!==aviationTransitionId)return;
+        if(aviationInput===input&&document.body.classList.contains("aviation-open")){updateAviationKeys();return;}
+        aviationInput?.classList.remove("aviation-active");
+        aviationInput=input; aviationCaret=input.value.length; input.classList.add("aviation-active");
+        document.body.classList.add("aviation-open"); layoutAviationKeyboard(); updateAviationKeys(); scheduleAviationVisibility(transitionId);
+      }
+      function openAviationKeyboardAfterBlur(input) {
+        const transitionId=++aviationTransitionId;
+        if(aviationInput===input&&document.body.classList.contains("aviation-open")){return;}
+        const focused=document.activeElement;
+        const standardFocused=focused?.matches?.('input:not([data-aviation]),textarea');
+        if(!standardFocused){openAviationKeyboard(input,transitionId); return;}
+        focused.blur();
+        const startHeight=window.visualViewport?.height;
+        let attempts=0;
+        const open=()=>{if(transitionId!==aviationTransitionId)return;if(++attempts>8||!startHeight||window.visualViewport.height>=startHeight-2)openAviationKeyboard(input,transitionId);else setTimeout(open,30);};
+        setTimeout(open,30);
+      }
+      function closeAviationKeyboard() { cancelAviationTransition(); aviationInput?.classList.remove("aviation-active"); aviationInput=null; document.body.classList.remove("aviation-open"); }
+      function handoffToStandardInput(input) {
+        if (!aviationInput) return;
+        const keyboard=$("aviation-keyboard");
+        keyboard.classList.add("aviation-no-transition");
+        closeAviationKeyboard();
+        input.focus({preventScroll:true});
+        requestAnimationFrame(()=>keyboard.classList.remove("aviation-no-transition"));
+      }
+      function moveAviationInput(offset) { const list=aviationInputs(), next=list[list.indexOf(aviationInput)+offset]; if(next) openAviationKeyboard(next); }
+      function bindAviationFieldTap(input) {
+        let start=null;
+        input.addEventListener("pointerdown",event=>{start={id:event.pointerId,x:event.clientX,y:event.clientY};});
+        input.addEventListener("pointercancel",()=>{start=null;});
+        input.addEventListener("pointerup",event=>{
+          if(!start||start.id!==event.pointerId)return;
+          const distance=Math.hypot(event.clientX-start.x,event.clientY-start.y);
+          start=null;
+          if(distance>10)return;
+          event.preventDefault();
+          openAviationKeyboardAfterBlur(input);
+        });
+      }
+      function pasteFeedback(success) { const key=$("aviation-keys").querySelector('[data-action="paste"]'); clearTimeout(pasteTimer); key.classList.remove("paste-success","paste-failure"); key.classList.add(success?"paste-success":"paste-failure"); pasteTimer=setTimeout(()=>key.classList.remove("paste-success","paste-failure"),450); }
+      function aviationBackspace() { if(aviationCaret>0) setAviationValue(aviationInput.value.slice(0,aviationCaret-1)+aviationInput.value.slice(aviationCaret),aviationCaret-1); }
+      async function useAviationKey(key) {
+        if(!aviationInput||key.dataset.disabled==="true") return;
+        if(key.dataset.key!==undefined){ const text=key.dataset.key.trim()==="+"?"+":key.dataset.key; setAviationValue(aviationInput.value.slice(0,aviationCaret)+text+aviationInput.value.slice(aviationCaret),aviationCaret+text.length); return; }
+        if(key.classList.contains("disabled"))return;
+        switch(key.dataset.action){
+          case"back":aviationBackspace();break; case"clear":setAviationValue("",0);break; case"left":aviationCaret=Math.max(0,aviationCaret-1);break; case"right":aviationCaret=Math.min(aviationInput.value.length,aviationCaret+1);break;
+          case"previous":moveAviationInput(-1);break; case"next":moveAviationInput(1);break; case"done":closeAviationKeyboard();break;
+          case"paste":try{const text=await navigator.clipboard.readText();if(!text)throw 0;setAviationValue(aviationInput.value.slice(0,aviationCaret)+text+aviationInput.value.slice(aviationCaret),aviationCaret+text.length);pasteFeedback(true);}catch{pasteFeedback(false);}break;
+        }
+      }
+
+      function setMessage(container, message) {
+        container.querySelector(".message").textContent = message || "";
+      }
+
+      function getBullseye() {
+        const { lat, lon } = parseCoordinatePair($("bull-coordinates").value);
+        const autoMagVar = $("bull-magvar-mode").value === "auto";
+        const magVar = autoMagVar ? calculateWmmDeclination(lat, lon, new Date()) : numberValue("bull-magvar");
+        validateLatLon(lat, lon);
+        if (!Number.isFinite(magVar)) {
+          throw new Error("Bullseye coordinates or magnetic variation are invalid.");
+        }
+        return { name: $("bull-name").value.trim() || "B/E", lat, lon, magVar, autoMagVar };
+      }
+
+      function requireFinitePositive(value, label, allowZero) {
+        if (!Number.isFinite(value) || (allowZero ? value < 0 : value <= 0)) {
+          throw new Error(`${label} must be ${allowZero ? "zero or greater" : "greater than zero"}.`);
+        }
+      }
+
+      function addObject(object) {
+        objects.push({ id: nextId++, ...object });
+        renderObjects();
+      }
+
+      function renderPreview() {
+        const svg = $("kml-preview");
+        svg.replaceChildren();
+        const allCoordinates = objects.flatMap(object => object.coordinates);
+        if (!allCoordinates.length) {
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", "300");
+          text.setAttribute("y", "150");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "#65727e");
+          text.textContent = "No geometry to preview";
+          svg.append(text);
+          return;
+        }
+        const projected = projectPreviewCoordinates(allCoordinates, 600, 300, 20);
+        let offset = 0;
+        const previewWidth = Math.max(1, Number($("kml-line-width").value) || 4);
+        for (const object of objects) {
+          const points = projected.slice(offset, offset + object.coordinates.length);
+          offset += object.coordinates.length;
+          const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+          polyline.setAttribute("points", points.map(point => `${point.x},${point.y}`).join(" "));
+          polyline.setAttribute("fill", object.fillColor || "none");
+          polyline.setAttribute("fill-opacity", object.fillColor ? "0.2" : "0");
+          polyline.setAttribute("stroke", object.color);
+          polyline.setAttribute("stroke-width", String(previewWidth));
+          polyline.setAttribute("vector-effect", "non-scaling-stroke");
+          svg.append(polyline);
+        }
+      }
+
+      function renderObjects() {
+        const list = $("object-list");
+        list.replaceChildren();
+        if (!objects.length) {
+          const empty = document.createElement("li");
+          empty.className = "empty";
+          empty.textContent = "No geometry objects.";
+          list.append(empty);
+        }
+        for (const object of objects) {
+          const item = document.createElement("li");
+          item.style.display = "block";
+          const row = document.createElement("div");
+          row.className = "object-row";
+          const swatch = document.createElement("span");
+          swatch.className = "swatch";
+          swatch.style.background = object.color;
+          const text = document.createElement("span");
+          text.className = "object-text";
+          const strong = document.createElement("strong");
+          strong.textContent = object.name;
+          const detail = document.createElement("span");
+          detail.textContent = `${object.type} · ${object.coordinates.length} points`;
+          text.append(strong, detail);
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "danger small";
+          remove.textContent = "Delete";
+          remove.addEventListener("click", event => {
+            event.stopPropagation();
+            objects.splice(objects.findIndex(candidate => candidate.id === object.id), 1);
+            expandedObjectIds.delete(object.id);
+            renderObjects();
+          });
+          row.addEventListener("click", () => {
+            if (expandedObjectIds.has(object.id)) expandedObjectIds.delete(object.id);
+            else expandedObjectIds.add(object.id);
+            renderObjects();
+          });
+          row.append(swatch, text, remove);
+          item.append(row);
+          if (expandedObjectIds.has(object.id)) {
+            const coordinates = document.createElement("div");
+            coordinates.className = "coordinate-list";
+            coordinates.textContent = object.coordinates.map((point, index) =>
+              `${index + 1}: ${formatCoordinate(point.lat, true, coordinateFormat)} / ${formatCoordinate(point.lon, false, coordinateFormat)}`
+            ).join("\n");
+            item.append(coordinates);
+          }
+          list.append(item);
+        }
+        renderAxisOptions();
+        renderPreview();
+      }
+
+      function renderAxisOptions() {
+        const select = $("mission-axis");
+        const prior = select.value;
+        select.replaceChildren();
+        const axes = objects.filter(object => object.type === "Axis");
+        if (!axes.length) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Create an axis first";
+          select.append(option);
+          select.disabled = true;
+          return;
+        }
+        select.disabled = false;
+        for (const axis of axes) {
+          const option = document.createElement("option");
+          option.value = String(axis.id);
+          option.textContent = axis.name;
+          select.append(option);
+        }
+        if (axes.some(axis => String(axis.id) === prior)) select.value = prior;
+      }
+
+      function updateBullSummary() {
+        if ($("bull-coordinates").value.trim() === "") {
+          $("bull-summary").textContent = "";
+          $("bull-message").textContent = "";
+          return;
+        }
+        try {
+          const bull = getBullseye();
+          const source = bull.autoMagVar ? "Auto WMM2025" : "Manual";
+          $("bull-summary").textContent = `${bull.name}: ${bull.lat.toFixed(6)}, ${bull.lon.toFixed(6)} · variation ${bull.magVar >= 0 ? "+" : ""}${bull.magVar.toFixed(2)}° (${source})`;
+          $("bull-message").textContent = "";
+        } catch (error) {
+          $("bull-summary").textContent = "";
+          $("bull-message").textContent = error.message;
+        }
+      }
+
+      $("sam-form").addEventListener("submit", event => {
+        event.preventDefault();
+        try {
+          const radius = requiredNumber("sam-radius", "Radius");
+          requireFinitePositive(radius, "Radius", false);
+          let center;
+          if ($("sam-center-mode").value === "direct") {
+            center = parseCoordinatePair($("sam-coordinates").value);
+          } else {
+            const bull = getBullseye();
+            const bearing = requiredNumber("sam-bearing", "Bearing");
+            const range = requiredNumber("sam-range", "Range");
+            requireFinitePositive(bearing, "Bearing", true);
+            requireFinitePositive(range, "Range", true);
+            center = destinationPoint(bull.lat, bull.lon, magToTrue(bearing, bull.magVar), range);
+          }
+          addObject({
+            name: $("sam-name").value.trim() || "SAM",
+            type: "SAM Ring",
+            color: $("sam-color").value,
+            fillColor: $("sam-fill-enabled").checked ? $("sam-fill-color").value : null,
+            coordinates: generateCircle(center.lat, center.lon, radius, 72)
+          });
+          setMessage(event.currentTarget, "");
+        } catch (error) { setMessage(event.currentTarget, error.message); }
+      });
+
+      $("axis-form").addEventListener("submit", event => {
+        event.preventDefault();
+        try {
+          const bull = getBullseye();
+          const heading = requiredNumber("axis-heading", "Heading");
+          const length = requiredNumber("axis-length", "Length");
+          requireFinitePositive(heading, "Heading", true);
+          requireFinitePositive(length, "Length", false);
+          const trueBearing = magToTrue(heading, bull.magVar);
+          const axisName = $("axis-name").value.trim() || formatAxisName(heading);
+          const axis = {
+            name: axisName,
+            type: "Axis",
+            color: $("axis-color").value,
+            origin: { lat: bull.lat, lon: bull.lon },
+            trueBearing,
+            length,
+            coordinates: [{ lat: bull.lat, lon: bull.lon }, destinationPoint(bull.lat, bull.lon, trueBearing, length)]
+          };
+          let tickmarks = [];
+          if ($("axis-tick-enabled").checked) {
+            const start = parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance");
+            const end = parseOptionalNumber($("tick-end").value, length, "Tickmark end distance");
+            const interval = parseOptionalNumber($("tick-interval").value, 10, "Tickmark interval");
+            const width = parseOptionalNumber($("tick-width").value, 10, "Tickmark width");
+            requireFinitePositive(start, "Tickmark start distance", true);
+            requireFinitePositive(end, "Tickmark end distance", true);
+            requireFinitePositive(interval, "Tickmark interval", false);
+            requireFinitePositive(width, "Tickmark width", false);
+            if (end < start) throw new Error("Tickmark end distance must be greater than or equal to start distance.");
+            if (end > length + 1e-9) throw new Error("Tickmark end distance cannot exceed the axis length.");
+            tickmarks = generateTickmarks(axis.origin, trueBearing, start, end, interval, width);
+            if (tickmarks.length > 500) throw new Error("Tickmark count exceeds the limit of 500.");
+          }
+          addObject(axis);
+          for (const tickmark of tickmarks) {
+            addObject({
+              name: `${axisName} Tick ${Number(tickmark.distanceNm.toFixed(6))}NM`,
+              type: "Tickmark",
+              color: $("tick-color").value,
+              coordinates: tickmark.coordinates
+            });
+          }
+          setMessage(event.currentTarget, "");
+        } catch (error) { setMessage(event.currentTarget, error.message); }
+      });
+
+      $("mission-form").addEventListener("submit", event => {
+        event.preventDefault();
+        try {
+          const axis = objects.find(object => object.id === Number($("mission-axis").value) && object.type === "Axis");
+          if (!axis) throw new Error("Select an axis.");
+          const distance = requiredNumber("mission-distance", "Distance from B/E");
+          const width = parseOptionalNumber($("mission-width").value, 40, "Width");
+          requireFinitePositive(distance, "Distance from B/E", true);
+          requireFinitePositive(width, "Width", false);
+          if (distance > axis.length + 1e-9) throw new Error("Distance from B/E cannot exceed the selected axis length.");
+          addObject({
+            name: $("mission-name").value.trim() || formatMissionLineName(distance),
+            type: "Mission Line",
+            color: $("mission-color").value,
+            coordinates: generatePerpendicularLine(axis.origin, axis.trueBearing, distance, width)
+          });
+          $("mission-name").placeholder = formatMissionLineName(distance);
+          setMessage(event.currentTarget, "");
+        } catch (error) { setMessage(event.currentTarget, error.message); }
+      });
+
+      $("axis-tick-enabled").addEventListener("change", () => {
+        $("axis-tick-settings").hidden = !$("axis-tick-enabled").checked;
+      });
+
+      $("sam-center-mode").addEventListener("change", () => {
+        const direct = $("sam-center-mode").value === "direct";
+        $("sam-bullseye-center").hidden = direct;
+        $("sam-direct-center").hidden = !direct;
+      });
+
+      $("bull-magvar-mode").addEventListener("change", () => {
+        $("bull-magvar-manual").hidden = $("bull-magvar-mode").value !== "manual";
+        updateBullSummary();
+      });
+
+      $("clear-all").addEventListener("click", () => {
+        objects.length = 0;
+        expandedObjectIds.clear();
+        renderObjects();
+      });
+
+      $("coordinate-format").addEventListener("click", event => {
+        const button = event.target.closest("button[data-format]");
+        if (!button) return;
+        coordinateFormat = button.dataset.format;
+        $("coordinate-format").querySelectorAll("button").forEach(candidate => candidate.classList.toggle("active", candidate === button));
+        renderObjects();
+      });
+
+      $("import-kml").addEventListener("click", () => $("import-kml-file").click());
+      $("import-kml-file").addEventListener("change", async event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          const kmlText = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error("Could not read KML file."));
+            reader.readAsText(file);
+          });
+          const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+          if (xml.querySelector("parsererror")) throw new Error("Invalid KML file.");
+          const styles = new Map();
+          xml.querySelectorAll("Style[id]").forEach(style => {
+            const kmlColor = style.querySelector("LineStyle > color")?.textContent.trim();
+            if (kmlColor && /^[0-9a-fA-F]{8}$/.test(kmlColor)) {
+              styles.set(`#${style.id}`, `#${kmlColor.slice(6, 8)}${kmlColor.slice(4, 6)}${kmlColor.slice(2, 4)}`);
+            }
+          });
+          let imported = 0;
+          xml.querySelectorAll("Placemark").forEach((placemark, index) => {
+            const coordinateNode = placemark.querySelector("LineString coordinates, Polygon outerBoundaryIs LinearRing coordinates");
+            if (!coordinateNode) return;
+            const coordinates = parseKmlCoordinateText(coordinateNode.textContent);
+            if (coordinates.length < 2) return;
+            addObject({
+              name: placemark.querySelector(":scope > name")?.textContent.trim() || `Imported ${index + 1}`,
+              type: placemark.querySelector("Polygon") ? "Imported Polygon" : "Imported Line",
+              color: styles.get(placemark.querySelector(":scope > styleUrl")?.textContent.trim()) || "#455a64",
+              coordinates
+            });
+            imported += 1;
+          });
+          if (!imported) throw new Error("No supported LineString or Polygon geometry found.");
+        } catch (error) {
+          alert(`Import failed: ${error.message}`);
+        } finally {
+          event.target.value = "";
+        }
+      });
+
+      function downloadKmlFile(file) {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(file);
+        link.download = file.name;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }
+      async function exportKml() {
+        if (!objects.length) {
+          $("export-message").textContent = "Add at least one geometry object before export.";
+          return;
+        }
+        const documentName = resolveDocumentName($("document-name").value, new Date());
+        const lineWidth = parseOptionalNumber($("kml-line-width").value, 4, "KML line width");
+        const filename = `${documentName.replace(/[\\/:*?"<>|]+/g, "_")}.kml`;
+        const file = new File([buildKml(documentName, objects, lineWidth)], filename, { type: "application/vnd.google-earth.kml+xml;charset=utf-8" });
+        try {
+          if (navigator.canShare?.({files:[file]})) await navigator.share({files:[file],title:documentName});
+          else downloadKmlFile(file);
+          $("export-message").textContent = "";
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            downloadKmlFile(file);
+            $("export-message").textContent = "Share was unavailable. Downloaded KML instead.";
+          }
+        }
+      }
+      $("export-kml").addEventListener("click", exportKml);
+
+      document.querySelectorAll("#bull-name, #bull-magvar, #bull-coordinates")
+        .forEach(element => element.addEventListener("input", updateBullSummary));
+      $("axis-heading").addEventListener("input", () => {
+        $("axis-name").placeholder = $("axis-heading").value.trim() === "" ? "HDG/RECIP" : formatAxisName(numberValue("axis-heading"));
+      });
+      $("axis-length").addEventListener("input", () => {
+        $("tick-end").placeholder = $("axis-length").value.trim() === "" ? "Axis length" : $("axis-length").value;
+      });
+      $("mission-distance").addEventListener("input", () => {
+        $("mission-name").placeholder = $("mission-distance").value.trim() === "" ? "Distance NM" : formatMissionLineName(numberValue("mission-distance"));
+      });
+      $("kml-line-width").addEventListener("input", renderPreview);
+      function preventNameFieldNewline(field) {
+        field.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();field.blur();}});
+        field.addEventListener("input",()=>{if(/[\r\n]/.test(field.value))field.value=field.value.replace(/[\r\n]+/g," ");});
+      }
+      document.querySelectorAll(".name-field").forEach(preventNameFieldNewline);
+
+      buildAviationKeyboard();
+      document.querySelectorAll("[data-aviation]").forEach(input => {
+        bindAviationFieldTap(input);
+      });
+      $("aviation-keyboard").addEventListener("pointerdown", event => {
+        event.preventDefault(); event.stopPropagation();
+        const key=event.target.closest(".aviation-key"); if(!key)return; useAviationKey(key);
+        if(key.dataset.action==="back") aviationRepeat=setTimeout(()=>aviationRepeat=setInterval(aviationBackspace,70),420);
+      });
+      const stopAviationRepeat=()=>{clearTimeout(aviationRepeat);clearInterval(aviationRepeat);aviationRepeat=null;};
+      $("aviation-keyboard").addEventListener("pointerup",stopAviationRepeat);
+      $("aviation-keyboard").addEventListener("pointercancel",stopAviationRepeat);
+      $("aviation-keyboard").addEventListener("touchstart",event=>event.preventDefault(),{passive:false});
+      $("aviation-toolbar").addEventListener("pointerdown",event=>{event.preventDefault();const key=event.target.closest("[data-action]");if(key)useAviationKey(key);});
+      document.addEventListener("pointerdown",event=>{
+        const standardInput=event.target.closest('input:not([data-aviation]):not([type="color"]):not([type="checkbox"]),textarea');
+        if(standardInput){cancelAviationTransition();if(aviationInput){event.preventDefault();handoffToStandardInput(standardInput);}return;}
+        if(!event.target.closest("[data-aviation],#aviation-keyboard,#aviation-toolbar"))cancelAviationTransition();
+        if(aviationInput&&event.target.closest('select,button,input[type="color"],input[type="checkbox"]'))closeAviationKeyboard();
+      });
+      window.addEventListener("resize",()=>{layoutAviationKeyboard();keepAviationInputVisible();});
+      if(window.visualViewport){window.visualViewport.addEventListener("resize",()=>{positionAviationKeyboard();keepAviationInputVisible();});window.visualViewport.addEventListener("scroll",positionAviationKeyboard);}
+
+      renderObjects();
+      updateBullSummary();
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("./service-worker.js");
+    })();
+  </script>
+</body>
+</html>
