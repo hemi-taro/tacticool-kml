@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v0.10.2", () => {
-  assert.equal(context.APP_VERSION, "0.10.2");
+test("app version is v0.10.3", () => {
+  assert.equal(context.APP_VERSION, "0.10.3");
 });
 
 test("coordinate fields are not native inputs that can trigger iOS text assistance", () => {
@@ -71,13 +71,12 @@ test("aviation keyboard is wired to coordinate and numeric inputs", () => {
 
 test("iOS zoom and keyboard handoff protections are present", () => {
   assert.match(html, /input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*16px/s);
-  assert.match(html, /\.aviation-no-transition/);
   assert.match(html, /function handoffToStandardInput/);
+  assert.match(html, /hideAviationKeyboard\(\)/);
 });
 
 test("iPhone aviation keyboard toolbar and text field attributes are present", () => {
   assert.match(html, /id="aviation-toolbar"/);
-  assert.match(html, /function positionAviationKeyboard/);
   assert.match(html, /function openAviationKeyboardAfterBlur/);
   for (const id of ["bull-name", "sam-name", "axis-name", "mission-name", "document-name"]) {
     const field = html.match(new RegExp(`<textarea id="${id}"[^>]*>`))?.[0];
@@ -134,6 +133,21 @@ test("aviation keyboard height follows visible key bounds and resets on close", 
   const closeFunction = html.match(/function closeAviationKeyboard\(\) \{([\s\S]*?)\n      \}/)?.[1] || "";
   assert.match(closeFunction, /keyboard\.style\.bottom=""|keyboard\.style\.removeProperty\("bottom"\)/);
   assert.match(closeFunction, /document\.documentElement\.style\.setProperty\("--aviation-keyboard-height","0px"\)/);
+});
+
+test("closed aviation keyboard is fully hidden without visual viewport positioning", () => {
+  assert.match(html, /<aside id="aviation-keyboard"[^>]*hidden/);
+  assert.match(html, /function showAviationKeyboard/);
+  assert.match(html, /function hideAviationKeyboard/);
+  assert.doesNotMatch(html, /function positionAviationKeyboard/);
+  assert.doesNotMatch(html, /visualViewport\.addEventListener/);
+});
+
+test("PWA header uses the top safe area and provides an update action", () => {
+  assert.match(html, /header\s*\{[^}]*env\(safe-area-inset-top\)/s);
+  assert.match(html, /id="update-app"/);
+  assert.match(html, /function refreshAppCache/);
+  assert.match(html, /caches\.keys\(\)/);
 });
 
 test("coordinate parser detects DD DDM and DMS by decimal and digit count", () => {

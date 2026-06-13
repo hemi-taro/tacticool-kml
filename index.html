@@ -14,7 +14,7 @@
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     body { margin: 0; background: #eef1f4; color: #17202a; }
-    header { background: #152536; color: white; padding: 16px max(16px, env(safe-area-inset-left)); }
+    header { background: #152536; color: white; padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left)); }
     header h1 { font-size: 1.25rem; margin: 0; }
     header p { margin: 5px 0 0; color: #cbd5df; font-size: .85rem; }
     main { max-width: 980px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
@@ -55,9 +55,7 @@
     [data-aviation] { display: flex; align-items: center; min-height: 42px; padding: 8px; width: 100%; border-radius: 6px; border: 1px solid #aeb9c4; background: white; color: #17202a; font-size: 16px; font-weight: 400; cursor: text; overflow-wrap: anywhere; }
     [data-aviation]:empty::before { content: attr(data-placeholder); color: #8b949e; }
     [data-aviation].aviation-active { border-color: #56b5e7; box-shadow: 0 0 0 3px #56b5e733; }
-    #aviation-keyboard { position: fixed; z-index: 20; inset: auto 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(#142431,#101d27); box-shadow: 0 -2px 12px #0005; transform: translateY(110%); transition: transform .16s ease-out; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
-    #aviation-keyboard.aviation-no-transition { transition: none; }
-    body.aviation-open #aviation-keyboard { transform: translateY(0); }
+    #aviation-keyboard { position: fixed; z-index: 20; inset: auto 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(#142431,#101d27); box-shadow: 0 -2px 12px #0005; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
     #aviation-toolbar { display: none; height: 44px; margin: -6px -6px 6px; padding: 0 12px; align-items: center; justify-content: space-between; background: #464646; }
     #aviation-toolbar-left { display: flex; gap: 24px; }
     .aviation-toolbar-button { color: #35a8ff; font-size: 1.1rem; font-weight: 700; }
@@ -176,14 +174,14 @@
         <label>KML line width<div id="kml-line-width" data-placeholder="4" data-aviation="numeric" role="textbox"></div></label>
       </div>
       <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
-      <div class="actions"><button id="export-kml" type="button">Export KML</button></div>
+      <div class="actions"><button id="export-kml" type="button">Export KML</button><button id="update-app" class="secondary" type="button">Check for Updates / Clear Cache</button></div>
       <p id="export-message" class="message"></p>
     </section>
   </main>
-  <aside id="aviation-keyboard" aria-label="Aviation keyboard"><div id="aviation-toolbar"><div id="aviation-toolbar-left"><span class="aviation-toolbar-button" data-action="previous">▲</span><span class="aviation-toolbar-button" data-action="next">▼</span></div><span class="aviation-toolbar-button" data-action="done">Done</span></div><div id="aviation-keys"></div></aside>
+  <aside id="aviation-keyboard" aria-label="Aviation keyboard" hidden><div id="aviation-toolbar"><div id="aviation-toolbar-left"><span class="aviation-toolbar-button" data-action="previous">▲</span><span class="aviation-toolbar-button" data-action="next">▼</span></div><span class="aviation-toolbar-button" data-action="done">Done</span></div><div id="aviation-keys"></div></aside>
 
   <script id="core-logic">
-    var APP_VERSION = "0.10.2";
+    var APP_VERSION = "0.10.3";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -543,14 +541,11 @@
         layout.keys.forEach(([area,x,y,w,h]) => { const key=container.querySelector(`[data-area="${area}"]`); key.hidden=false; Object.assign(key.style,{left:`${x*scale}px`,top:`${y*scale}px`,width:`${w*scale}px`,height:`${h*scale}px`}); });
         container.querySelector('[data-area="clear"]').textContent = layout === aviationLayouts.iphone ? "C" : "Clear";
         document.documentElement.style.setProperty("--aviation-keyboard-height", `${$("aviation-keyboard").offsetHeight}px`);
-        positionAviationKeyboard();
       }
       function aviationLayoutHeight(layout) { return Math.max(...layout.keys.map(([,x,y,w,h])=>y+h)); }
 
-      function positionAviationKeyboard() {
-        const viewport=window.visualViewport, keyboard=$("aviation-keyboard");
-        keyboard.style.bottom=viewport?`${Math.max(0,window.innerHeight-(viewport.offsetTop+viewport.height))}px`:"0px";
-      }
+      function showAviationKeyboard() { $("aviation-keyboard").hidden=false; }
+      function hideAviationKeyboard() { $("aviation-keyboard").hidden=true; }
 
       function aviationInputs() { return [...document.querySelectorAll("[data-aviation]")].filter(input => !input.closest("[hidden]")); }
       function dispatchAviationInput() { aviationInput.dispatchEvent(new Event("input",{bubbles:true})); }
@@ -594,7 +589,7 @@
         if(aviationInput===input&&document.body.classList.contains("aviation-open")){updateAviationKeys();return;}
         aviationInput?.classList.remove("aviation-active");
         aviationInput=input; aviationCaret=input.value.length; input.classList.add("aviation-active");
-        document.body.classList.add("aviation-open"); layoutAviationKeyboard(); updateAviationKeys(); scheduleAviationVisibility(transitionId);
+        showAviationKeyboard(); document.body.classList.add("aviation-open"); layoutAviationKeyboard(); updateAviationKeys(); scheduleAviationVisibility(transitionId);
       }
       function openAviationKeyboardAfterBlur(input) {
         const transitionId=++aviationTransitionId;
@@ -616,14 +611,12 @@
         const keyboard=$("aviation-keyboard");
         keyboard.style.removeProperty("bottom");
         document.documentElement.style.setProperty("--aviation-keyboard-height","0px");
+        hideAviationKeyboard();
       }
       function handoffToStandardInput(input) {
         if (!aviationInput) return;
-        const keyboard=$("aviation-keyboard");
-        keyboard.classList.add("aviation-no-transition");
         closeAviationKeyboard();
         input.focus({preventScroll:true});
-        requestAnimationFrame(()=>keyboard.classList.remove("aviation-no-transition"));
       }
       function moveAviationInput(offset) { const list=aviationInputs(), next=list[list.indexOf(aviationInput)+offset]; if(next) openAviationKeyboard(next); }
       function bindAviationFieldTap(input) {
@@ -1034,8 +1027,23 @@
         if(!event.target.closest("[data-aviation],#aviation-keyboard,#aviation-toolbar"))cancelAviationTransition();
         if(aviationInput&&event.target.closest('select,button,input[type="color"],input[type="checkbox"]'))closeAviationKeyboard();
       });
-      window.addEventListener("resize",()=>{layoutAviationKeyboard();keepAviationInputVisible();});
-      if(window.visualViewport){window.visualViewport.addEventListener("resize",()=>{positionAviationKeyboard();keepAviationInputVisible();});window.visualViewport.addEventListener("scroll",positionAviationKeyboard);}
+      window.addEventListener("resize",()=>{if(aviationInput){layoutAviationKeyboard();keepAviationInputVisible();}});
+
+      async function refreshAppCache() {
+        const message=$("export-message");
+        if(!navigator.onLine){message.textContent="Connect to the internet before checking for updates.";return;}
+        message.textContent="Checking for updates...";
+        try {
+          const registration=await navigator.serviceWorker?.getRegistration();
+          await registration?.update();
+          const cacheNames=await caches.keys();
+          await Promise.all(cacheNames.map(name=>caches.delete(name)));
+          location.reload();
+        } catch(error) {
+          message.textContent=`Update failed: ${error.message}`;
+        }
+      }
+      $("update-app").addEventListener("click",refreshAppCache);
 
       renderObjects();
       updateBullSummary();

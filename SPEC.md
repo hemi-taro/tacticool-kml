@@ -1,4 +1,4 @@
-\# MSN Line Tool v0.10.2
+\# MSN Line Tool v0.10.3
 
 
 
@@ -27,6 +27,12 @@ This is a separate project from the existing GPX Replay app. Do not integrate wi
 \- No external map tiles
 
 \- No internet dependency
+
+\- Installed PWA header respects the iOS top safe area
+
+\- Closed custom aviation keyboard is fully removed from display
+
+\- Update/cache-clear action requires an internet connection, clears PWA caches, and reloads the app
 
 \- Prefer a single `index.html` with embedded CSS and JavaScript
 
