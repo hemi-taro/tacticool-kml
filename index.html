@@ -55,6 +55,12 @@
     .format-toggle button { min-height: 42px; border-radius: 0; background: white; color: #364553; padding: 8px 14px; }
     .format-toggle button.active { background: #1769aa; color: white; }
     .object-row { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
+    #object-list button, #object-list .object-row, #object-list .drag-handle { touch-action: manipulation; }
+    .swatch-button { width: 42px; min-height: 42px; padding: 4px; background: white; }
+    .swatch-button input { width: 100%; height: 30px; min-height: 30px; padding: 0; border: 0; }
+    .object-details { margin: 8px 0 0 51px; padding: 9px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 9px; }
+    .object-name-edit { display: flex; align-items: end; gap: 7px; }
+    .object-name-edit label { flex: 1; }
     details.panel { background: white; border: 1px solid #d8dee4; border-radius: 8px; padding: 16px; }
     details.panel summary { cursor: pointer; font-size: 1.15rem; font-weight: 700; }
     details.panel[open] summary { margin-bottom: 14px; }
@@ -159,7 +165,7 @@
       <summary>Add Custom Line / Area</summary>
       <form id="custom-form">
         <div class="grid">
-          <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option></select></label>
+          <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">B/E Arc</option></select></label>
         </div>
         <div id="custom-direct-point" class="grid">
           <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
@@ -167,6 +173,12 @@
         <div id="custom-bullseye-point" class="grid" hidden>
           <label>Bearing from Bullseye (magnetic °)<input id="custom-bearing" type="text" inputmode="decimal"></label>
           <label>Range from Bullseye (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
+        </div>
+        <div id="custom-arc-point" class="grid" hidden>
+          <label>Start radial (magnetic °)<input id="custom-arc-start" type="text" inputmode="decimal"></label>
+          <label>End radial (magnetic °)<input id="custom-arc-end" type="text" inputmode="decimal"></label>
+          <label>Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
+          <label>Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
         </div>
         <div class="actions"><button id="custom-add-point" type="button" class="secondary">Add Point</button></div>
         <ul id="custom-point-list"></ul>
@@ -215,7 +227,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "0.14.2";
+    var APP_VERSION = "0.15.0";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -433,6 +445,20 @@
         Math.cos(angularDistance) - Math.sin(lat1) * Math.sin(lat2)
       );
       return { lat: toDegrees(lat2), lon: ((toDegrees(lon2) + 540) % 360) - 180 };
+    }
+
+    function generateArcPoints(center, startBearingTrue, endBearingTrue, radiusNm, direction) {
+      const start = normalizeBearing(startBearingTrue);
+      const end = normalizeBearing(endBearingTrue);
+      if (Math.abs(start - end) < 1e-9) throw new Error("Start and end radial must be different.");
+      const clockwise = direction === "cw";
+      const sweep = clockwise ? normalizeBearing(end - start) : normalizeBearing(start - end);
+      const pointCount = Math.min(73, Math.max(3, Math.ceil((sweep - 1e-9) / 5) + 1));
+      return Array.from({ length: pointCount }, (_, index) => {
+        const fraction = index / (pointCount - 1);
+        const bearing = start + (clockwise ? 1 : -1) * sweep * fraction;
+        return destinationPoint(center.lat, center.lon, bearing, radiusNm);
+      });
     }
 
     function generateCircle(centerLat, centerLon, radiusNm, numPoints) {
@@ -655,9 +681,7 @@
           handle.textContent = "☰";
           handle.setAttribute("aria-label", `Reorder ${object.name}`);
           handle.addEventListener("click", event => event.stopPropagation());
-          const swatch = document.createElement("span");
-          swatch.className = "swatch";
-          swatch.style.background = object.color;
+          const swatch = createColorEditor(object, "color", `Line color for ${object.name}`);
           const text = document.createElement("span");
           text.className = "object-text";
           const strong = document.createElement("strong");
@@ -683,18 +707,76 @@
           row.append(handle, swatch, text, remove);
           item.append(row);
           if (expandedObjectIds.has(object.id)) {
-            const coordinates = document.createElement("div");
-            coordinates.className = "coordinate-list";
-            coordinates.textContent = object.coordinates.map((point, index) =>
-              `${index + 1}: ${formatCoordinate(point.lat, true, coordinateFormat)} / ${formatCoordinate(point.lon, false, coordinateFormat)}`
-            ).join("\n");
-            item.append(coordinates);
+            item.append(createObjectDetails(object));
           }
           list.append(item);
         }
         bindPointerReorder(list, objects, renderObjects);
         renderAxisOptions();
         renderPreview();
+      }
+
+      function createColorEditor(object, property, label) {
+        const button = document.createElement("span");
+        button.className = "swatch-button";
+        const input = document.createElement("input");
+        input.type = "color";
+        input.value = object[property];
+        input.setAttribute("aria-label", label);
+        input.addEventListener("click", event => event.stopPropagation());
+        input.addEventListener("input", event => {
+          event.stopPropagation();
+          object[property] = input.value;
+          renderPreview();
+        });
+        button.append(input);
+        return button;
+      }
+
+      function createObjectDetails(object) {
+        const details = document.createElement("div");
+        details.className = "object-details";
+        details.addEventListener("click", event => event.stopPropagation());
+        const nameEdit = document.createElement("div");
+        nameEdit.className = "object-name-edit";
+        const label = document.createElement("label");
+        label.textContent = "Name";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = object.name;
+        const save = document.createElement("button");
+        save.type = "button";
+        save.className = "secondary small";
+        save.textContent = "Save Name";
+        save.addEventListener("click", () => {
+          const name = input.value.trim();
+          if (!name) {
+            input.setCustomValidity("Name cannot be blank.");
+            input.reportValidity();
+            return;
+          }
+          input.setCustomValidity("");
+          object.name = name;
+          renderObjects();
+        });
+        label.append(input);
+        nameEdit.append(label, save);
+        details.append(nameEdit);
+        if (object.fillColor) {
+          const fillRow = document.createElement("div");
+          fillRow.className = "object-name-edit";
+          const fillLabel = document.createElement("strong");
+          fillLabel.textContent = "Fill color";
+          fillRow.append(fillLabel, createColorEditor(object, "fillColor", `Fill color for ${object.name}`));
+          details.append(fillRow);
+        }
+        const coordinates = document.createElement("div");
+        coordinates.className = "coordinate-list";
+        coordinates.textContent = object.coordinates.map((point, index) =>
+          `${index + 1}: ${formatCoordinate(point.lat, true, coordinateFormat)} / ${formatCoordinate(point.lon, false, coordinateFormat)}`
+        ).join("\n");
+        details.append(coordinates);
+        return details;
       }
 
       function renderCustomPoints() {
@@ -794,8 +876,28 @@
 
       $("custom-add-point").addEventListener("click", () => {
         try {
+          const mode = $("custom-point-mode").value;
+          if (mode === "arc") {
+            const bull = getBullseye();
+            const start = requiredNumber("custom-arc-start", "Start radial");
+            const end = requiredNumber("custom-arc-end", "End radial");
+            const radius = requiredNumber("custom-arc-radius", "Radius");
+            requireFinitePositive(radius, "Radius", false);
+            const points = generateArcPoints(
+              { lat: bull.lat, lon: bull.lon },
+              magToTrue(start, bull.magVar),
+              magToTrue(end, bull.magVar),
+              radius,
+              $("custom-arc-direction").value
+            );
+            points.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
+            clearFields(["custom-arc-start","custom-arc-end","custom-arc-radius"]);
+            renderCustomPoints();
+            setMessage($("custom-form"), "");
+            return;
+          }
           let point;
-          if ($("custom-point-mode").value === "direct") {
+          if (mode === "direct") {
             point = parseCoordinatePair($("custom-coordinates").value);
           } else {
             const bull = getBullseye();
@@ -914,9 +1016,10 @@
       });
 
       $("custom-point-mode").addEventListener("change", () => {
-        const direct = $("custom-point-mode").value === "direct";
-        $("custom-direct-point").hidden = !direct;
-        $("custom-bullseye-point").hidden = direct;
+        const mode = $("custom-point-mode").value;
+        $("custom-direct-point").hidden = mode !== "direct";
+        $("custom-bullseye-point").hidden = mode !== "bullseye";
+        $("custom-arc-point").hidden = mode !== "arc";
       });
 
       $("bull-magvar-mode").addEventListener("change", () => {

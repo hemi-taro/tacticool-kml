@@ -2,6 +2,21 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [0.15.0] - 2026-06-14
+
+### Added
+
+- Custom Line / AreaへB/E Arcポイント生成を追加
+- Object List詳細で名前とFill colorを編集する機能
+- Object ListのLine colorスウォッチから色を直接変更する機能
+
+### Changed
+
+- Arcポイント数を約5度間隔、最低3点・最大73点で自動生成
+- Object List操作領域の連続タップによる誤ズームを抑制
+- READMEから開発者向け項目を削除し、testsを公開リポジトリの追跡対象から除外
+- PWAキャッシュをv0.15.0へ更新
+
 ## [0.14.2] - 2026-06-14
 
 ### Changed

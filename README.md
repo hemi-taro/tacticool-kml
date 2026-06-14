@@ -24,6 +24,10 @@ Bullseye基準のAxis、Mission Line、SAM Ring、Custom Line / Areaを作成し
 
 Object Listの並び順はプレビューとKML出力順へ反映されます。Import KMLはLineStringとPolygon外周を読み込みます。
 
+Custom Line / Areaでは、直接座標、B/E Bearing / Range、B/E Arcからポイントを追加できます。B/E ArcはStart / End radial、Radius、方向を指定し、約5度間隔でポイントを自動生成します。
+
+Object Listの色スウォッチからLine colorを変更できます。項目を展開すると、名前とFill colorを変更できます。
+
 ## Coordinate Input
 
 緯度と経度は`/`または`,`で区切ります。DD・DDM・DMSを自動判定します。
@@ -44,11 +48,3 @@ This app does not collect or transmit data.
 Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.
 
 Copyright © 2026 Hemi-Taro. All rights reserved. Permission to reuse, redistribute, or modify this software has not been granted.
-
-## Development
-
-Node.jsでテストを実行できます。
-
-```sh
-node --test tests/*.test.js
-```
