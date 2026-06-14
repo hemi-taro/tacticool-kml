@@ -1,4 +1,6 @@
-# Tacticool KML v0.14.2
+# Tacticool KML v1.0.0
+
+Stable release.
 
 Bullseye基準のAxis、Mission Line、SAM Ring、Custom Line / Areaを作成し、KMLとして出力するPWAです。インストール後は完全オフラインで動作します。
 
