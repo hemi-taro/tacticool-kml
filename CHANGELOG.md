@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.1.1] - 2026-06-16
+
+### Added
+
+- SAM Ringの`At B/E`中心指定
+- SAM RingとBox由来Custom AreaのObject List詳細へCenter表示
+
+### Changed
+
+- SAM RingのName未入力時、中心指定元のDD・DDM・DMS形式を継承した中心座標を使用
+- PWAキャッシュをv1.1.1へ更新
+
 ## [1.1.0] - 2026-06-16
 
 ### Added
