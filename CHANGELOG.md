@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4] - 2026-06-16
+
+### Fixed
+
+- Improved Object List and pending point reordering
+- Fixed an issue where dragging stopped after moving one position
+
 ## [1.1.2] - 2026-06-16
 
 ### Added

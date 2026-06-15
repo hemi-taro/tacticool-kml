@@ -1,4 +1,4 @@
-const CACHE_NAME = "tacticool-kml-v1.1.2";
+const CACHE_NAME = "tacticool-kml-v1.1.4";
 const APP_SHELL = [
   "./",
   "./index.html",
