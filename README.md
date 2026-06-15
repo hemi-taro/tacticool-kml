@@ -1,4 +1,4 @@
-# Tacticool KML v1.1.2
+# Tacticool KML v1.1.3
 
 Stable release.
 
