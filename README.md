@@ -1,4 +1,4 @@
-# Tacticool KML v1.1.1
+# Tacticool KML v1.1.2
 
 Stable release.
 
@@ -52,4 +52,4 @@ This app does not collect or transmit data.
 
 Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.
 
-Copyright © 2026 Hemi-Taro. All rights reserved. Permission to reuse, redistribute, or modify this software has not been granted.
+Copyright © 2026 hemi-taro. All rights reserved. Permission to reuse, redistribute, or modify this software has not been granted.

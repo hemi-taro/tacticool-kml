@@ -94,7 +94,7 @@
     <section>
       <h2>Bullseye</h2>
       <div class="grid">
-        <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+        <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         <label>Name<textarea id="bull-name" class="name-field" rows="1" placeholder="B/E" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
       </div>
       <p id="bull-summary" class="summary"></p>
@@ -105,7 +105,7 @@
       <h2>Add Axis</h2>
       <form id="axis-form">
         <div class="grid">
-          <label>Heading (magnetic °)<input id="axis-heading" type="text" inputmode="decimal"></label>
+          <label>Heading (MAG)<input id="axis-heading" type="text" inputmode="decimal"></label>
           <label>Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
           <label>Color<input id="axis-color" type="color" value="#1565c0"></label>
           <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
@@ -145,11 +145,11 @@
           <label class="check"><input id="sam-at-bullseye" type="checkbox"> At B/E</label>
         </div>
         <div id="sam-bullseye-center" class="grid" hidden>
-          <label>Bearing from Bullseye (magnetic °)<input id="sam-bearing" type="text" inputmode="decimal"></label>
+          <label>Bearing from Bullseye (MAG)<input id="sam-bearing" type="text" inputmode="decimal"></label>
           <label>Range from Bullseye (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="sam-direct-center" class="grid">
-          <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div class="grid">
           <label>Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
@@ -169,15 +169,15 @@
           <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">B/E Arc</option><option value="box">Box</option></select></label>
         </div>
         <div id="custom-direct-point" class="grid">
-          <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div id="custom-bullseye-point" class="grid" hidden>
-          <label>Bearing from Bullseye (magnetic °)<input id="custom-bearing" type="text" inputmode="decimal"></label>
+          <label>Bearing from Bullseye (MAG)<input id="custom-bearing" type="text" inputmode="decimal"></label>
           <label>Range from Bullseye (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="custom-arc-point" class="grid" hidden>
-          <label>Start radial (magnetic °)<input id="custom-arc-start" type="text" inputmode="decimal"></label>
-          <label>End radial (magnetic °)<input id="custom-arc-end" type="text" inputmode="decimal"></label>
+          <label>Start radial (MAG)<input id="custom-arc-start" type="text" inputmode="decimal"></label>
+          <label>End radial (MAG)<input id="custom-arc-end" type="text" inputmode="decimal"></label>
           <label>Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
           <label>Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
           <label>Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
@@ -190,16 +190,16 @@
             <label class="check"><input id="custom-box-at-bullseye" type="checkbox"> At B/E</label>
           </div>
           <div id="custom-box-direct-center" class="grid">
-            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div id="custom-box-bullseye-center" class="grid" hidden>
-            <label>Bearing from Bullseye (magnetic °)<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
+            <label>Bearing from Bullseye (MAG)<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
             <label>Range from Bullseye (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
           </div>
           <div class="grid">
-            <label>X length (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
-            <label>Y length (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
-            <label>Positive Y bearing (magnetic °)<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
+            <label>Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
+            <label>Depth (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
+            <label>Depth orientation (MAG)<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
           </div>
         </div>
         <div class="actions"><button id="custom-generate" type="button" class="secondary">Generate</button></div>
@@ -243,13 +243,13 @@
     </section>
   </main>
   <footer>
-    <div>Copyright © 2026 Hemi-Taro. All rights reserved.</div>
+    <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
     <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
     <div>This app does not collect or transmit data.</div>
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.1.1";
+    var APP_VERSION = "1.1.2";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -349,7 +349,7 @@
       if (format === "dd") return `${absolute.toFixed(6)}${hemisphere}`;
       const degrees = Math.floor(absolute);
       const minutesFull = (absolute - degrees) * 60;
-      if (format === "ddm") return `${degrees}° ${minutesFull.toFixed(4)}' ${hemisphere}`;
+      if (format === "ddm") return `${degrees}° ${minutesFull.toFixed(4).padStart(7, "0")}' ${hemisphere}`;
       let minutes = Math.floor(minutesFull);
       let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
       if (seconds >= 60) {
@@ -1114,12 +1114,12 @@
           if (mode === "box") {
             const bull = getBullseye();
             const isStandaloneBox = customPoints.length === 0;
-            const xLength = requiredNumber("custom-box-x", "X length");
-            const yLength = requiredNumber("custom-box-y", "Y length");
-            const yBearing = requiredNumber("custom-box-y-bearing", "Positive Y bearing");
-            requireFinitePositive(xLength, "X length", false);
-            requireFinitePositive(yLength, "Y length", false);
-            requireFinitePositive(yBearing, "Positive Y bearing", true);
+            const xLength = requiredNumber("custom-box-x", "Width");
+            const yLength = requiredNumber("custom-box-y", "Depth");
+            const yBearing = requiredNumber("custom-box-y-bearing", "Depth orientation");
+            requireFinitePositive(xLength, "Width", false);
+            requireFinitePositive(yLength, "Depth", false);
+            requireFinitePositive(yBearing, "Depth orientation", true);
             const center = getBoxCenter();
             generateBoxPoints(center, xLength, yLength, magToTrue(yBearing, bull.magVar))
               .forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));

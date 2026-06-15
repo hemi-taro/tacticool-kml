@@ -2,6 +2,17 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.1.2] - 2026-06-16
+
+### Changed
+
+- Box入力名をWidth、Depth、Depth orientationへ変更
+- 方位入力ラベルを`(MAG)`表記へ統一
+- 座標入力placeholderを`Enter coordinates`へ簡略化
+- Object ListのDDM表示で分の整数部を2桁表示
+- Copyright名を`hemi-taro`へ変更
+- PWAキャッシュをv1.1.2へ更新
+
 ## [1.1.1] - 2026-06-16
 
 ### Added
