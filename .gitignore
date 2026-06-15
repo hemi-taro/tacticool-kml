@@ -1,3 +1,13 @@
-.DS_Store
+*.DS_Store
 Thumbs.db
 *.lnk
+AGENTS.md
+SPEC.md
+docs/
+keyboard json/
+keyboard-layout-editor.html
+keyboard-mockup.html
+tacticool_kml.png
+tests/
+Tacticool KML instructions.pdf
+Tacticool KML instructions.png
