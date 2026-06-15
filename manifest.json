@@ -1,7 +1,7 @@
 {
   "name": "Tacticool KML",
   "short_name": "Tacticool KML",
-  "description": "Offline Bullseye geometry and KML export",
+  "description": "Offline Bullseye geometry and KML / GeoJSON export",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

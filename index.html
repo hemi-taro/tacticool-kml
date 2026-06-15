@@ -64,7 +64,7 @@
     details.panel { background: white; border: 1px solid #d8dee4; border-radius: 8px; padding: 16px; }
     details.panel summary { cursor: pointer; font-size: 1.15rem; font-weight: 700; }
     details.panel[open] summary { margin-bottom: 14px; }
-    .drag-handle { background: #52616f; padding: 6px 9px; cursor: grab; touch-action: none; user-select: none; }
+    .drag-handle { background: #52616f; padding: 6px 9px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     .dragging { opacity: .55; }
     #custom-point-list { list-style: none; padding: 0; display: grid; gap: 7px; }
     #custom-point-list li { display: flex; align-items: center; gap: 8px; border: 1px solid #d8dee4; border-radius: 6px; padding: 7px; }
@@ -79,7 +79,7 @@
 </head>
 <body>
   <header>
-    <div class="header-title"><h1>Tacticool KML <span id="app-version"></span></h1><p>Offline Bullseye geometry and KML export</p></div>
+    <div class="header-title"><h1>Tacticool KML <span id="app-version"></span></h1><p>Offline Bullseye geometry and KML / GeoJSON export</p></div>
     <button id="update-app" type="button" aria-label="Check for Updates / Clear Cache" title="Check for Updates / Clear Cache">↻</button>
   </header>
   <main>
@@ -162,10 +162,10 @@
     </details>
 
     <details id="custom-panel" class="panel">
-      <summary>Add Custom Line / Area</summary>
+      <summary>Add Custom Point / Line / Area</summary>
       <form id="custom-form">
         <div class="grid">
-          <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">B/E Arc</option></select></label>
+          <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">B/E Arc</option><option value="box">Box</option></select></label>
         </div>
         <div id="custom-direct-point" class="grid">
           <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
@@ -179,23 +179,44 @@
           <label>End radial (magnetic °)<input id="custom-arc-end" type="text" inputmode="decimal"></label>
           <label>Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
           <label>Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
+          <label>Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
+          <label id="custom-arc-count-field" hidden>Manual point count (3–181)<input id="custom-arc-count" type="text" inputmode="numeric" placeholder="3–181"></label>
+          <p id="custom-arc-summary" class="summary"></p>
         </div>
-        <div class="actions"><button id="custom-add-point" type="button" class="secondary">Add Point</button></div>
+        <div id="custom-box-point" hidden>
+          <div class="grid">
+            <label>Center method<select id="custom-box-center-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option></select></label>
+            <label class="check"><input id="custom-box-at-bullseye" type="checkbox"> At B/E</label>
+          </div>
+          <div id="custom-box-direct-center" class="grid">
+            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Separate latitude and longitude with / or ," autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          </div>
+          <div id="custom-box-bullseye-center" class="grid" hidden>
+            <label>Bearing from Bullseye (magnetic °)<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
+            <label>Range from Bullseye (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
+          </div>
+          <div class="grid">
+            <label>X length (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
+            <label>Y length (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
+            <label>Positive Y bearing (magnetic °)<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+        <div class="actions"><button id="custom-generate" type="button" class="secondary">Generate</button></div>
         <ul id="custom-point-list"></ul>
         <div class="grid">
           <label class="check"><input id="custom-close-shape" type="checkbox"> Close shape as area</label>
           <label>Line color<input id="custom-line-color" type="color" value="#455a64"></label>
-          <span aria-hidden="true"></span>
+          <label class="check"><input id="custom-fill-enabled" type="checkbox" checked> Enable polygon fill</label>
           <label>Fill color<input id="custom-fill-color" type="color" value="#dadddf"></label>
         </div>
-        <div class="actions add-with-name"><button type="submit">Add Custom Line / Area</button><label>Name<textarea id="custom-name" class="name-field" rows="1" placeholder="Custom Line / Area" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
+        <div class="actions add-with-name"><button type="submit">Add Custom Point / Line / Area</button><label>Name<textarea id="custom-name" class="name-field" rows="1" placeholder="Custom Point / Line / Area" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
       </form>
     </details>
 
     <section>
       <div class="section-toolbar">
-        <div class="actions" style="margin-top:0"><button id="import-kml" class="secondary" type="button">Import KML</button><input id="import-kml-file" type="file" hidden></div>
+        <div class="actions" style="margin-top:0"><button id="import-geometry" class="secondary" type="button">Import Geometry</button><input id="import-geometry-file" type="file" hidden></div>
         <h2>Object List</h2>
         <div class="actions" style="margin-top:0">
           <div id="coordinate-format" class="format-toggle" aria-label="Coordinate display format">
@@ -210,13 +231,13 @@
     </section>
 
     <section>
-      <h2>Export KML</h2>
+      <h2>Export</h2>
       <div class="grid">
         <label>Document name<textarea id="document-name" class="name-field" rows="1" placeholder="YYYY-MM-DD-HHMM (download time)" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
         <label>KML line width<input id="kml-line-width" type="text" inputmode="decimal" placeholder="4"></label>
       </div>
       <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
-      <div class="actions"><button id="export-kml" type="button">Export KML</button></div>
+      <div class="actions"><button id="export-kml" type="button">Export KML</button><button id="export-json" type="button" class="secondary">Export JSON</button></div>
       <p id="export-message" class="message"></p>
     </section>
   </main>
@@ -227,7 +248,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.0.0";
+    var APP_VERSION = "1.1.0";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -284,8 +305,14 @@
     function parseCoordinatePair(value) {
       const raw = String(value ?? "").trim();
       const separator = raw.includes("/") ? "/" : raw.includes(",") ? "," : "";
-      if (!separator) throw new Error("Coordinate separator must be / or ,.");
-      const parts = raw.split(separator).map(part => part.trim());
+      let parts;
+      if (separator) {
+        parts = raw.split(separator).map(part => part.trim());
+      } else {
+        const compact = raw.match(/^(.+?[NS])\s*(.+?[EW])$/i);
+        if (!compact) throw new Error("Coordinate separator must be / or ,.");
+        parts = [compact[1], compact[2]];
+      }
       if (parts.length !== 2 || parts.some(part => !part)) throw new Error("Coordinate pair must contain latitude and longitude.");
       return validateLatLon(parseCoordinateInput(parts[0], true), parseCoordinateInput(parts[1], false));
     }
@@ -449,18 +476,44 @@
       return { lat: toDegrees(lat2), lon: ((toDegrees(lon2) + 540) % 360) - 180 };
     }
 
-    function generateArcPoints(center, startBearingTrue, endBearingTrue, radiusNm, direction) {
+    function describeArcPoints(startBearingTrue, endBearingTrue, direction, pointCountSetting) {
       const start = normalizeBearing(startBearingTrue);
       const end = normalizeBearing(endBearingTrue);
       if (Math.abs(start - end) < 1e-9) throw new Error("Start and end radial must be different.");
       const clockwise = direction === "cw";
       const sweep = clockwise ? normalizeBearing(end - start) : normalizeBearing(start - end);
-      const pointCount = Math.min(73, Math.max(3, Math.ceil((sweep - 1e-9) / 5) + 1));
+      const pointCount = pointCountSetting === undefined || pointCountSetting === "auto"
+        ? Math.max(3, Math.ceil((sweep - 1e-9) / 5) + 1)
+        : Number(pointCountSetting);
+      if (!Number.isInteger(pointCount) || pointCount < 3 || pointCount > 181) {
+        throw new Error("Arc point count must be between 3 and 181.");
+      }
+      return { pointCount, intervalDegrees: sweep / (pointCount - 1), sweepDegrees: sweep };
+    }
+
+    function generateArcPoints(center, startBearingTrue, endBearingTrue, radiusNm, direction, pointCountSetting) {
+      const start = normalizeBearing(startBearingTrue);
+      const clockwise = direction === "cw";
+      const { pointCount, sweepDegrees: sweep } = describeArcPoints(startBearingTrue, endBearingTrue, direction, pointCountSetting);
       return Array.from({ length: pointCount }, (_, index) => {
         const fraction = index / (pointCount - 1);
         const bearing = start + (clockwise ? 1 : -1) * sweep * fraction;
         return destinationPoint(center.lat, center.lon, bearing, radiusNm);
       });
+    }
+
+    function generateBoxPoints(center, xLengthNm, yLengthNm, positiveYBearingTrue) {
+      const halfX = Number(xLengthNm) / 2;
+      const halfY = Number(yLengthNm) / 2;
+      const top = destinationPoint(center.lat, center.lon, positiveYBearingTrue, halfY);
+      const bottom = destinationPoint(center.lat, center.lon, positiveYBearingTrue + 180, halfY);
+      const corners = [
+        destinationPoint(top.lat, top.lon, positiveYBearingTrue - 90, halfX),
+        destinationPoint(top.lat, top.lon, positiveYBearingTrue + 90, halfX),
+        destinationPoint(bottom.lat, bottom.lon, positiveYBearingTrue + 90, halfX),
+        destinationPoint(bottom.lat, bottom.lon, positiveYBearingTrue - 90, halfX)
+      ];
+      return [...corners, { ...corners[0] }];
     }
 
     function generateCircle(centerLat, centerLon, radiusNm, numPoints) {
@@ -506,6 +559,16 @@
       return coordinates.map(point => `${point.lon.toFixed(6)},${point.lat.toFixed(6)},0`).join("\n");
     }
 
+    function objectGeometryKind(object) {
+      if (object.coordinates.length === 1 || /Point$/i.test(object.type)) return "Point";
+      if (/Area|Polygon/i.test(object.type) || object.fillColor) return "Polygon";
+      return "LineString";
+    }
+
+    function coordinatesToGeoJson(coordinates) {
+      return coordinates.map(point => [point.lon, point.lat]);
+    }
+
     function projectPreviewCoordinates(coordinates, width, height, padding) {
       if (!coordinates.length) return [];
       const minLon = Math.min(...coordinates.map(point => point.lon));
@@ -529,15 +592,71 @@
       const width = Number.isFinite(Number(lineWidth)) ? Number(lineWidth) : 2;
       const placemarks = objects.map((object, index) => {
         const id = `style-${index}`;
-        const style = object.fillColor
-          ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle><PolyStyle><color>${toKmlColor(object.fillColor, "55")}</color></PolyStyle></Style>`
-          : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle></Style>`;
-        const geometry = object.fillColor
-          ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
-          : `<LineString><tessellate>1</tessellate><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LineString>`;
+        const kind = objectGeometryKind(object);
+        const style = kind === "Point"
+          ? `<Style id="${id}"><IconStyle><color>${toKmlColor(object.color)}</color></IconStyle></Style>`
+          : kind === "Polygon"
+            ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle><PolyStyle>${object.fillColor ? `<color>${toKmlColor(object.fillColor, "55")}</color>` : "<fill>0</fill>"}</PolyStyle></Style>`
+            : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${width}</width></LineStyle></Style>`;
+        const geometry = kind === "Point"
+          ? `<Point><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></Point>`
+          : kind === "Polygon"
+            ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
+            : `<LineString><tessellate>1</tessellate><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LineString>`;
         return `${style}<Placemark><name>${escapeXml(object.name)}</name><styleUrl>#${id}</styleUrl>${geometry}</Placemark>`;
       }).join("");
       return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${escapeXml(documentName)}</name>${placemarks}</Document></kml>`;
+    }
+
+    function buildGeoJson(documentName, objects) {
+      return JSON.stringify({
+        type: "FeatureCollection",
+        name: documentName,
+        features: objects.map(object => {
+          const kind = objectGeometryKind(object);
+          const coordinates = coordinatesToGeoJson(object.coordinates);
+          return {
+            type: "Feature",
+            properties: {
+              name: object.name,
+              type: object.type,
+              lineColor: object.color,
+              fillColor: object.fillColor || null
+            },
+            geometry: {
+              type: kind,
+              coordinates: kind === "Point" ? coordinates[0] : kind === "Polygon" ? [coordinates] : coordinates
+            }
+          };
+        })
+      }, null, 2);
+    }
+
+    function parseGeoJsonObjects(text) {
+      const root = typeof text === "string" ? JSON.parse(text) : text;
+      const output = [];
+      const addGeometry = (geometry, properties, baseName) => {
+        if (!geometry) return;
+        const color = /^#[0-9a-f]{6}$/i.test(properties.lineColor || "") ? properties.lineColor : "#455a64";
+        const fillColor = /^#[0-9a-f]{6}$/i.test(properties.fillColor || "") ? properties.fillColor : null;
+        const point = value => validateLatLon(Number(value[1]), Number(value[0]));
+        const add = (type, coordinates, suffix) => output.push({
+          name: suffix ? `${baseName} ${suffix}` : baseName,
+          type,
+          color,
+          fillColor: type === "Imported Polygon" ? fillColor : null,
+          coordinates
+        });
+        if (geometry.type === "Point") add("Imported Point", [point(geometry.coordinates)]);
+        else if (geometry.type === "LineString") add("Imported Line", geometry.coordinates.map(point));
+        else if (geometry.type === "Polygon") add("Imported Polygon", (geometry.coordinates[0] || []).map(point));
+        else if (geometry.type === "MultiLineString") geometry.coordinates.forEach((line, index) => add("Imported Line", line.map(point), index + 1));
+        else if (geometry.type === "MultiPolygon") geometry.coordinates.forEach((polygon, index) => add("Imported Polygon", (polygon[0] || []).map(point), index + 1));
+        else if (geometry.type === "GeometryCollection") geometry.geometries.forEach(item => addGeometry(item, properties, baseName));
+      };
+      const features = root.type === "FeatureCollection" ? root.features : root.type === "Feature" ? [root] : [{ type: "Feature", properties: {}, geometry: root }];
+      features.forEach((feature, index) => addGeometry(feature.geometry, feature.properties || {}, feature.properties?.name || `Imported ${index + 1}`));
+      return output.filter(object => object.coordinates.length && (object.type === "Imported Point" || object.coordinates.length >= 2));
     }
   </script>
 
@@ -594,11 +713,15 @@
         list.querySelectorAll(".drag-handle").forEach(handle => {
           let active = false;
           let timer = null;
+          const dragged = handle.closest("li");
+          handle.draggable = false;
+          handle.addEventListener("selectstart", event => event.preventDefault());
           const start = event => {
+            event.preventDefault();
             event.stopPropagation();
             const activate = () => {
               active = true;
-              handle.closest("li")?.classList.add("dragging");
+              dragged?.classList.add("dragging");
               handle.setPointerCapture?.(event.pointerId);
             };
             if (event.pointerType === "touch") timer = setTimeout(activate, 350);
@@ -608,12 +731,11 @@
             if (!active) return;
             event.preventDefault();
             const target = document.elementFromPoint(event.clientX, event.clientY)?.closest("li[data-reorder-id]");
-            if (!target || target.parentElement !== list) return;
-            const from = array.findIndex(item => String(item.id) === handle.closest("li").dataset.reorderId);
+            if (!target || target === dragged || target.parentElement !== list) return;
+            const from = array.findIndex(item => String(item.id) === dragged.dataset.reorderId);
             const to = array.findIndex(item => String(item.id) === target.dataset.reorderId);
             if (from !== to) {
               moveArrayItem(array, from, to);
-              const dragged = handle.closest("li");
               if (from < to) target.after(dragged);
               else target.before(dragged);
             }
@@ -621,7 +743,7 @@
           const end = () => {
             clearTimeout(timer);
             active = false;
-            handle.closest("li")?.classList.remove("dragging");
+            dragged?.classList.remove("dragging");
             render();
           };
           handle.addEventListener("pointerdown", start);
@@ -651,6 +773,15 @@
         for (const object of objects) {
           const points = projected.slice(offset, offset + object.coordinates.length);
           offset += object.coordinates.length;
+          if (objectGeometryKind(object) === "Point") {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", points[0].x);
+            circle.setAttribute("cy", points[0].y);
+            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("fill", object.color);
+            svg.append(circle);
+            continue;
+          }
           const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
           polyline.setAttribute("points", points.map(point => `${point.x},${point.y}`).join(" "));
           polyline.setAttribute("fill", object.fillColor || "none");
@@ -681,6 +812,7 @@
           handle.type = "button";
           handle.className = "drag-handle";
           handle.textContent = "☰";
+          handle.draggable = false;
           handle.setAttribute("aria-label", `Reorder ${object.name}`);
           handle.addEventListener("click", event => event.stopPropagation());
           const swatch = createColorEditor(object, "color", `Line color for ${object.name}`);
@@ -791,6 +923,7 @@
           handle.type = "button";
           handle.className = "drag-handle";
           handle.textContent = "☰";
+          handle.draggable = false;
           handle.setAttribute("aria-label", `Reorder point ${index + 1}`);
           const text = document.createElement("span");
           text.textContent = `${index + 1}: ${formatCoordinate(point.lat, true, coordinateFormat)} / ${formatCoordinate(point.lon, false, coordinateFormat)}`;
@@ -876,7 +1009,41 @@
         } catch (error) { setMessage(event.currentTarget, error.message); }
       });
 
-      $("custom-add-point").addEventListener("click", () => {
+      function arcPointCountSetting() {
+        return $("custom-arc-count-mode").value === "auto" ? "auto" : requiredNumber("custom-arc-count", "Arc point count");
+      }
+
+      function updateArcSummary() {
+        const summary = $("custom-arc-summary");
+        try {
+          if ($("custom-arc-start").value.trim() === "" || $("custom-arc-end").value.trim() === "") {
+            summary.textContent = "";
+            return;
+          }
+          const description = describeArcPoints(
+            numberValue("custom-arc-start"),
+            numberValue("custom-arc-end"),
+            $("custom-arc-direction").value,
+            $("custom-arc-count-mode").value === "auto" ? "auto" : numberValue("custom-arc-count")
+          );
+          summary.textContent = `${description.pointCount} points · ${Number(description.intervalDegrees.toFixed(3))}° interval`;
+        } catch (error) {
+          summary.textContent = error.message;
+        }
+      }
+
+      function getBoxCenter() {
+        const bull = getBullseye();
+        if ($("custom-box-at-bullseye").checked) return { lat: bull.lat, lon: bull.lon };
+        if ($("custom-box-center-mode").value === "direct") return parseCoordinatePair($("custom-box-coordinates").value);
+        const bearing = requiredNumber("custom-box-bearing", "Bearing");
+        const range = requiredNumber("custom-box-range", "Range");
+        requireFinitePositive(bearing, "Bearing", true);
+        requireFinitePositive(range, "Range", true);
+        return destinationPoint(bull.lat, bull.lon, magToTrue(bearing, bull.magVar), range);
+      }
+
+      $("custom-generate").addEventListener("click", () => {
         try {
           const mode = $("custom-point-mode").value;
           if (mode === "arc") {
@@ -890,10 +1057,25 @@
               magToTrue(start, bull.magVar),
               magToTrue(end, bull.magVar),
               radius,
-              $("custom-arc-direction").value
+              $("custom-arc-direction").value,
+              arcPointCountSetting()
             );
             points.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
-            clearFields(["custom-arc-start","custom-arc-end","custom-arc-radius"]);
+            renderCustomPoints();
+            setMessage($("custom-form"), "");
+            return;
+          }
+          if (mode === "box") {
+            const bull = getBullseye();
+            const xLength = requiredNumber("custom-box-x", "X length");
+            const yLength = requiredNumber("custom-box-y", "Y length");
+            const yBearing = requiredNumber("custom-box-y-bearing", "Positive Y bearing");
+            requireFinitePositive(xLength, "X length", false);
+            requireFinitePositive(yLength, "Y length", false);
+            requireFinitePositive(yBearing, "Positive Y bearing", true);
+            generateBoxPoints(getBoxCenter(), xLength, yLength, magToTrue(yBearing, bull.magVar))
+              .forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
+            $("custom-close-shape").checked = true;
             renderCustomPoints();
             setMessage($("custom-form"), "");
             return;
@@ -920,19 +1102,22 @@
         event.preventDefault();
         try {
           const closeShape = $("custom-close-shape").checked;
-          if (customPoints.length < 2) throw new Error("Add at least two points.");
+          if (!customPoints.length) throw new Error("Generate at least one point.");
           if (closeShape && customPoints.length < 3) throw new Error("An area requires at least three points.");
           const coordinates = customPoints.map(({ lat, lon }) => ({ lat, lon }));
-          if (closeShape) coordinates.push({ ...coordinates[0] });
+          const last = coordinates.at(-1);
+          if (closeShape && (last.lat !== coordinates[0].lat || last.lon !== coordinates[0].lon)) coordinates.push({ ...coordinates[0] });
+          const type = closeShape ? "Custom Area" : coordinates.length === 1 ? "Custom Point" : "Custom Line";
           addObject({
-            name: $("custom-name").value.trim() || (closeShape ? "Custom Area" : "Custom Line"),
-            type: closeShape ? "Custom Area" : "Custom Line",
+            name: $("custom-name").value.trim() || type,
+            type,
             color: $("custom-line-color").value,
-            fillColor: closeShape ? $("custom-fill-color").value : null,
+            fillColor: closeShape && $("custom-fill-enabled").checked ? $("custom-fill-color").value : null,
             coordinates
           });
           customPoints.length = 0;
-          clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range"]);
+          clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range","custom-arc-start","custom-arc-end","custom-arc-radius","custom-arc-count","custom-box-coordinates","custom-box-bearing","custom-box-range","custom-box-x","custom-box-y","custom-box-y-bearing"]);
+          $("custom-close-shape").checked = false;
           renderCustomPoints();
           setMessage(event.currentTarget, "");
         } catch (error) { setMessage(event.currentTarget, error.message); }
@@ -1022,6 +1207,23 @@
         $("custom-direct-point").hidden = mode !== "direct";
         $("custom-bullseye-point").hidden = mode !== "bullseye";
         $("custom-arc-point").hidden = mode !== "arc";
+        $("custom-box-point").hidden = mode !== "box";
+      });
+      $("custom-arc-count-mode").addEventListener("change", () => {
+        $("custom-arc-count-field").hidden = $("custom-arc-count-mode").value !== "manual";
+        updateArcSummary();
+      });
+      ["custom-arc-start","custom-arc-end","custom-arc-count"].forEach(id => $(id).addEventListener("input", updateArcSummary));
+      $("custom-arc-direction").addEventListener("change", updateArcSummary);
+      $("custom-box-center-mode").addEventListener("change", () => {
+        const direct = $("custom-box-center-mode").value === "direct";
+        $("custom-box-direct-center").hidden = !direct;
+        $("custom-box-bullseye-center").hidden = direct;
+      });
+      $("custom-box-at-bullseye").addEventListener("change", () => {
+        $("custom-box-center-mode").disabled = $("custom-box-at-bullseye").checked;
+        $("custom-box-direct-center").hidden = $("custom-box-at-bullseye").checked || $("custom-box-center-mode").value !== "direct";
+        $("custom-box-bullseye-center").hidden = $("custom-box-at-bullseye").checked || $("custom-box-center-mode").value !== "bullseye";
       });
 
       $("bull-magvar-mode").addEventListener("change", () => {
@@ -1044,41 +1246,52 @@
         renderCustomPoints();
       });
 
-      $("import-kml").addEventListener("click", () => $("import-kml-file").click());
-      $("import-kml-file").addEventListener("change", async event => {
+      $("import-geometry").addEventListener("click", () => $("import-geometry-file").click());
+      $("import-geometry-file").addEventListener("change", async event => {
         const file = event.target.files[0];
         if (!file) return;
         try {
-          const kmlText = await new Promise((resolve, reject) => {
+          const text = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(reader.error || new Error("Could not read KML file."));
+            reader.onerror = () => reject(reader.error || new Error("Could not read geometry file."));
             reader.readAsText(file);
           });
-          const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+          if (/^\s*[\[{]/.test(text)) {
+            const importedObjects = parseGeoJsonObjects(text);
+            if (!importedObjects.length) throw new Error("No supported GeoJSON geometry found.");
+            importedObjects.forEach(addObject);
+            return;
+          }
+          const xml = new DOMParser().parseFromString(text, "application/xml");
           if (xml.querySelector("parsererror")) throw new Error("Invalid KML file.");
           const styles = new Map();
           xml.querySelectorAll("Style[id]").forEach(style => {
             const kmlColor = style.querySelector("LineStyle > color")?.textContent.trim();
-            if (kmlColor && /^[0-9a-fA-F]{8}$/.test(kmlColor)) {
-              styles.set(`#${style.id}`, `#${kmlColor.slice(6, 8)}${kmlColor.slice(4, 6)}${kmlColor.slice(2, 4)}`);
-            }
+            const iconColor = style.querySelector("IconStyle > color")?.textContent.trim();
+            const fillColor = style.querySelector("PolyStyle > color")?.textContent.trim();
+            const toHtml = value => value && /^[0-9a-fA-F]{8}$/.test(value) ? `#${value.slice(6, 8)}${value.slice(4, 6)}${value.slice(2, 4)}` : null;
+            styles.set(`#${style.id}`, { color: toHtml(kmlColor) || toHtml(iconColor) || "#455a64", fillColor: toHtml(fillColor) });
           });
           let imported = 0;
           xml.querySelectorAll("Placemark").forEach((placemark, index) => {
-            const coordinateNode = placemark.querySelector("LineString coordinates, Polygon outerBoundaryIs LinearRing coordinates");
+            const coordinateNode = placemark.querySelector("Point coordinates, LineString coordinates, Polygon outerBoundaryIs LinearRing coordinates");
             if (!coordinateNode) return;
             const coordinates = parseKmlCoordinateText(coordinateNode.textContent);
-            if (coordinates.length < 2) return;
+            const isPoint = Boolean(placemark.querySelector("Point"));
+            if (!coordinates.length || (!isPoint && coordinates.length < 2)) return;
+            const isPolygon = Boolean(placemark.querySelector("Polygon"));
+            const style = styles.get(placemark.querySelector(":scope > styleUrl")?.textContent.trim()) || {};
             addObject({
               name: placemark.querySelector(":scope > name")?.textContent.trim() || `Imported ${index + 1}`,
-              type: placemark.querySelector("Polygon") ? "Imported Polygon" : "Imported Line",
-              color: styles.get(placemark.querySelector(":scope > styleUrl")?.textContent.trim()) || "#455a64",
+              type: isPoint ? "Imported Point" : isPolygon ? "Imported Polygon" : "Imported Line",
+              color: style.color || "#455a64",
+              fillColor: isPolygon ? style.fillColor || null : null,
               coordinates
             });
             imported += 1;
           });
-          if (!imported) throw new Error("No supported LineString or Polygon geometry found.");
+          if (!imported) throw new Error("No supported Point, LineString, or Polygon geometry found.");
         } catch (error) {
           alert(`Import failed: ${error.message}`);
         } finally {
@@ -1086,7 +1299,7 @@
         }
       });
 
-      function downloadKmlFile(file) {
+      function downloadFile(file) {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(file);
         link.download = file.name;
@@ -1112,10 +1325,20 @@
       }
       function exportKml() {
         const file=createKmlFile(); if(!file)return;
-        downloadKmlFile(file);
+        downloadFile(file);
         showTemporaryExportMessage("KML download started.");
       }
       $("export-kml").addEventListener("click", exportKml);
+      $("export-json").addEventListener("click", () => {
+        if (!objects.length) {
+          $("export-message").textContent = "Add at least one geometry object before export.";
+          return;
+        }
+        const documentName = resolveDocumentName($("document-name").value, new Date());
+        const filename = `${documentName.replace(/[\\/:*?"<>|]+/g, "_")}.json`;
+        downloadFile(new File([buildGeoJson(documentName, objects)], filename, { type: "application/geo+json;charset=utf-8" }));
+        showTemporaryExportMessage("JSON download started.");
+      });
 
       document.querySelectorAll("#bull-name, #bull-magvar, #bull-coordinates")
         .forEach(element => element.addEventListener("input", updateBullSummary));

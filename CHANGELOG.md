@@ -2,6 +2,23 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.1.0] - 2026-06-16
+
+### Added
+
+- GeoJSONのImport / Export
+- Custom PointとBox生成
+- B/E ArcのAuto / Manualポイント数設定と間隔表示
+- Custom AreaのFill無効化
+- 区切り文字なしのコンパクト座標入力
+
+### Changed
+
+- Import KMLをImport Geometryへ変更
+- Custom Line / AreaをCustom Point / Line / Areaへ拡張
+- Object ListとCustomポイントの並べ替え操作を改善
+- PWAキャッシュをv1.1.0へ更新
+
 ## [1.0.0] - 2026-06-14
 
 ### Changed
