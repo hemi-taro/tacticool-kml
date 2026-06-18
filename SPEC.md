@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.1 Specification
+# Tacticool KML v1.2.2 Specification
 
 ## Purpose
 
@@ -50,6 +50,8 @@ Examples:
 
 - Magnetic Variation and Display format are grouped under Settings
 - Display format defaults to DDM and is synchronized between Settings and Object List
+- Display format controls are compact and do not imply a required coordinate input format
+- Magnetic variation explanation is shown before the display format controls on narrow screens
 - Auto mode calculates declination at the Bullseye using WMM2025, current date, and sea-level altitude
 - Manual mode accepts east-positive and west-negative variation
 - None (True HDG) mode treats user-entered headings, bearings, radials, and orientations as true bearings
@@ -69,6 +71,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 ### Axis
 
+- Initially collapsed
 - Starts at Bullseye
 - Inputs: heading, length in NM, name, and color
 - Default name is `AXIS {heading/reciprocal} {B/E coordinate}`
@@ -84,6 +87,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 ### Mission Line
 
+- Initially collapsed
 - A single perpendicular line on a selected Axis
 - Inputs: B/E distance, total width, name, and color
 - Width extends equally to both sides of the Axis
@@ -150,9 +154,10 @@ trueBearing = magneticBearing + magVarEastPositive
 - The final drop position is applied once when the pointer is released
 - Reordering can move across multiple list positions in one drag
 - Item tap expands details
-- Line color can be changed from the visible color swatch
-- Color controls use a compact native color picker plus preset swatches
-- Expanded details allow renaming and Fill color editing where applicable
+- Line color can be changed from the visible compact color picker
+- Object List rows do not show preset color swatches
+- Expanded details allow renaming, Line color preset selection, and Fill color editing where applicable
+- On wider screens, object name editing and Line color presets share one row; narrow screens stack them
 - Expanded details show Center, Radius, Created B/E, and Axis endpoint variation where applicable
 - Expanded details display coordinates in DD, DDM, or DMS
 - DDM and DMS minute values use two-digit integer padding

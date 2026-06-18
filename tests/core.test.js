@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.1", () => {
-  assert.equal(context.APP_VERSION, "1.2.1");
+test("app version is v1.2.2", () => {
+  assert.equal(context.APP_VERSION, "1.2.2");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -26,9 +26,11 @@ test("app uses concise coordinate and magnetic field labels", () => {
   assert.match(html, /Depth orientation</);
 });
 
-test("Axis and Mission Line appear before the collapsed SAM and Custom panels", () => {
-  assert.ok(html.indexOf("<h2>Add Axis</h2>") < html.indexOf('id="sam-panel"'));
-  assert.ok(html.indexOf("<h2>Add Mission Line</h2>") < html.indexOf('id="sam-panel"'));
+test("Axis and Mission Line appear before SAM and Custom panels and are collapsible", () => {
+  assert.ok(html.indexOf('id="axis-panel"') < html.indexOf('id="sam-panel"'));
+  assert.ok(html.indexOf('id="mission-panel"') < html.indexOf('id="sam-panel"'));
+  assert.match(html, /<details id="axis-panel" class="panel">\s*<summary>Add Axis<\/summary>/);
+  assert.match(html, /<details id="mission-panel" class="panel">\s*<summary>Add Mission Line<\/summary>/);
   assert.ok(html.indexOf('id="sam-panel"') < html.indexOf('id="custom-panel"'));
 });
 
@@ -53,6 +55,8 @@ test("global Settings include magnetic variation and synchronized display format
   assert.match(html, /id="settings-coordinate-format"/);
   assert.match(html, /id="coordinate-format"/);
   assert.match(html, /function setCoordinateFormat/);
+  assert.match(html, /\.setting-row\s*\{[^}]*justify-self:\s*start/);
+  assert.match(html, /\.setting-row \.format-toggle\s*\{[^}]*width:\s*max-content/);
 });
 
 test("Custom Point Line Area supports Box, fill control, and Arc point counts", () => {
@@ -236,6 +240,8 @@ test("color controls use compact native picker plus preset swatches", () => {
   assert.match(html, /className = "color-presets"/);
   assert.match(html, /#FBC02D/);
   assert.doesNotMatch(html, /#FFFF00/);
+  assert.match(html, /function createPresetColorEditor/);
+  assert.match(html, /className = "object-detail-grid"/);
 });
 
 test("successful object creation clears transient geometry fields", () => {

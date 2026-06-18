@@ -2,6 +2,16 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.2] - 2026-06-18
+
+### Changed
+
+- SettingsのDisplay format幅と説明文配置を調整
+- Object List一覧行は小さいLine color pickerのみ表示
+- Object詳細を開いた時だけLine color / Fill colorプリセットを表示
+- Add AxisとAdd Mission Lineを折りたたみ式へ変更
+- PWAキャッシュをv1.2.2へ更新
+
 ## [1.2.1] - 2026-06-18
 
 ### Changed
