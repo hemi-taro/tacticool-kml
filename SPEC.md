@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.2 Specification
+# Tacticool KML v1.2.3 Specification
 
 ## Purpose
 
@@ -53,6 +53,8 @@ Examples:
 - Display format controls are compact and do not imply a required coordinate input format
 - Magnetic variation explanation is shown before the display format controls on narrow screens
 - Auto mode calculates declination at the Bullseye using WMM2025, current date, and sea-level altitude
+- Japan GSI 2020.0 approx mode uses the Geospatial Information Authority of Japan 2020.0 approximation for 20N-50N and 120E-154E
+- GSI 2020.0 declination is west-positive in the source formula and is converted to the app's east-positive internal convention
 - Manual mode accepts east-positive and west-negative variation
 - None (True HDG) mode treats user-entered headings, bearings, radials, and orientations as true bearings
 - Auto and Manual modes treat user-entered headings, bearings, radials, and orientations as magnetic
@@ -159,6 +161,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - Expanded details allow renaming, Line color preset selection, and Fill color editing where applicable
 - On wider screens, object name editing and Line color presets share one row; narrow screens stack them
 - Expanded details show Center, Radius, Created B/E, and Axis endpoint variation where applicable
+- Axis endpoint variation follows the magnetic variation mode used when the Axis was created
 - Expanded details display coordinates in DD, DDM, or DMS
 - DDM and DMS minute values use two-digit integer padding
 - Coordinate list point numbers use a separate right-aligned column

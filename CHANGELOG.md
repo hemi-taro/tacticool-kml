@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.3] - 2026-06-18
+
+### Added
+
+- Magnetic Variationに`Japan GSI 2020.0 approx`を追加
+
+### Changed
+
+- Settingsの磁気偏差説明文を削除
+- PC幅のObject List詳細でNameとLine color presetsが1段に収まりやすいよう調整
+- PWAキャッシュをv1.2.3へ更新
+
 ## [1.2.2] - 2026-06-18
 
 ### Changed

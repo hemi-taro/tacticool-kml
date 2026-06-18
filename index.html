@@ -68,7 +68,7 @@
     .swatch-button { width: 42px; min-height: 42px; padding: 4px; background: white; }
     .swatch-button input { width: 100%; height: 30px; min-height: 30px; padding: 0; border: 0; }
     .object-details { margin: 8px 0 0 51px; padding: 9px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 9px; }
-    .object-detail-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(260px, 1fr); gap: 12px; align-items: end; }
+    .object-detail-grid { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 12px; align-items: end; }
     .object-name-edit { display: flex; align-items: end; gap: 7px; }
     .object-name-edit label { flex: 1; }
     details.panel { background: white; border: 1px solid #d8dee4; border-radius: 8px; padding: 16px; }
@@ -102,9 +102,8 @@
     <section>
       <h2>Settings</h2>
       <div class="grid settings-grid">
-        <label>Magnetic variation mode<select id="bull-magvar-mode"><option value="auto">Auto (WMM2025)</option><option value="manual">Manual</option><option value="none">None (True HDG)</option></select></label>
+        <label>Magnetic variation mode<select id="bull-magvar-mode"><option value="auto">Auto (WMM2025)</option><option value="gsi2020">Japan GSI 2020.0 approx</option><option value="manual">Manual</option><option value="none">None (True HDG)</option></select></label>
         <label id="bull-magvar-manual" hidden>Manual magnetic variation (E + / W -)<input id="bull-magvar" type="text" inputmode="decimal" value="0"></label>
-        <p class="summary settings-note">Auto/Manual treat headings and bearings as magnetic. None treats them as true.</p>
         <div class="setting-row">
           <span class="setting-label">Display format</span>
           <div id="settings-coordinate-format" class="format-toggle" aria-label="Coordinate display format">
@@ -286,7 +285,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.2";
+    var APP_VERSION = "1.2.3";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -505,7 +504,28 @@
         if (!Number.isFinite(magVar)) throw new Error("Manual magnetic variation is invalid.");
         return { mode, magVar };
       }
+      if (mode === "gsi2020") {
+        return { mode, magVar: calculateGsi2020ApproxDeclination(point.lat, point.lon) };
+      }
       return { mode: "auto", magVar: calculateWmmDeclination(point.lat, point.lon, date) };
+    }
+
+    function calculateGsi2020ApproxDeclination(lat, lon) {
+      const latitude = Number(lat);
+      const longitude = Number(lon);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < 20 || latitude > 50 || longitude < 120 || longitude > 154) {
+        throw new Error("Japan GSI 2020.0 approx is only valid for 20N-50N and 120E-154E.");
+      }
+      const deltaPhi = latitude - 37;
+      const deltaLambda = longitude - 138;
+      const westPositiveDegrees =
+        8 + 15.822 / 60
+        + (18.462 * deltaPhi) / 60
+        - (7.726 * deltaLambda) / 60
+        + (0.007 * deltaPhi * deltaPhi) / 60
+        - (0.007 * deltaPhi * deltaLambda) / 60
+        - (0.655 * deltaLambda * deltaLambda) / 60;
+      return -westPositiveDegrees;
     }
 
     function calculateWmmDeclination(lat, lon, date) {
@@ -813,7 +833,7 @@
         const { lat, lon } = parseCoordinatePair($("bull-coordinates").value);
         const mode = $("bull-magvar-mode").value;
         const autoMagVar = mode === "auto";
-        const magVar = mode === "none" ? 0 : autoMagVar ? calculateWmmDeclination(lat, lon, new Date()) : numberValue("bull-magvar");
+        const magVar = mode === "none" ? 0 : mode === "gsi2020" ? calculateGsi2020ApproxDeclination(lat, lon) : autoMagVar ? calculateWmmDeclination(lat, lon, new Date()) : numberValue("bull-magvar");
         validateLatLon(lat, lon);
         if (!Number.isFinite(magVar)) {
           throw new Error("Bullseye coordinates or magnetic variation are invalid.");
@@ -839,7 +859,7 @@
       }
 
       function bullseyeSummaryText(bull, label = "B/E") {
-        const source = bull.mode === "none" ? "None True HDG" : bull.autoMagVar ? "Auto WMM2025" : "Manual";
+        const source = variationSourceText(bull.mode) || "None True HDG";
         return `${label}: ${bullseyeValueText(bull)} · variation ${formatVariation(bull.magVar)} (${source})`;
       }
 
@@ -849,13 +869,24 @@
 
       function variationSourceText(mode) {
         if (mode === "none") return "";
-        return mode === "auto" ? "Auto WMM2025" : "Manual";
+        if (mode === "auto") return "Auto WMM2025";
+        if (mode === "gsi2020") return "Japan GSI 2020.0 approx";
+        return "Manual";
       }
 
       function centerVariationFromContext(context, center) {
         if (context.mode === "none") return { mode: "none", magVar: 0 };
         if (context.mode === "manual") return { mode: "manual", magVar: context.magVar };
+        if (context.mode === "gsi2020") return { mode: "gsi2020", magVar: calculateGsi2020ApproxDeclination(center.lat, center.lon) };
         return { mode: "auto", magVar: calculateWmmDeclination(center.lat, center.lon, new Date()) };
+      }
+
+      function variationForObjectPoint(object, point) {
+        const mode = object.createdBullseye?.mode || "auto";
+        if (mode === "none") return { mode: "none", magVar: 0 };
+        if (mode === "manual") return { mode: "manual", magVar: object.createdBullseye.magVar };
+        if (mode === "gsi2020") return { mode: "gsi2020", magVar: calculateGsi2020ApproxDeclination(point.lat, point.lon) };
+        return { mode: "auto", magVar: calculateWmmDeclination(point.lat, point.lon, new Date()) };
       }
 
       function updateActiveBullseyeSummaries() {
@@ -1162,11 +1193,13 @@
         }
         if (object.type === "Axis" && object.coordinates.length >= 2) {
           const endpoint = object.coordinates.at(-1);
-          const endpointVar = calculateWmmDeclination(endpoint.lat, endpoint.lon, new Date());
+          const endpointVariation = variationForObjectPoint(object, endpoint);
           const endpointSummary = document.createElement("div");
           endpointSummary.className = "summary";
-          endpointSummary.textContent = `Endpoint variation: ${formatVariation(endpointVar)} Auto WMM2025`;
-          details.append(endpointSummary);
+          if (endpointVariation.mode !== "none") {
+            endpointSummary.textContent = `Endpoint variation: ${formatVariation(endpointVariation.magVar)} ${variationSourceText(endpointVariation.mode)}`;
+            details.append(endpointSummary);
+          }
         }
         if (object.fillColor) {
           const fillRow = document.createElement("div");
