@@ -1,0 +1,205 @@
+# Tacticool KML v1.2.1 Specification
+
+## Purpose
+
+Tacticool KML is a small, installable, fully offline PWA for creating Bullseye-based geometry and exporting it as KML.
+
+Priority order:
+
+1. Coordinate calculation and KML correctness
+2. iPhone and iPad Safari usability
+3. Simple UI and short creation workflow
+4. Fully offline operation after installation
+5. Single `index.html` with no external libraries
+
+## Non-Goals
+
+- Online maps or map tiles
+- User accounts, backend services, or databases
+- Automatic saving or cloud synchronization
+- Tactical symbol libraries or complex airspace parsing
+- GPX export
+- Use as the sole source for navigation, flight safety, or real mission decisions
+
+## Runtime and Distribution
+
+- Public GitHub Pages PWA
+- Fully offline after installation and initial caching
+- App shell: `index.html`, `manifest.json`, `service-worker.js`, and PWA icons
+- Update button checks the service worker, clears caches, and reloads the app
+- No data collection or external transmission
+
+## Coordinate Input
+
+- Latitude and longitude are entered together and separated by `/`, `,`, or compact hemisphere markers
+- DD, DDM, and DMS are detected automatically from decimals and digit count
+- Google Maps-style decimal pairs are accepted
+- Coordinate fields use standard iOS text keyboards
+- Numeric fields use standard iOS decimal keyboards
+- Coordinates are stored internally as signed decimal degrees
+- KML coordinate order is `longitude,latitude,altitude`
+
+Examples:
+
+- DD: `35.508333, 135.333333`
+- DDM: `3530.500N / 13520.000E`
+- DMS: `353030N / 1352000E`
+- Compact DDM: `3500N12900E`
+
+## Magnetic Variation
+
+- Magnetic Variation and Display format are grouped under Settings
+- Display format defaults to DDM and is synchronized between Settings and Object List
+- Auto mode calculates declination at the Bullseye using WMM2025, current date, and sea-level altitude
+- Manual mode accepts east-positive and west-negative variation
+- None (True HDG) mode treats user-entered headings, bearings, radials, and orientations as true bearings
+- Auto and Manual modes treat user-entered headings, bearings, radials, and orientations as magnetic
+- Geometry calculations use true bearing
+
+```text
+trueBearing = magneticBearing + magVarEastPositive
+```
+
+- B/E headings, bearings, and radials use the Bullseye variation
+- Direct Box orientation and Direct Arc radials use the direct center variation in Auto mode
+- None (True HDG) applies no magnetic variation correction
+- Short reference displays omit unentered fractional minutes or seconds, while internal decimal-degree storage and exports keep precision
+
+## Geometry
+
+### Axis
+
+- Starts at Bullseye
+- Inputs: heading, length in NM, name, and color
+- Default name is `AXIS {heading/reciprocal} {B/E coordinate}`
+- North reciprocal is displayed as `360`, while internal calculation remains `000`
+
+### Tickmarks
+
+- Optional when creating an Axis
+- Perpendicular to the selected Axis
+- Inputs: start distance, end distance, interval, width, and color
+- End distance defaults to Axis length
+- Each Tickmark is stored as an independent object
+
+### Mission Line
+
+- A single perpendicular line on a selected Axis
+- Inputs: B/E distance, total width, name, and color
+- Width extends equally to both sides of the Axis
+
+### SAM Ring
+
+- Initially collapsed
+- Center can use direct coordinates, Bullseye, or B/E bearing/range
+- Empty Name defaults to `SAM {center coordinate}`
+- Center and radius are displayed in expanded Object List details
+- Generated as a closed 72-segment circle
+- Polygon fill is disabled by default
+- Fill color is shown only when polygon fill is enabled
+- Fill color defaults to a pale color and KML output uses semi-transparent fill when enabled
+
+### Custom Point / Line / Area
+
+- Initially collapsed
+- Points can be added by:
+  - Direct coordinates
+  - B/E bearing/range
+  - Arc
+  - Box
+- Pending points can be deleted and reordered
+- One point creates a Point
+- Two or more points create a LineString
+- `Close shape as area` with three or more points creates a Polygon
+- Polygon fill can be disabled
+- Successful object creation clears pending points
+
+### Box
+
+- Center can use direct coordinates, Bullseye, or B/E bearing/range
+- Direct center does not require Bullseye
+- Inputs: full Width, full Depth, and Depth orientation
+- Generates a closed four-corner area in the pending point list
+- Empty Custom Name is auto-filled as `BOX {center coordinate}`
+- Center is displayed in expanded Object List details after the Box becomes a Custom Area
+- Box-derived Custom Area details show center variation when magnetic variation mode is Auto or Manual
+
+### Arc
+
+- Center can use direct coordinates or At B/E
+- Direct center does not require Bullseye
+- Inputs: start radial, end radial, radius in NM, and clockwise/counterclockwise direction
+- Empty Custom Name is auto-filled as `ARC {center coordinate}`
+- Auto mode generates points at no more than approximately 5-degree intervals
+- Manual mode accepts 3–181 points
+- The UI displays the actual point count and degree interval
+- Start and end points are included
+- Normalized identical start/end radials are rejected
+- Full-circle Arc creation is not supported; use SAM Ring instead
+
+## Object Model and Editing
+
+- Objects are stored in memory with stable IDs, name, type, line color, optional fill color, and coordinate arrays
+- B/E-created objects store a created Bullseye snapshot for display only
+- SAM Ring objects store radius for display only
+- Object List order determines preview, KML export, and GeoJSON export order
+- Reordering uses Pointer Events:
+  - Mouse drag on PC
+  - Immediate drag from the reorder handle on iPhone/iPad
+- During drag, the current DOM and object order remain unchanged to preserve Pointer Capture
+- The final drop position is applied once when the pointer is released
+- Reordering can move across multiple list positions in one drag
+- Item tap expands details
+- Line color can be changed from the visible color swatch
+- Color controls use a compact native color picker plus preset swatches
+- Expanded details allow renaming and Fill color editing where applicable
+- Expanded details show Center, Radius, Created B/E, and Axis endpoint variation where applicable
+- Expanded details display coordinates in DD, DDM, or DMS
+- DDM and DMS minute values use two-digit integer padding
+- Coordinate list point numbers use a separate right-aligned column
+- Objects can be deleted individually or cleared together
+
+## Geometry Import and Export
+
+- Import supports KML and GeoJSON
+- KML import supports Point, LineString, and Polygon outer boundaries
+- GeoJSON import supports Point, LineString, Polygon, MultiLineString, MultiPolygon, and GeometryCollection
+- Multi-geometries and collections are flattened into separate objects
+- Polygon holes are ignored
+- Import uses FileReader for iOS compatibility
+- Imported geometry is validated after file selection
+- GeoJSON export creates one FeatureCollection containing all Object List entries
+- GeoJSON properties include name, type, line color, and optional fill color
+- KML Point output uses an IconStyle color without an external icon URL
+- Export creates one Style and Placemark per object
+- Line width is configurable for the whole document
+- Polygon fills use semi-transparent KML colors
+- Empty document name defaults to local download date/time
+- Export order matches Object List order
+
+## Preview
+
+- SVG preview shows relative geometry placement without map tiles
+- Line width and fill colors are represented
+- Preview is not a navigation map and does not prove geographic correctness
+
+## iOS UI Decisions
+
+- Standard iOS keyboards are used; the custom aviation keyboard experiment was removed because of keyboard overlap, viewport movement, autofill, and reliability issues
+- Input text remains at least 16px to prevent Safari focus zoom
+- Page pinch zoom remains enabled for accessibility
+- Object List controls suppress accidental double-tap zoom
+- Collapsible panels reduce vertical clutter while preserving unfinished input
+
+## Verification
+
+- Local Node tests validate parsing, WMM2025, bearings, geodesic destinations, circles, Arc generation, perpendicular lines, KML formatting, PWA metadata, and versioning
+- Browser smoke testing validates rendering and key interaction flows
+- iPhone and iPad real-device testing remains necessary for Safari-specific behavior
+
+## Privacy, Copyright, and Disclaimer
+
+- This app does not collect or transmit data
+- Copyright © 2026 hemi-taro. All rights reserved
+- Accuracy and completeness are not guaranteed
+- Users must independently verify coordinates, magnetic variation, and generated KML
