@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.3", () => {
-  assert.equal(context.APP_VERSION, "1.2.3");
+test("app version is v1.2.4", () => {
+  assert.equal(context.APP_VERSION, "1.2.4");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -51,7 +51,7 @@ test("SAM and Custom Point Line Area panels are initially collapsed", () => {
 test("global Settings include magnetic variation and synchronized display format controls", () => {
   assert.match(html, /<h2>Settings<\/h2>/);
   assert.match(html, /Magnetic variation mode/);
-  assert.match(html, /<option value="gsi2020">Japan GSI 2020\.0 approx<\/option>/);
+  assert.match(html, /<select id="bull-magvar-mode"><option value="gsi2020">Auto \(Japan GSI 2020\.0\)<\/option><option value="auto">Auto \(WMM2025\)<\/option><option value="manual">Manual<\/option><option value="none">None \(True\)<\/option><\/select>/);
   assert.match(html, /Display format/);
   assert.match(html, /id="settings-coordinate-format"/);
   assert.match(html, /id="coordinate-format"/);
@@ -219,7 +219,7 @@ test("SAM and Box preserve center metadata for Object List details", () => {
 });
 
 test("magnetic variation mode supports true heading input", () => {
-  assert.match(html, /<option value="none">None \(True HDG\)<\/option>/);
+  assert.match(html, /<option value="none">None \(True\)<\/option>/);
   assert.equal(context.resolveTrueBearing(45, { mode: "none", magVar: -8 }), 45);
   assert.equal(context.resolveTrueBearing(45, { mode: "manual", magVar: -8 }), 37);
   assert.equal(context.resolveTrueBearing(350, { mode: "auto", magVar: 15 }), 5);
@@ -232,8 +232,12 @@ test("active Bullseye summaries appear in geometry panels and details", () => {
   assert.match(html, /Created B\/E:/);
   assert.match(html, /function bullseyeValueText/);
   assert.match(html, /function variationForObjectPoint/);
-  assert.match(html, /Endpoint variation:/);
-  assert.match(html, /Center variation:/);
+  assert.match(html, /function formatCoordinateWithVariation/);
+  assert.match(html, /function inboundMagneticHeading/);
+  assert.match(html, /Endpoint Var:/);
+  assert.match(html, /Inbound HDG:/);
+  assert.doesNotMatch(html, /Endpoint variation:/);
+  assert.doesNotMatch(html, /Center variation:/);
   assert.match(html, /save\.textContent = "Rename"/);
 });
 
@@ -245,6 +249,7 @@ test("color controls use compact native picker plus preset swatches", () => {
   assert.match(html, /function createPresetColorEditor/);
   assert.match(html, /className = "object-detail-grid"/);
   assert.match(html, /\.object-detail-grid\s*\{[^}]*grid-template-columns:\s*minmax\(240px,\s*300px\) minmax\(0,\s*1fr\)/);
+  assert.match(html, /\.object-name-edit label\s*\{[^}]*width:\s*300px/);
 });
 
 test("successful object creation clears transient geometry fields", () => {
@@ -359,7 +364,7 @@ test("WMM2025 calculates magnetic variation at sea level", () => {
 test("Japan GSI 2020.0 approximate variation is converted to east-positive", () => {
   const tokyo = context.calculateGsi2020ApproxDeclination(35.68, 139.70);
   assert.ok(Math.abs(tokyo - (-7.6083)) < 0.01, `Tokyo GSI east-positive declination was ${tokyo}`);
-  assert.throws(() => context.calculateGsi2020ApproxDeclination(19.9, 139.70), /Japan GSI 2020\.0 approx is only valid/);
+  assert.throws(() => context.calculateGsi2020ApproxDeclination(19.9, 139.70), /Change Magnetic variation mode to Auto \(WMM2025\)/);
   const contextAtTokyo = context.bearingContextForPoint({ mode: "gsi2020" }, { lat: 35.68, lon: 139.70 });
   assert.equal(contextAtTokyo.mode, "gsi2020");
   assert.ok(Math.abs(contextAtTokyo.magVar - tokyo) < 0.000001);
@@ -377,6 +382,7 @@ test("bearings normalize and magnetic converts to true", () => {
   assert.equal(context.normalizeBearing(370), 10);
   assert.equal(context.normalizeBearing(-10), 350);
   assert.equal(context.magToTrue(350, 15), 5);
+  assert.equal(context.trueToMag(40, -7), 47);
 });
 
 test("destination point travels one degree of latitude north", () => {

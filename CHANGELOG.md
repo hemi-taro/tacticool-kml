@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.4] - 2026-06-19
+
+### Changed
+
+- Magnetic Variationの既定値を`Auto (Japan GSI 2020.0)`へ変更
+- Magnetic Variationの選択肢を`Auto (Japan GSI 2020.0)`、`Auto (WMM2025)`、`Manual`、`None (True)`へ整理
+- GSI範囲外エラーでWMM2025への変更を案内
+- Object List詳細のCreated B/EとCenterにVariationを同じ行で表示
+- Axis詳細にEndpoint VarとInbound HDGを表示
+- PC幅のObject List詳細でName入力欄を300pxへ調整
+- PWAキャッシュをv1.2.4へ更新
+
 ## [1.2.3] - 2026-06-18
 
 ### Added

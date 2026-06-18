@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.3
+# Tacticool KML v1.2.4
 
 Stable release.
 
@@ -42,7 +42,7 @@ SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}
 - DDM: `3530.500N / 13520.000E`
 - DMS: `353030N / 1352000E`
 
-距離単位はNMです。Auto/Manual/Japan GSI 2020.0 approxでは入力方位を磁方位として扱い、東偏を正、西偏を負として真方位へ変換します。None (True HDG)では入力方位を真方位として扱い、磁気偏差補正を行いません。Auto magnetic variationはB/EまたはDirect Box/Arcの中心座標、現在日付、海面高度からWMM2025で計算します。Japan GSI 2020.0 approxは国土地理院の2020.0年値近似式を使う日本周辺専用の概算モードです。
+距離単位はNMです。Auto (Japan GSI 2020.0)、Auto (WMM2025)、Manualでは入力方位を磁方位として扱い、東偏を正、西偏を負として真方位へ変換します。None (True)では入力方位を真方位として扱い、磁気偏差補正を行いません。Auto (Japan GSI 2020.0)は国土地理院の2020.0年値近似式を使う日本周辺専用の概算モードです。GSI範囲外ではAuto (WMM2025)を使ってください。
 
 ## Privacy
 

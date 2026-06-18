@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.3 Specification
+# Tacticool KML v1.2.4 Specification
 
 ## Purpose
 
@@ -51,12 +51,13 @@ Examples:
 - Magnetic Variation and Display format are grouped under Settings
 - Display format defaults to DDM and is synchronized between Settings and Object List
 - Display format controls are compact and do not imply a required coordinate input format
-- Magnetic variation explanation is shown before the display format controls on narrow screens
-- Auto mode calculates declination at the Bullseye using WMM2025, current date, and sea-level altitude
-- Japan GSI 2020.0 approx mode uses the Geospatial Information Authority of Japan 2020.0 approximation for 20N-50N and 120E-154E
+- Magnetic variation defaults to Auto (Japan GSI 2020.0)
+- Auto (Japan GSI 2020.0) mode uses the Geospatial Information Authority of Japan 2020.0 approximation for 20N-50N and 120E-154E
+- GSI range errors instruct the user to switch to Auto (WMM2025)
+- Auto (WMM2025) mode calculates declination at the Bullseye using WMM2025, current date, and sea-level altitude
 - GSI 2020.0 declination is west-positive in the source formula and is converted to the app's east-positive internal convention
 - Manual mode accepts east-positive and west-negative variation
-- None (True HDG) mode treats user-entered headings, bearings, radials, and orientations as true bearings
+- None (True) mode treats user-entered headings, bearings, radials, and orientations as true bearings
 - Auto and Manual modes treat user-entered headings, bearings, radials, and orientations as magnetic
 - Geometry calculations use true bearing
 
@@ -66,7 +67,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 - B/E headings, bearings, and radials use the Bullseye variation
 - Direct Box orientation and Direct Arc radials use the direct center variation in Auto mode
-- None (True HDG) applies no magnetic variation correction
+- None (True) applies no magnetic variation correction
 - Short reference displays omit unentered fractional minutes or seconds, while internal decimal-degree storage and exports keep precision
 
 ## Geometry
@@ -160,8 +161,11 @@ trueBearing = magneticBearing + magVarEastPositive
 - Object List rows do not show preset color swatches
 - Expanded details allow renaming, Line color preset selection, and Fill color editing where applicable
 - On wider screens, object name editing and Line color presets share one row; narrow screens stack them
-- Expanded details show Center, Radius, Created B/E, and Axis endpoint variation where applicable
-- Axis endpoint variation follows the magnetic variation mode used when the Axis was created
+- Expanded details show Center, Radius, Created B/E, Endpoint Var, and Inbound HDG where applicable
+- Created B/E and Center details include variation in the same line when variation metadata is available
+- Axis Endpoint Var follows the magnetic variation mode used when the Axis was created
+- Axis Inbound HDG is calculated from endpoint-to-B/E true bearing and the endpoint variation
+- None (True) Axis details show Inbound TRUE instead of Inbound HDG
 - Expanded details display coordinates in DD, DDM, or DMS
 - DDM and DMS minute values use two-digit integer padding
 - Coordinate list point numbers use a separate right-aligned column
