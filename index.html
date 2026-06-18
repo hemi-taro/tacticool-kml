@@ -28,7 +28,7 @@
     input, select, textarea, button { font: inherit; min-height: 42px; border-radius: 6px; border: 1px solid #aeb9c4; }
     input, select, textarea { padding: 8px; width: 100%; background: white; font-size: 16px; }
     .name-field, .coordinate-field { height: 42px; resize: none; overflow: hidden; white-space: nowrap; }
-    input[type="color"] { padding: 3px; }
+    input[type="color"] { width: 48px; min-height: 40px; padding: 3px; }
     input[type="checkbox"] { width: 22px; min-height: 22px; }
     .check { display: flex; align-items: center; gap: 7px; align-self: end; min-height: 42px; }
     button { border: 0; padding: 9px 14px; background: #1769aa; color: white; font-weight: 700; cursor: pointer; }
@@ -54,6 +54,12 @@
     .format-toggle { display: flex; border: 1px solid #aeb9c4; border-radius: 7px; overflow: hidden; }
     .format-toggle button { min-height: 42px; border-radius: 0; background: white; color: #364553; padding: 8px 14px; }
     .format-toggle button.active { background: #1769aa; color: white; }
+    .setting-row { display: grid; gap: 4px; }
+    .setting-label { font-size: .78rem; font-weight: 650; color: #6a7680; }
+    .color-control input[type="color"] { width: 48px; }
+    .color-picker-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .color-presets { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .color-preset { width: 28px; min-height: 28px; border-radius: 5px; border: 1px solid #8b98a5; padding: 0; background: var(--preset-color); }
     .object-row { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
     #object-list button, #object-list .object-row { touch-action: manipulation; }
     .swatch-button { width: 42px; min-height: 42px; padding: 4px; background: white; }
@@ -88,10 +94,18 @@
   </header>
   <main>
     <section>
-      <h2>Magnetic Variation</h2>
+      <h2>Settings</h2>
       <div class="grid">
         <label>Magnetic variation mode<select id="bull-magvar-mode"><option value="auto">Auto (WMM2025)</option><option value="manual">Manual</option><option value="none">None (True HDG)</option></select></label>
         <label id="bull-magvar-manual" hidden>Manual magnetic variation (E + / W -)<input id="bull-magvar" type="text" inputmode="decimal" value="0"></label>
+        <div class="setting-row">
+          <span class="setting-label">Display format</span>
+          <div id="settings-coordinate-format" class="format-toggle" aria-label="Coordinate display format">
+            <button type="button" data-format="dd">DD</button>
+            <button type="button" data-format="ddm" class="active">DDM</button>
+            <button type="button" data-format="dms">DMS</button>
+          </div>
+        </div>
       </div>
       <p class="summary">Auto/Manual treat headings and bearings as magnetic. None treats them as true.</p>
     </section>
@@ -113,7 +127,7 @@
         <div class="grid">
           <label>Heading<input id="axis-heading" type="text" inputmode="decimal"></label>
           <label>Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
-          <label>Color<input id="axis-color" type="color" value="#1565c0"></label>
+          <label class="color-control">Color<input id="axis-color" type="color" value="#1565c0"></label>
           <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
         </div>
         <div id="axis-tick-settings" class="grid" hidden>
@@ -121,7 +135,7 @@
           <label>Tickmark end distance (NM)<input id="tick-end" type="text" inputmode="decimal" placeholder="Axis length"></label>
           <label>Tickmark interval (NM)<input id="tick-interval" type="text" inputmode="decimal" placeholder="10"></label>
           <label>Tickmark width (NM)<input id="tick-width" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
+          <label class="color-control">Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Axis</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
@@ -135,7 +149,7 @@
           <label>Axis<select id="mission-axis" required></select></label>
           <label>Distance from B/E (NM)<input id="mission-distance" type="text" inputmode="decimal"></label>
           <label>Width (NM)<input id="mission-width" type="text" inputmode="decimal" placeholder="40"></label>
-          <label>Line color<input id="mission-color" type="color" value="#455a64"></label>
+          <label class="color-control">Line color<input id="mission-color" type="color" value="#455a64"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Mission Line</button><label>Name<textarea id="mission-name" class="name-field" rows="1" placeholder="Distance NM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
@@ -152,17 +166,17 @@
           <label class="check"><input id="sam-at-bullseye" type="checkbox"> At B/E</label>
         </div>
         <div id="sam-bullseye-center" class="grid" hidden>
-          <label>Bearing from Bullseye<input id="sam-bearing" type="text" inputmode="decimal"></label>
-          <label>Range from Bullseye (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
+          <label>Bearing<input id="sam-bearing" type="text" inputmode="decimal"></label>
+          <label>Range (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="sam-direct-center" class="grid">
           <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div class="grid">
           <label>Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
-          <label>Line color<input id="sam-color" type="color" value="#d32f2f"></label>
-          <label class="check"><input id="sam-fill-enabled" type="checkbox" checked> Enable polygon fill</label>
-          <label>Fill color<input id="sam-fill-color" type="color" value="#f6d6d6"></label>
+          <label class="color-control">Line color<input id="sam-color" type="color" value="#d32f2f"></label>
+          <label class="check"><input id="sam-fill-enabled" type="checkbox"> Enable polygon fill</label>
+          <label id="sam-fill-row" class="color-control" hidden>Fill color<input id="sam-fill-color" type="color" value="#f6d6d6"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add SAM Ring</button><label>Name<textarea id="sam-name" class="name-field" rows="1" placeholder="SAM center coordinates" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
@@ -180,8 +194,8 @@
           <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div id="custom-bullseye-point" class="grid" hidden>
-          <label>Bearing from Bullseye<input id="custom-bearing" type="text" inputmode="decimal"></label>
-          <label>Range from Bullseye (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
+          <label>Bearing<input id="custom-bearing" type="text" inputmode="decimal"></label>
+          <label>Range (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="custom-arc-point" hidden>
           <div class="grid">
@@ -210,8 +224,8 @@
             <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div id="custom-box-bullseye-center" class="grid" hidden>
-            <label>Bearing from Bullseye<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
-            <label>Range from Bullseye (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
+            <label>Bearing<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
+            <label>Range (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
           </div>
           <div class="grid">
             <label>Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
@@ -223,9 +237,9 @@
         <ul id="custom-point-list"></ul>
         <div class="grid">
           <label class="check"><input id="custom-close-shape" type="checkbox"> Close shape as area</label>
-          <label>Line color<input id="custom-line-color" type="color" value="#455a64"></label>
-          <label class="check"><input id="custom-fill-enabled" type="checkbox" checked> Enable polygon fill</label>
-          <label>Fill color<input id="custom-fill-color" type="color" value="#dadddf"></label>
+          <label class="color-control">Line color<input id="custom-line-color" type="color" value="#455a64"></label>
+          <label class="check"><input id="custom-fill-enabled" type="checkbox"> Enable polygon fill</label>
+          <label id="custom-fill-row" class="color-control" hidden>Fill color<input id="custom-fill-color" type="color" value="#dadddf"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Custom Point / Line / Area</button><label>Name<textarea id="custom-name" class="name-field" rows="1" placeholder="Custom Point / Line / Area" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
@@ -266,7 +280,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.0";
+    var APP_VERSION = "1.2.1";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -361,19 +375,19 @@
     }
 
     function formatSamDefaultName(center, format) {
-      return `SAM ${formatCoordinatePair(center, format)}`;
+      return `SAM ${formatCoordinatePairCompact(center, format)}`;
     }
 
     function formatBoxDefaultName(center, format) {
-      return `BOX ${formatCoordinatePair(center, format)}`;
+      return `BOX ${formatCoordinatePairCompact(center, format)}`;
     }
 
     function formatArcDefaultName(center, format) {
-      return `ARC ${formatCoordinatePair(center, format)}`;
+      return `ARC ${formatCoordinatePairCompact(center, format)}`;
     }
 
     function formatAxisDefaultName(magneticHeading, bullseye, format) {
-      return `AXIS ${formatAxisName(magneticHeading)} ${formatCoordinatePair(bullseye, format)}`;
+      return `AXIS ${formatAxisName(magneticHeading)} ${formatCoordinatePairCompact(bullseye, format)}`;
     }
 
     function formatCoordinate(value, isLat, format) {
@@ -394,6 +408,35 @@
 
     function formatCoordinatePair(point, format) {
       return `${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`;
+    }
+
+    function trimFixed(value, decimals) {
+      return Number(value.toFixed(decimals)).toString();
+    }
+
+    function formatCoordinateCompact(value, isLat, format) {
+      const hemisphere = value < 0 ? (isLat ? "S" : "W") : (isLat ? "N" : "E");
+      const absolute = Math.abs(value);
+      if (format === "dd") return `${trimFixed(absolute, 6)}° ${hemisphere}`;
+      const degrees = Math.floor(absolute);
+      const minutesFull = (absolute - degrees) * 60;
+      if (format === "ddm") {
+        const minutes = Number(minutesFull.toFixed(4));
+        return minutes === 0 ? `${degrees}° ${hemisphere}` : `${degrees}° ${trimFixed(minutesFull, 4)}' ${hemisphere}`;
+      }
+      let minutes = Math.floor(minutesFull);
+      let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
+      if (seconds >= 60) {
+        minutes += 1;
+        seconds = 0;
+      }
+      if (minutes === 0 && seconds === 0) return `${degrees}° ${hemisphere}`;
+      if (seconds === 0) return `${degrees}° ${minutes}' ${hemisphere}`;
+      return `${degrees}° ${minutes}' ${trimFixed(seconds, 2)}" ${hemisphere}`;
+    }
+
+    function formatCoordinatePairCompact(point, format) {
+      return `${formatCoordinateCompact(point.lat, true, format)} / ${formatCoordinateCompact(point.lon, false, format)}`;
     }
 
     function parseKmlCoordinateText(text) {
@@ -740,10 +783,13 @@
       const customPoints = [];
       let pendingCustomCenter = null;
       let pendingCustomCreatedBullseye = null;
+      let pendingCustomCenterVariation = null;
       let nextId = 1;
       let nextCustomPointId = 1;
       let coordinateFormat = "ddm";
       const expandedObjectIds = new Set();
+      const LINE_PRESET_COLORS = ["#1565C0","#D32F2F","#455A64","#2E7D32","#EF6C00","#FBC02D","#6A1B9A","#00838F","#111827"];
+      const FILL_PRESET_COLORS = ["#F6D6D6","#D7E8F5","#DCEEDC","#F7E4CC","#FFF3C4"];
       const $ = id => document.getElementById(id);
       const numberValue = id => Number($(id).value);
       const requiredNumber = (id, label) => parseRequiredNumber($(id).value, label);
@@ -788,7 +834,22 @@
 
       function bullseyeSummaryText(bull, label = "B/E") {
         const source = bull.mode === "none" ? "None True HDG" : bull.autoMagVar ? "Auto WMM2025" : "Manual";
-        return `${label}: ${bull.name} · ${formatCoordinatePair(bull, coordinateFormat)} · variation ${formatVariation(bull.magVar)} (${source})`;
+        return `${label}: ${bullseyeValueText(bull)} · variation ${formatVariation(bull.magVar)} (${source})`;
+      }
+
+      function bullseyeValueText(bull) {
+        return formatCoordinatePairCompact(bull, coordinateFormat);
+      }
+
+      function variationSourceText(mode) {
+        if (mode === "none") return "";
+        return mode === "auto" ? "Auto WMM2025" : "Manual";
+      }
+
+      function centerVariationFromContext(context, center) {
+        if (context.mode === "none") return { mode: "none", magVar: 0 };
+        if (context.mode === "manual") return { mode: "manual", magVar: context.magVar };
+        return { mode: "auto", magVar: calculateWmmDeclination(center.lat, center.lon, new Date()) };
       }
 
       function updateActiveBullseyeSummaries() {
@@ -969,8 +1030,8 @@
       }
 
       function createColorEditor(object, property, label) {
-        const button = document.createElement("span");
-        button.className = "swatch-button";
+        const wrapper = document.createElement("span");
+        wrapper.className = "color-picker-row";
         const input = document.createElement("input");
         input.type = "color";
         input.value = object[property];
@@ -981,8 +1042,37 @@
           object[property] = input.value;
           renderPreview();
         });
-        button.append(input);
-        return button;
+        wrapper.append(input, createColorPresetButtons(input, property === "fillColor"));
+        return wrapper;
+      }
+
+      function createColorPresetButtons(input, fill) {
+        const presets = document.createElement("span");
+        presets.className = "color-presets";
+        for (const color of fill ? FILL_PRESET_COLORS : LINE_PRESET_COLORS) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "color-preset";
+          button.style.setProperty("--preset-color", color);
+          button.setAttribute("aria-label", `Set color ${color}`);
+          button.addEventListener("click", event => {
+            event.stopPropagation();
+            input.value = color.toLowerCase();
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+          presets.append(button);
+        }
+        return presets;
+      }
+
+      function enhanceColorInputs() {
+        document.querySelectorAll("label.color-control input[type='color']").forEach(input => {
+          if (input.parentElement.querySelector(".color-picker-row")) return;
+          const row = document.createElement("span");
+          row.className = "color-picker-row";
+          input.after(row);
+          row.append(input, createColorPresetButtons(input, /fill/i.test(input.id)));
+        });
       }
 
       function createObjectDetails(object) {
@@ -1017,8 +1107,14 @@
         if (object.center) {
           const center = document.createElement("div");
           center.className = "summary";
-          center.textContent = `Center: ${formatCoordinatePair(object.center, coordinateFormat)}`;
+          center.textContent = `Center: ${formatCoordinatePairCompact(object.center, coordinateFormat)}`;
           details.append(center);
+        }
+        if (object.centerVariation && object.centerVariation.mode !== "none") {
+          const variation = document.createElement("div");
+          variation.className = "summary";
+          variation.textContent = `Center variation: ${formatVariation(object.centerVariation.magVar)} ${variationSourceText(object.centerVariation.mode)}`;
+          details.append(variation);
         }
         if (Number.isFinite(object.radius)) {
           const radius = document.createElement("div");
@@ -1029,7 +1125,7 @@
         if (object.createdBullseye) {
           const created = document.createElement("div");
           created.className = "summary";
-          created.textContent = bullseyeSummaryText(object.createdBullseye, "Created B/E");
+          created.textContent = `Created B/E: ${bullseyeValueText(object.createdBullseye)}`;
           details.append(created);
         }
         if (object.type === "Axis" && object.coordinates.length >= 2) {
@@ -1114,6 +1210,7 @@
           $("bull-summary").textContent = "";
           $("bull-message").textContent = "";
           updateActiveBullseyeSummaries();
+          updateAxisNamePlaceholder();
           return;
         }
         try {
@@ -1125,6 +1222,7 @@
           $("bull-message").textContent = error.message;
         }
         updateActiveBullseyeSummaries();
+        updateAxisNamePlaceholder();
       }
 
       $("sam-form").addEventListener("submit", event => {
@@ -1221,7 +1319,10 @@
         try {
           const mode = $("custom-point-mode").value;
           if (mode !== "box" && mode !== "arc") pendingCustomCenter = null;
-          if (mode !== "box" && mode !== "arc") pendingCustomCreatedBullseye = null;
+          if (mode !== "box" && mode !== "arc") {
+            pendingCustomCreatedBullseye = null;
+            pendingCustomCenterVariation = null;
+          }
           if (mode === "arc") {
             const start = requiredNumber("custom-arc-start", "Start radial");
             const end = requiredNumber("custom-arc-end", "End radial");
@@ -1239,6 +1340,7 @@
             points.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
             pendingCustomCenter = { ...arc.center };
             pendingCustomCreatedBullseye = arc.createdBullseye;
+            pendingCustomCenterVariation = null;
             if (!$("custom-name").value.trim()) $("custom-name").value = formatArcDefaultName(arc.center, arc.nameFormat);
             renderCustomPoints();
             setMessage($("custom-form"), "");
@@ -1257,6 +1359,7 @@
               .forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
             pendingCustomCenter = isStandaloneBox ? { ...box.center } : null;
             pendingCustomCreatedBullseye = isStandaloneBox ? box.createdBullseye : null;
+            pendingCustomCenterVariation = isStandaloneBox ? centerVariationFromContext(box.bearingContext, box.center) : null;
             if (!$("custom-name").value.trim()) $("custom-name").value = formatBoxDefaultName(box.center, box.nameFormat);
             $("custom-close-shape").checked = true;
             renderCustomPoints();
@@ -1299,11 +1402,13 @@
             fillColor: closeShape && $("custom-fill-enabled").checked ? $("custom-fill-color").value : null,
             ...(closeShape && pendingCustomCenter ? { center: { ...pendingCustomCenter } } : {}),
             ...(pendingCustomCreatedBullseye ? { createdBullseye: pendingCustomCreatedBullseye } : {}),
+            ...(pendingCustomCenterVariation ? { centerVariation: pendingCustomCenterVariation } : {}),
             coordinates
           });
           customPoints.length = 0;
           pendingCustomCenter = null;
           pendingCustomCreatedBullseye = null;
+          pendingCustomCenterVariation = null;
           clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range","custom-arc-coordinates","custom-arc-start","custom-arc-end","custom-arc-radius","custom-arc-count","custom-box-coordinates","custom-box-bearing","custom-box-range","custom-box-x","custom-box-y","custom-box-y-bearing"]);
           $("custom-close-shape").checked = false;
           renderCustomPoints();
@@ -1436,6 +1541,12 @@
         $("bull-magvar-manual").hidden = $("bull-magvar-mode").value !== "manual";
         updateBullSummary();
       });
+      $("sam-fill-enabled").addEventListener("change", () => {
+        $("sam-fill-row").hidden = !$("sam-fill-enabled").checked;
+      });
+      $("custom-fill-enabled").addEventListener("change", () => {
+        $("custom-fill-row").hidden = !$("custom-fill-enabled").checked;
+      });
 
       $("clear-all").addEventListener("click", () => {
         objects.length = 0;
@@ -1443,15 +1554,24 @@
         renderObjects();
       });
 
-      $("coordinate-format").addEventListener("click", event => {
-        const button = event.target.closest("button[data-format]");
-        if (!button) return;
-        coordinateFormat = button.dataset.format;
-        $("coordinate-format").querySelectorAll("button").forEach(candidate => candidate.classList.toggle("active", candidate === button));
+      function setCoordinateFormat(format) {
+        coordinateFormat = format;
+        document.querySelectorAll(".format-toggle").forEach(toggle => {
+          toggle.querySelectorAll("button[data-format]").forEach(button => button.classList.toggle("active", button.dataset.format === format));
+        });
         updateBullSummary();
+        updateAxisNamePlaceholder();
         renderObjects();
         renderCustomPoints();
-      });
+      }
+
+      function handleCoordinateFormatClick(event) {
+        const button = event.target.closest("button[data-format]");
+        if (!button) return;
+        setCoordinateFormat(button.dataset.format);
+      }
+      $("coordinate-format").addEventListener("click", handleCoordinateFormatClick);
+      $("settings-coordinate-format").addEventListener("click", handleCoordinateFormatClick);
 
       $("import-geometry").addEventListener("click", () => $("import-geometry-file").click());
       $("import-geometry-file").addEventListener("change", async event => {
@@ -1549,13 +1669,15 @@
 
       document.querySelectorAll("#bull-name, #bull-magvar, #bull-coordinates")
         .forEach(element => element.addEventListener("input", updateBullSummary));
-      $("axis-heading").addEventListener("input", () => {
+      function updateAxisNamePlaceholder() {
         try {
-          $("axis-name").placeholder = $("axis-heading").value.trim() === "" ? "AXIS HDG/RECIP B/E" : formatAxisDefaultName(numberValue("axis-heading"), getBullseye(), coordinateFormat);
+          const bull = getBullseye();
+          $("axis-name").placeholder = $("axis-heading").value.trim() === "" ? `AXIS HDG/RECIP ${formatCoordinatePairCompact(bull, coordinateFormat)}` : formatAxisDefaultName(numberValue("axis-heading"), bull, coordinateFormat);
         } catch {
-          $("axis-name").placeholder = $("axis-heading").value.trim() === "" ? "AXIS HDG/RECIP B/E" : `AXIS ${formatAxisName(numberValue("axis-heading"))}`;
+          $("axis-name").placeholder = $("axis-heading").value.trim() === "" ? "AXIS HDG/RECIP" : `AXIS ${formatAxisName(numberValue("axis-heading"))}`;
         }
-      });
+      }
+      $("axis-heading").addEventListener("input", updateAxisNamePlaceholder);
       $("axis-length").addEventListener("input", () => {
         $("tick-end").placeholder = $("axis-length").value.trim() === "" ? "Axis length" : $("axis-length").value;
       });
@@ -1569,6 +1691,7 @@
       }
       document.querySelectorAll(".name-field").forEach(preventFieldNewline);
       document.querySelectorAll(".coordinate-field").forEach(preventFieldNewline);
+      enhanceColorInputs();
 
 
       async function refreshAppCache() {

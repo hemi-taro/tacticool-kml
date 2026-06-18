@@ -2,6 +2,22 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.1] - 2026-06-18
+
+### Changed
+
+- Magnetic VariationをSettingsへ変更し、Display format切替を追加
+- SettingsとObject ListのDD/DDM/DMS表示切替を同期
+- B/E、Created B/E、Center、既定名の座標表示を短縮表示へ変更
+- SAM RingとCustom AreaのPolygon fillを初期OFFへ変更
+- Fill colorはPolygon fill有効時のみ表示
+- Color入力を小型化し、プリセット色を追加
+- B/E Bearing / Range入力のラベルをBearing / Rangeへ短縮
+
+### Added
+
+- Box由来Custom AreaのObject List詳細にCenter variation表示を追加
+
 ## [1.2.0] - 2026-06-18
 
 ### Added
