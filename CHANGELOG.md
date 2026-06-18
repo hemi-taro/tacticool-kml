@@ -2,6 +2,24 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.0] - 2026-06-18
+
+### Added
+
+- Magnetic Variationに`None (True HDG)`を追加
+- Arc中心をDirect coordinatesまたはAt B/Eで指定可能に変更
+- Axis、SAM Ring、Custom欄に現在のB/E表示を追加
+- Object List詳細にCreated B/E、Axis endpoint variation、SAM radius表示を追加
+
+### Changed
+
+- 方位入力ラベルから`(MAG)`表記を削除
+- Direct BoxとDirect ArcをB/E未入力でも作成可能に変更
+- Direct BoxとDirect ArcはAuto時に中心座標のWMM2025磁気偏差を使用
+- 既定名を`SAM {中心座標}`、`BOX {中心座標}`、`ARC {中心座標}`、`AXIS {方位/反方位} {B/E座標}`へ変更
+- Object Listの名前変更ボタンを`Rename`へ変更
+- PWAキャッシュをv1.2.0へ更新
+
 ## [1.1.4] - 2026-06-16
 
 ### Changed
