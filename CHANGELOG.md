@@ -2,6 +2,16 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.3.1] - 2026-06-20
+
+### Added
+
+- Previewのworld coastline opacityをLow / Mid / Highで選択できるように変更
+
+### Changed
+
+- PWAキャッシュをv1.3.1へ更新
+
 ## [1.3.0] - 2026-06-20
 
 ### Added

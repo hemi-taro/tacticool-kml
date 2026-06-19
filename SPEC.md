@@ -1,4 +1,4 @@
-# Tacticool KML v1.3.0 Specification
+# Tacticool KML v1.3.1 Specification
 
 ## Purpose
 
@@ -243,6 +243,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 - SVG preview shows relative geometry placement without map tiles
 - SVG preview includes simplified world coastline as a background reference
+- Preview coastline opacity can be selected as Low, Mid, or High; Low matches the v1.3.0 default
 - Coastline preview data is not included in KML or GeoJSON export
 - Line width and fill colors are represented
 - Preview is not a navigation map and does not prove geographic correctness

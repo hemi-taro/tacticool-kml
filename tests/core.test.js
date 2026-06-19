@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.3.0", () => {
-  assert.equal(context.APP_VERSION, "1.3.0");
+test("app version is v1.3.1", () => {
+  assert.equal(context.APP_VERSION, "1.3.1");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -628,7 +628,11 @@ test("coastline preview data is embedded as SVG path source", () => {
   assert.ok(Array.isArray(context.COASTLINE_SVG_PATHS));
   assert.ok(context.COASTLINE_SVG_PATHS.length > 100);
   assert.ok(context.COASTLINE_SVG_PATHS.every(item => Array.isArray(item.bbox) && typeof item.d === "string" && item.d.startsWith("M")));
-  assert.match(html, /\.coastline-preview\s*\{[^}]*opacity:\s*0\.5/);
+  assert.match(html, /id="preview-map-opacity"/);
+  assert.match(html, /<option value="0\.5" selected>Low<\/option><option value="0\.7">Mid<\/option><option value="0\.9">High<\/option>/);
+  assert.match(html, /function previewMapOpacity/);
+  assert.match(html, /path\.setAttribute\("opacity", String\(previewMapOpacity\(\)\)\)/);
+  assert.match(html, /\$\("preview-map-opacity"\)\.addEventListener\("change", renderPreview\)/);
 });
 
 test("bearing context resolves local auto variation without requiring Bullseye", () => {

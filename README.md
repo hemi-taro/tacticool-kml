@@ -1,4 +1,4 @@
-# Tacticool KML v1.3.0
+# Tacticool KML v1.3.1
 
 Stable release.
 
@@ -47,7 +47,7 @@ AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 
 
 B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Full circleまたは時計回りのStart/End radial、Major radial interval、任意のMinor radial interval、Start/End range、Range ring intervalを指定できます。000/090/180/270はCardinal、Majorは通常表示、Minorはより薄く細い線として出力されます。Minor radial intervalが空ならMinorは描画されません。Object List上では1つのB/E Spiderとして管理されます。
 
-Previewには軽量化したworld coastlineを背景表示します。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
+Previewには軽量化したworld coastlineを背景表示します。Map opacityでLow / Mid / Highを選べます。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
 
 WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 

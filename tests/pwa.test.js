@@ -17,7 +17,7 @@ test("manifest supports standalone offline installation", () => {
 });
 
 test("service worker caches the PWA shell and removes old caches", () => {
-  assert.match(worker, /tacticool-kml-v1\.3\.0/);
+  assert.match(worker, /tacticool-kml-v1\.3\.1/);
   for (const file of ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"]) {
     assert.match(worker, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
