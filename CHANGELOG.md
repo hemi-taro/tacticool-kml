@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.2] - 2026-06-20
+
+### Added
+
+- Added Box internal lines using equal divisions or ratio splits
+- Export Box internal lines to KML, GeoJSON, and Preview
+
+### Changed
+
+- Removed the Preview map opacity selector
+- Set Preview coastline visibility to high by default
+
 ## [1.3.1] - 2026-06-20
 
 ### Added
