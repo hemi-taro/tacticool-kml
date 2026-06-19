@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.1] - 2026-06-20
+
+### Added
+
+- Added B/E Spider range rings and Major / Minor / Cardinal radial output
+- Added world coastline reference in Preview
+- Added Preview map opacity selector
+
+### Improved
+
+- Made polygon fill output lighter
+- Improved Spider KML and GeoJSON output structure
+
 ## [1.2.7] - 2026-06-19
 
 ### Changed
