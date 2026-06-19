@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.3.2] - 2026-06-20
+
+### Added
+
+- BoxにWidth/Depthの等分割と比率分割による内部線を追加
+- Box内部線をKML/GeoJSON/Previewへ出力
+
+### Changed
+
+- Previewのworld coastline opacityをHigh相当に固定し、選択UIを削除
+- PWAキャッシュをv1.3.2へ更新
+
 ## [1.3.1] - 2026-06-20
 
 ### Added

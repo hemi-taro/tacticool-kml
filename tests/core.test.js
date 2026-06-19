@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.3.1", () => {
-  assert.equal(context.APP_VERSION, "1.3.1");
+test("app version is v1.3.2", () => {
+  assert.equal(context.APP_VERSION, "1.3.2");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -62,7 +62,7 @@ test("global Settings include magnetic variation and synchronized display format
 });
 
 test("Custom Point Line Area supports Box, fill control, and Arc point counts", () => {
-  for (const id of ["custom-form", "custom-point-mode", "custom-coordinates", "custom-bearing", "custom-range", "custom-generate", "custom-point-list", "custom-close-shape", "custom-fill-enabled", "custom-line-color", "custom-fill-color", "custom-name", "custom-box-center-mode", "custom-box-at-bullseye", "custom-box-coordinates", "custom-box-bearing", "custom-box-range", "custom-box-x", "custom-box-y", "custom-box-y-bearing", "custom-arc-center-mode", "custom-arc-at-bullseye", "custom-arc-coordinates", "custom-arc-count-mode", "custom-arc-count", "custom-arc-summary"]) {
+  for (const id of ["custom-form", "custom-point-mode", "custom-coordinates", "custom-bearing", "custom-range", "custom-generate", "custom-point-list", "custom-close-shape", "custom-fill-enabled", "custom-line-color", "custom-fill-color", "custom-name", "custom-box-center-mode", "custom-box-at-bullseye", "custom-box-coordinates", "custom-box-bearing", "custom-box-range", "custom-box-x", "custom-box-y", "custom-box-y-bearing", "custom-box-width-divisions", "custom-box-depth-divisions", "custom-box-width-ratio", "custom-box-depth-ratio", "custom-arc-center-mode", "custom-arc-at-bullseye", "custom-arc-coordinates", "custom-arc-count-mode", "custom-arc-count", "custom-arc-summary"]) {
     assert.match(html, new RegExp(`id="${id}"`));
   }
   assert.match(html, /const customPoints = \[\]/);
@@ -393,6 +393,21 @@ test("box generation uses complete side lengths and positive Y bearing", () => {
   assert.ok(Math.abs(eastWestSpan - 20 * degreesPerNm) < 1e-4);
 });
 
+test("box internal line generation supports equal divisions and ratios by axis", () => {
+  const center = { lat: 0, lon: 0 };
+  const box = context.generateBoxWithInternalLines(center, 40, 20, 0, {
+    widthDivisions: 4,
+    depthRatio: "7:3"
+  });
+  assert.equal(box.outline.length, 5);
+  assert.equal(box.gridSegments.length, 4);
+  assert.ok(box.gridSegments.every(segment => segment.length === 2));
+  assert.equal(JSON.stringify(box.coordinates), JSON.stringify([...box.outline, ...box.gridSegments.flat()]));
+  assert.equal(context.generateBoxWithInternalLines(center, 40, 20, 0, {}).gridSegments.length, 0);
+  assert.throws(() => context.generateBoxWithInternalLines(center, 40, 20, 0, { widthDivisions: 2, widthRatio: "1:1" }), /Choose either Width divisions or Width ratio/);
+  assert.throws(() => context.generateBoxWithInternalLines(center, 40, 20, 0, { depthRatio: "7:0" }), /Depth ratio/);
+});
+
 test("default document name uses local date and time", () => {
   assert.equal(context.formatLocalDateTime(new Date(2026, 5, 11, 9, 7)), "2026-06-11-0907");
   assert.equal(context.resolveDocumentName("", new Date(2026, 5, 11, 9, 7)), "2026-06-11-0907");
@@ -628,11 +643,9 @@ test("coastline preview data is embedded as SVG path source", () => {
   assert.ok(Array.isArray(context.COASTLINE_SVG_PATHS));
   assert.ok(context.COASTLINE_SVG_PATHS.length > 100);
   assert.ok(context.COASTLINE_SVG_PATHS.every(item => Array.isArray(item.bbox) && typeof item.d === "string" && item.d.startsWith("M")));
-  assert.match(html, /id="preview-map-opacity"/);
-  assert.match(html, /<option value="0\.5" selected>Low<\/option><option value="0\.7">Mid<\/option><option value="0\.9">High<\/option>/);
-  assert.match(html, /function previewMapOpacity/);
-  assert.match(html, /path\.setAttribute\("opacity", String\(previewMapOpacity\(\)\)\)/);
-  assert.match(html, /\$\("preview-map-opacity"\)\.addEventListener\("change", renderPreview\)/);
+  assert.doesNotMatch(html, /id="preview-map-opacity"/);
+  assert.doesNotMatch(html, /function previewMapOpacity/);
+  assert.match(html, /path\.setAttribute\("opacity", "0\.9"\)/);
 });
 
 test("bearing context resolves local auto variation without requiring Bullseye", () => {
@@ -759,6 +772,27 @@ test("KML export preserves object list order and creates filled polygons", () =>
   assert.ok(kml.indexOf("<name>First</name>") < kml.indexOf("<name>Area</name>"));
   assert.match(kml, /<Polygon>/);
   assert.match(kml, /<PolyStyle><color>33bdab87<\/color><\/PolyStyle>/);
+});
+
+test("KML and GeoJSON export Box area grid as same object group", () => {
+  const box = context.generateBoxWithInternalLines({ lat: 35, lon: 129 }, 20, 20, 0, { widthDivisions: 2, depthRatio: "7:3" });
+  const object = {
+    name: "BOX 35 N / 129 E",
+    type: "Custom Area",
+    color: "#455a64",
+    fillColor: "#dadddf",
+    coordinates: box.outline,
+    gridSegments: box.gridSegments
+  };
+  const kml = context.buildKml("Mission", [object], 4);
+  assert.match(kml, /<Polygon>/);
+  assert.match(kml, /<name>BOX 35 N \/ 129 E Grid<\/name>/);
+  assert.match(kml, /<MultiGeometry>/);
+  const geojson = JSON.parse(context.buildGeoJson("Mission", [object]));
+  assert.equal(geojson.features.length, 2);
+  assert.equal(geojson.features[0].geometry.type, "Polygon");
+  assert.equal(geojson.features[1].properties.role, "box-grid");
+  assert.equal(geojson.features[1].geometry.type, "MultiLineString");
 });
 
 test("KML exports a Custom Area without fill when fill is disabled", () => {
