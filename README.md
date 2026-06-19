@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.8
+# Tacticool KML v1.2.9
 
 Stable release.
 
@@ -45,7 +45,9 @@ SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}
 
 AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 10NM、Sub 10NM / Width 5NMです。Start distanceは表示下限で、intervalの基準は常にB/Eです。Mainと同じ距離ではMainが優先されます。TickmarkはObject List上では1つのTickmark Groupとして管理され、KMLでは1つのMultiGeometry Placemarkとして出力されます。
 
-B/E SpiderはBullseyeから指定範囲のラジアル線をまとめて作成します。Full circleまたは時計回りのStart/End radial、Radial interval、Start/End rangeを指定できます。000/090/180/270はCardinal radialとして通常ラジアルより目立つ色と太さで出力されます。Object List上では1つのB/E Spiderとして管理されます。
+B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Full circleまたは時計回りのStart/End radial、Radial interval、Start/End range、Range ring intervalを指定できます。000/090/180/270はCardinal radialとして通常ラジアルより目立つ色と太さで出力されます。Object List上では1つのB/E Spiderとして管理されます。
+
+Previewには軽量化したworld coastlineを薄く表示します。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
 
 WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 

@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.9] - 2026-06-20
+
+### Added
+
+- B/E SpiderにRange ring intervalを追加
+- B/E SpiderのStart/End rangeに沿ったrange ringsをKML/GeoJSON/Previewへ出力
+- Preview背景に軽量化したworld coastline SVG pathを追加
+
+### Changed
+
+- PWAキャッシュをv1.2.9へ更新
+
 ## [1.2.8] - 2026-06-20
 
 ### Added
