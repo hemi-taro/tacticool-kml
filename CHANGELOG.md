@@ -2,6 +2,21 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.5] - 2026-06-19
+
+### Added
+
+- 各Addボタン横にObject Listへ移動する下矢印ボタンを追加
+- Object List詳細が開いている時に、全詳細を閉じる右下の上矢印ボタンを追加
+
+### Changed
+
+- Object List詳細のName入力、Rename、Line color配置を調整
+- Object List詳細でLine color / Fill colorを変更した時、一覧行とプレビューへ即時反映
+- 既定名のDDM分表示を二桁に統一
+- Symbolic DDM/DMS入力で一桁分を受け付けるよう変更
+- PWAキャッシュをv1.2.5へ更新
+
 ## [1.2.4] - 2026-06-19
 
 ### Changed

@@ -39,8 +39,10 @@
     .add-with-name { align-items: end; flex-wrap: nowrap; }
     .add-with-name label { flex: 1; min-width: 0; }
     .add-with-name button { flex: 0 0 auto; }
+    .object-list-jump { flex: 0 0 auto; min-width: 42px; padding: 9px 12px; }
     .message { min-height: 1.3em; margin: 9px 0 0; font-size: .85rem; color: #a12828; }
     .summary { margin: 10px 0 0; font-size: .86rem; color: #425466; }
+    #object-list-section { position: relative; padding-bottom: 62px; }
     #object-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     #object-list li { display: flex; align-items: center; gap: 9px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; }
     .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #888; flex: 0 0 auto; }
@@ -68,9 +70,10 @@
     .swatch-button { width: 42px; min-height: 42px; padding: 4px; background: white; }
     .swatch-button input { width: 100%; height: 30px; min-height: 30px; padding: 0; border: 0; }
     .object-details { margin: 8px 0 0 51px; padding: 9px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 9px; }
-    .object-detail-grid { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 12px; align-items: end; }
+    .object-detail-grid { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
     .object-name-edit { display: flex; align-items: end; gap: 7px; }
     .object-name-edit label { flex: 0 0 300px; width: 300px; max-width: 300px; }
+    .collapse-object-details { position: absolute; right: 14px; bottom: 14px; width: 42px; min-height: 42px; padding: 0; border-radius: 50%; background: #52616f; }
     details.panel { background: white; border: 1px solid #d8dee4; border-radius: 8px; padding: 16px; }
     details.panel summary { cursor: pointer; font-size: 1.15rem; font-weight: 700; }
     details.panel[open] summary { margin-bottom: 14px; }
@@ -88,7 +91,7 @@
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
       .ddm { grid-template-columns: 1fr 1fr 64px; }
-      .object-detail-grid { grid-template-columns: 1fr; }
+      .object-detail-grid { display: grid; grid-template-columns: 1fr; }
       .object-name-edit { display: grid; }
       .object-name-edit label { flex: 1 1 auto; width: auto; max-width: none; }
     }
@@ -143,7 +146,7 @@
           <label>Tickmark width (NM)<input id="tick-width" type="text" inputmode="decimal" placeholder="10"></label>
           <label class="color-control">Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
         </div>
-        <div class="actions add-with-name"><button type="submit">Add Axis</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
+        <div class="actions add-with-name"><button type="submit">Add Axis</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
       </form>
     </details>
@@ -157,7 +160,7 @@
           <label>Width (NM)<input id="mission-width" type="text" inputmode="decimal" placeholder="40"></label>
           <label class="color-control">Line color<input id="mission-color" type="color" value="#455a64"></label>
         </div>
-        <div class="actions add-with-name"><button type="submit">Add Mission Line</button><label>Name<textarea id="mission-name" class="name-field" rows="1" placeholder="Distance NM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
+        <div class="actions add-with-name"><button type="submit">Add Mission Line</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="mission-name" class="name-field" rows="1" placeholder="Distance NM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
       </form>
     </details>
@@ -184,7 +187,7 @@
           <label class="check"><input id="sam-fill-enabled" type="checkbox"> Enable polygon fill</label>
           <label id="sam-fill-row" class="color-control" hidden>Fill color<input id="sam-fill-color" type="color" value="#f6d6d6"></label>
         </div>
-        <div class="actions add-with-name"><button type="submit">Add SAM Ring</button><label>Name<textarea id="sam-name" class="name-field" rows="1" placeholder="SAM center coordinates" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
+        <div class="actions add-with-name"><button type="submit">Add SAM Ring</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="sam-name" class="name-field" rows="1" placeholder="SAM center coordinates" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
       </form>
     </details>
@@ -247,12 +250,12 @@
           <label class="check"><input id="custom-fill-enabled" type="checkbox"> Enable polygon fill</label>
           <label id="custom-fill-row" class="color-control" hidden>Fill color<input id="custom-fill-color" type="color" value="#dadddf"></label>
         </div>
-        <div class="actions add-with-name"><button type="submit">Add Custom Point / Line / Area</button><label>Name<textarea id="custom-name" class="name-field" rows="1" placeholder="Custom Point / Line / Area" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
+        <div class="actions add-with-name"><button type="submit">Add Custom Point / Line / Area</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="custom-name" class="name-field" rows="1" placeholder="Custom Point / Line / Area" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
         <p class="message"></p>
       </form>
     </details>
 
-    <section>
+    <section id="object-list-section">
       <div class="section-toolbar">
         <div class="actions" style="margin-top:0"><button id="import-geometry" class="secondary" type="button">Import Geometry</button><input id="import-geometry-file" type="file" hidden></div>
         <h2>Object List</h2>
@@ -266,6 +269,7 @@
         </div>
       </div>
       <ul id="object-list"></ul>
+      <button id="collapse-object-details" class="collapse-object-details" type="button" aria-label="Collapse all object details" title="Collapse all object details" hidden>▲</button>
     </section>
 
     <section>
@@ -286,7 +290,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.4";
+    var APP_VERSION = "1.2.5";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -313,6 +317,20 @@
       if (!raw) throw new Error("Coordinate is required.");
       const hemi = raw.match(/[NSEW]/)?.[0] || "";
       const sign = raw.startsWith("-") || hemi === "S" || hemi === "W" ? -1 : 1;
+      if (/[°'"]/.test(raw)) {
+        const symbolic = raw.replace(/[NSEW+\-]/g, "").trim().match(/^(\d+(?:\.\d+)?)\s*°?\s*(?:(\d+(?:\.\d+)?)\s*')?\s*(?:(\d+(?:\.\d+)?)\s*")?\s*$/);
+        if (!symbolic) throw new Error("Invalid coordinate format.");
+        const degPart = Number(symbolic[1]);
+        const minPart = symbolic[2] === undefined ? 0 : Number(symbolic[2]);
+        const secPart = symbolic[3] === undefined ? 0 : Number(symbolic[3]);
+        if (!Number.isFinite(degPart) || !Number.isFinite(minPart) || !Number.isFinite(secPart) || minPart >= 60 || secPart >= 60) {
+          throw new Error("Invalid coordinate minutes or seconds.");
+        }
+        const result = sign * (degPart + minPart / 60 + secPart / 3600);
+        const maxAbs = isLat ? 90 : 180;
+        if (Math.abs(result) > maxAbs) throw new Error("Invalid coordinate range.");
+        return result;
+      }
       const text = raw.replace(/[NSEW+\-\s,°'"]/g, "");
       const degDigits = isLat ? 2 : 3;
       const maxAbs = isLat ? 90 : 180;
@@ -428,7 +446,8 @@
       const minutesFull = (absolute - degrees) * 60;
       if (format === "ddm") {
         const minutes = Number(minutesFull.toFixed(4));
-        return minutes === 0 ? `${degrees}° ${hemisphere}` : `${degrees}° ${trimFixed(minutesFull, 4)}' ${hemisphere}`;
+        const minuteText = trimFixed(minutesFull, 4);
+        return minutes === 0 ? `${degrees}° ${hemisphere}` : `${degrees}° ${minuteText.padStart(minuteText.length === 1 ? 2 : minuteText.length, "0")}' ${hemisphere}`;
       }
       let minutes = Math.floor(minutesFull);
       let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
@@ -1087,6 +1106,11 @@
         bindPointerReorder(list, objects, renderObjects);
         renderAxisOptions();
         renderPreview();
+        $("collapse-object-details").hidden = !(expandedObjectIds.size > 0);
+      }
+
+      function scrollToObjectList() {
+        $("object-list-section").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
       function createColorEditor(object, property, label) {
@@ -1095,15 +1119,24 @@
         const input = document.createElement("input");
         input.type = "color";
         input.value = object[property];
+        input.dataset.colorObjectId = String(object.id);
+        input.dataset.colorProperty = property;
         input.setAttribute("aria-label", label);
         input.addEventListener("click", event => event.stopPropagation());
         input.addEventListener("input", event => {
           event.stopPropagation();
-          object[property] = input.value;
-          renderPreview();
+          updateObjectColorProperty(object, property, input.value);
         });
         wrapper.append(input);
         return wrapper;
+      }
+
+      function updateObjectColorProperty(object, property, value) {
+        object[property] = value;
+        document.querySelectorAll(`[data-color-object-id="${object.id}"][data-color-property="${property}"]`).forEach(input => {
+          if (input.value !== value) input.value = value;
+        });
+        renderPreview();
       }
 
       function createPresetColorEditor(object, property, label) {
@@ -1112,12 +1145,13 @@
         const input = document.createElement("input");
         input.type = "color";
         input.value = object[property];
+        input.dataset.colorObjectId = String(object.id);
+        input.dataset.colorProperty = property;
         input.setAttribute("aria-label", label);
         input.addEventListener("click", event => event.stopPropagation());
         input.addEventListener("input", event => {
           event.stopPropagation();
-          object[property] = input.value;
-          renderPreview();
+          updateObjectColorProperty(object, property, input.value);
         });
         wrapper.append(input, createColorPresetButtons(input, property === "fillColor"));
         return wrapper;
@@ -1781,6 +1815,11 @@
         $("mission-name").placeholder = $("mission-distance").value.trim() === "" ? "Distance NM" : formatMissionLineName(numberValue("mission-distance"));
       });
       $("kml-line-width").addEventListener("input", renderPreview);
+      document.querySelectorAll(".object-list-jump").forEach(button => button.addEventListener("click", scrollToObjectList));
+      $("collapse-object-details").addEventListener("click", () => {
+        expandedObjectIds.clear();
+        renderObjects();
+      });
       function preventFieldNewline(field) {
         field.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();field.blur();}});
         field.addEventListener("input",()=>{if(/[\r\n]/.test(field.value))field.value=field.value.replace(/[\r\n]+/g," ");});

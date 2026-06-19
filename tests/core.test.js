@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.4", () => {
-  assert.equal(context.APP_VERSION, "1.2.4");
+test("app version is v1.2.5", () => {
+  assert.equal(context.APP_VERSION, "1.2.5");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -136,6 +136,13 @@ test("field layout follows the v0.12 section order", () => {
   assert.match(toolbar, /id="clear-all"/);
 });
 
+test("Add actions include Object List jump controls", () => {
+  assert.match(html, /function scrollToObjectList/);
+  assert.match(html, /class="[^"]*object-list-jump[^"]*"/);
+  assert.match(html, /aria-label="Go to Object List"/);
+  assert.match(html, /scrollIntoView\(\{ behavior: "smooth", block: "start" \}\)/);
+});
+
 test("successful KML download message clears automatically", () => {
   assert.match(html, /function showTemporaryExportMessage/);
   assert.match(html, /setTimeout\(\(\)=>\{if\(message\.textContent===text\)message\.textContent=""\;\},3000\)/);
@@ -248,8 +255,19 @@ test("color controls use compact native picker plus preset swatches", () => {
   assert.doesNotMatch(html, /#FFFF00/);
   assert.match(html, /function createPresetColorEditor/);
   assert.match(html, /className = "object-detail-grid"/);
-  assert.match(html, /\.object-detail-grid\s*\{[^}]*grid-template-columns:\s*minmax\(240px,\s*300px\) minmax\(0,\s*1fr\)/);
+  assert.match(html, /\.object-detail-grid\s*\{[^}]*display:\s*flex/);
   assert.match(html, /\.object-name-edit label\s*\{[^}]*width:\s*300px/);
+  assert.match(html, /function updateObjectColorProperty/);
+  assert.match(html, /data-color-object-id/);
+  assert.doesNotMatch(html, /grid-template-columns:\s*minmax\(240px,\s*300px\) minmax\(0,\s*1fr\)/);
+});
+
+test("Object List details can be collapsed from a floating control", () => {
+  assert.match(html, /id="object-list-section"/);
+  assert.match(html, /id="collapse-object-details"/);
+  assert.match(html, /aria-label="Collapse all object details"/);
+  assert.match(html, /expandedObjectIds\.size > 0/);
+  assert.match(html, /expandedObjectIds\.clear\(\)/);
 });
 
 test("successful object creation clears transient geometry fields", () => {
@@ -268,6 +286,9 @@ test("coordinate parser detects DD DDM and DMS by decimal and digit count", () =
   assert.ok(Math.abs(context.parseCoordinateInput("13520.000E", false) - 135.3333333333) < 1e-9);
   assert.ok(Math.abs(context.parseCoordinateInput("1352000W", false) - (-135.3333333333)) < 1e-9);
   assert.throws(() => context.parseCoordinateInput("3560.0N", true), /Invalid/);
+  assert.equal(context.parseCoordinateInput("34° 4' N", true), 34 + 4 / 60);
+  assert.equal(context.parseCoordinateInput("129° 4' E", false), 129 + 4 / 60);
+  assert.ok(Math.abs(context.parseCoordinateInput("34° 4' 30\" N", true) - (34 + 4 / 60 + 30 / 3600)) < 1e-9);
 });
 
 test("coordinate pair parser accepts slash and comma separators with whitespace", () => {
@@ -296,6 +317,7 @@ test("coordinate pair format detection follows DD DDM and DMS input", () => {
   assert.equal(context.detectCoordinatePairFormat("35° 00' 00\" N / 129° 00' 00\" E"), "dms");
   assert.equal(context.formatCoordinatePair({ lat: 35, lon: 129 }, "ddm"), "35° 00.0000' N / 129° 00.0000' E");
   assert.equal(context.formatCoordinatePairCompact({ lat: 34 + 50 / 60, lon: 129 + 45 / 60 }, "ddm"), "34° 50' N / 129° 45' E");
+  assert.equal(context.formatCoordinatePairCompact({ lat: 34 + 4 / 60, lon: 129 + 4 / 60 }, "ddm"), "34° 04' N / 129° 04' E");
   assert.equal(context.formatCoordinatePairCompact({ lat: 34, lon: 129 }, "ddm"), "34° N / 129° E");
 });
 

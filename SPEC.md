@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.4 Specification
+# Tacticool KML v1.2.5 Specification
 
 ## Purpose
 
@@ -33,6 +33,7 @@ Priority order:
 
 - Latitude and longitude are entered together and separated by `/`, `,`, or compact hemisphere markers
 - DD, DDM, and DMS are detected automatically from decimals and digit count
+- Symbolic DDM/DMS coordinates are accepted, including one-digit minutes such as `34° 4' N`
 - Google Maps-style decimal pairs are accepted
 - Coordinate fields use standard iOS text keyboards
 - Numeric fields use standard iOS decimal keyboards
@@ -45,6 +46,7 @@ Examples:
 - DDM: `3530.500N / 13520.000E`
 - DMS: `353030N / 1352000E`
 - Compact DDM: `3500N12900E`
+- Symbolic DDM: `34° 4' N / 129° 4' E`
 
 ## Magnetic Variation
 
@@ -160,6 +162,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - Line color can be changed from the visible compact color picker
 - Object List rows do not show preset color swatches
 - Expanded details allow renaming, Line color preset selection, and Fill color editing where applicable
+- Expanded detail color changes update all matching color controls and the preview immediately
 - On wider screens, object name editing and Line color presets share one row; narrow screens stack them
 - Expanded details show Center, Radius, Created B/E, Endpoint Var, and Inbound HDG where applicable
 - Created B/E and Center details include variation in the same line when variation metadata is available
@@ -170,6 +173,8 @@ trueBearing = magneticBearing + magVarEastPositive
 - DDM and DMS minute values use two-digit integer padding
 - Coordinate list point numbers use a separate right-aligned column
 - Objects can be deleted individually or cleared together
+- Add buttons provide an Object List jump button
+- When one or more details are open, a bottom-right collapse button closes all expanded Object List details
 
 ## Geometry Import and Export
 
