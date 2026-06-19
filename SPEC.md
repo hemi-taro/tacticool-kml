@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.5 Specification
+# Tacticool KML v1.2.6 Specification
 
 ## Purpose
 
@@ -34,6 +34,8 @@ Priority order:
 - Latitude and longitude are entered together and separated by `/`, `,`, or compact hemisphere markers
 - DD, DDM, and DMS are detected automatically from decimals and digit count
 - Symbolic DDM/DMS coordinates are accepted, including one-digit minutes such as `34° 4' N`
+- GEOREF input is accepted for coordinate fields and converted to internal decimal degrees
+- GEOREF is input-only; display format remains DD, DDM, or DMS
 - Google Maps-style decimal pairs are accepted
 - Coordinate fields use standard iOS text keyboards
 - Numeric fields use standard iOS decimal keyboards
@@ -47,6 +49,7 @@ Examples:
 - DMS: `353030N / 1352000E`
 - Compact DDM: `3500N12900E`
 - Symbolic DDM: `34° 4' N / 129° 4' E`
+- GEOREF: `WJLL0000`
 
 ## Magnetic Variation
 
@@ -86,8 +89,11 @@ trueBearing = magneticBearing + magVarEastPositive
 
 - Optional when creating an Axis
 - Perpendicular to the selected Axis
-- Inputs: start distance, end distance, interval, width, and color
+- Inputs: start distance, end distance, Main interval, Main width, optional Sub interval, optional Sub width, and shared color
 - End distance defaults to Axis length
+- Main Tickmarks are always generated when Tickmarks are enabled
+- Sub Tickmarks are generated only when both Sub interval and Sub width are entered
+- If Main and Sub distances overlap, the Main Tickmark is kept and the Sub Tickmark is skipped
 - Each Tickmark is stored as an independent object
 
 ### Mission Line
@@ -178,15 +184,21 @@ trueBearing = magneticBearing + magVarEastPositive
 
 ## Geometry Import and Export
 
-- Import supports KML and GeoJSON
+- Import supports KML, GeoJSON, and WebGIS-style JSON object arrays
 - KML import supports Point, LineString, and Polygon outer boundaries
 - GeoJSON import supports Point, LineString, Polygon, MultiLineString, MultiPolygon, and GeometryCollection
+- WebGIS-style JSON import supports `polyline`, `polygon`, `circle`, and `symbol`
+- WebGIS-style `polyline`/`polygon` points use compact DMS strings such as `350000N1290000E`
+- WebGIS-style `circle` imports as a SAM Ring using `center` and NM `radius`
+- WebGIS-style `symbol` imports as a Point object and ignores icon metadata
+- WebGIS-style `lineType`, `lineWidth`, `arrow`, altitude, balloon, and tooltip metadata are ignored
 - Multi-geometries and collections are flattened into separate objects
 - Polygon holes are ignored
 - Import uses FileReader for iOS compatibility
 - Imported geometry is validated after file selection
 - GeoJSON export creates one FeatureCollection containing all Object List entries
 - GeoJSON properties include name, type, line color, and optional fill color
+- WebGIS-style JSON export is not provided
 - KML Point output uses an IconStyle color without an external icon URL
 - Export creates one Style and Placemark per object
 - Line width is configurable for the whole document
@@ -210,7 +222,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 ## Verification
 
-- Local Node tests validate parsing, WMM2025, bearings, geodesic destinations, circles, Arc generation, perpendicular lines, KML formatting, PWA metadata, and versioning
+- Local Node tests validate parsing, GEOREF input, WebGIS-style JSON import, WMM2025, bearings, geodesic destinations, circles, Arc generation, perpendicular lines, KML formatting, PWA metadata, and versioning
 - Browser smoke testing validates rendering and key interaction flows
 - iPhone and iPad real-device testing remains necessary for Safari-specific behavior
 

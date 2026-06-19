@@ -142,8 +142,10 @@
         <div id="axis-tick-settings" class="grid" hidden>
           <label>Tickmark start distance (NM)<input id="tick-start" type="text" inputmode="decimal" placeholder="0"></label>
           <label>Tickmark end distance (NM)<input id="tick-end" type="text" inputmode="decimal" placeholder="Axis length"></label>
-          <label>Tickmark interval (NM)<input id="tick-interval" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Tickmark width (NM)<input id="tick-width" type="text" inputmode="decimal" placeholder="10"></label>
+          <label>Main interval (NM)<input id="tick-main-interval" type="text" inputmode="decimal" placeholder="10"></label>
+          <label>Main width (NM)<input id="tick-main-width" type="text" inputmode="decimal" placeholder="10"></label>
+          <label>Sub interval (NM)<input id="tick-sub-interval" type="text" inputmode="decimal"></label>
+          <label>Sub width (NM)<input id="tick-sub-width" type="text" inputmode="decimal"></label>
           <label class="color-control">Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Axis</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
@@ -290,7 +292,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.5";
+    var APP_VERSION = "1.2.6";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -358,6 +360,33 @@
       return result;
     }
 
+    function parseGeoref(value) {
+      const raw = String(value ?? "").toUpperCase().replace(/\s+/g, "");
+      if (!/^[A-HJ-NP-Z]{4}\d{0,10}$/.test(raw) || raw.length % 2 !== 0) {
+        throw new Error("Invalid GEOREF coordinate.");
+      }
+      const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+      const lonBand = letters.indexOf(raw[0]);
+      const latBand = letters.indexOf(raw[1]);
+      const lonSquare = letters.indexOf(raw[2]);
+      const latSquare = letters.indexOf(raw[3]);
+      if (lonBand < 0 || latBand < 0 || lonSquare < 0 || latSquare < 0 ||
+          lonBand > 23 || latBand > 11 || lonSquare > 14 || latSquare > 14) {
+        throw new Error("Invalid GEOREF coordinate.");
+      }
+      const digits = raw.slice(4);
+      const precision = digits.length / 2;
+      if (precision > 5) throw new Error("Invalid GEOREF coordinate.");
+      const lonDigits = digits.slice(0, precision);
+      const latDigits = digits.slice(precision);
+      const unitMinutes = precision ? 60 / (10 ** precision) : 60;
+      const lonMinutes = precision ? Number(lonDigits) * unitMinutes : 0;
+      const latMinutes = precision ? Number(latDigits) * unitMinutes : 0;
+      const lon = -180 + lonBand * 15 + lonSquare + lonMinutes / 60;
+      const lat = -90 + latBand * 15 + latSquare + latMinutes / 60;
+      return validateLatLon(lat, lon);
+    }
+
     function splitCoordinatePair(value) {
       const raw = String(value ?? "").trim();
       const separator = raw.includes("/") ? "/" : raw.includes(",") ? "," : "";
@@ -370,6 +399,11 @@
     }
 
     function parseCoordinatePair(value) {
+      const raw = String(value ?? "").trim();
+      const georefCandidate = raw.toUpperCase().replace(/\s+/g, "");
+      if (!raw.includes("/") && !raw.includes(",") && /^[A-Z]{4}\d{0,10}$/.test(georefCandidate)) {
+        return parseGeoref(raw);
+      }
       const parts = splitCoordinatePair(value);
       if (parts.length !== 2 || parts.some(part => !part)) throw new Error("Coordinate pair must contain latitude and longitude.");
       return validateLatLon(parseCoordinateInput(parts[0], true), parseCoordinateInput(parts[1], false));
@@ -710,6 +744,17 @@
       });
     }
 
+    function generateCombinedTickmarks(origin, axisBearingTrue, options) {
+      const main = generateTickmarks(origin, axisBearingTrue, options.startNm, options.endNm, options.mainIntervalNm, options.mainWidthNm)
+        .map(mark => ({ ...mark, kind: "Main" }));
+      if (!Number.isFinite(options.subIntervalNm) || !Number.isFinite(options.subWidthNm)) return main;
+      const occupied = new Set(main.map(mark => mark.distanceNm.toFixed(6)));
+      const sub = generateTickmarks(origin, axisBearingTrue, options.startNm, options.endNm, options.subIntervalNm, options.subWidthNm)
+        .filter(mark => !occupied.has(mark.distanceNm.toFixed(6)))
+        .map(mark => ({ ...mark, kind: "Sub" }));
+      return [...main, ...sub].sort((a, b) => a.distanceNm - b.distanceNm || (a.kind === "Main" ? -1 : 1));
+    }
+
     function escapeXml(value) {
       return String(value).replace(/[&<>"']/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"
@@ -824,6 +869,72 @@
       const features = root.type === "FeatureCollection" ? root.features : root.type === "Feature" ? [root] : [{ type: "Feature", properties: {}, geometry: root }];
       features.forEach((feature, index) => addGeometry(feature.geometry, feature.properties || {}, feature.properties?.name || `Imported ${index + 1}`));
       return output.filter(object => object.coordinates.length && (object.type === "Imported Point" || object.coordinates.length >= 2));
+    }
+
+    function htmlColorFromRgba(value, fallback = "#455a64") {
+      const match = String(value || "").match(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+      if (!match) return fallback;
+      const parts = match.slice(1, 4).map(Number);
+      if (parts.some(part => !Number.isFinite(part) || part < 0 || part > 255)) return fallback;
+      return `#${parts.map(part => part.toString(16).padStart(2, "0")).join("")}`;
+    }
+
+    function parseWebGisCoordinate(value) {
+      if (Array.isArray(value) && value.length >= 2) return validateLatLon(Number(value[1]), Number(value[0]));
+      return parseCoordinatePair(String(value || ""));
+    }
+
+    function parseWebGisJsonObjects(root) {
+      const items = Array.isArray(root) ? root : [root];
+      const output = [];
+      items.forEach((item, index) => {
+        if (!item || typeof item !== "object") return;
+        const type = String(item.type || "").toLowerCase();
+        const name = String(item.name || `Imported ${index + 1}`).trim() || `Imported ${index + 1}`;
+        const color = htmlColorFromRgba(item.color);
+        const fillColor = item.fill ? color : null;
+        if (type === "polyline" || type === "polygon") {
+          const points = Array.isArray(item.points) ? item.points.map(parseWebGisCoordinate) : [];
+          if (points.length < 2) return;
+          const closed = points.length >= 3 && Math.abs(points[0].lat - points.at(-1).lat) < 1e-10 && Math.abs(points[0].lon - points.at(-1).lon) < 1e-10;
+          const area = type === "polygon" || closed;
+          output.push({
+            name,
+            type: area ? "Imported Polygon" : "Imported Line",
+            color,
+            fillColor: area ? fillColor : null,
+            coordinates: points
+          });
+        } else if (type === "circle") {
+          const center = parseWebGisCoordinate(item.center);
+          const radius = Number(item.radius);
+          if (!Number.isFinite(radius) || radius <= 0) return;
+          output.push({
+            name,
+            type: "SAM Ring",
+            color,
+            fillColor,
+            center,
+            radius,
+            coordinates: generateCircle(center.lat, center.lon, radius, 72)
+          });
+        } else if (type === "symbol") {
+          const point = parseWebGisCoordinate(item.point);
+          output.push({
+            name,
+            type: "Imported Point",
+            color,
+            coordinates: [point]
+          });
+        }
+      });
+      return output;
+    }
+
+    function parseGeometryJsonObjects(text) {
+      const root = typeof text === "string" ? JSON.parse(text) : text;
+      const geoJsonObjects = parseGeoJsonObjects(root);
+      return geoJsonObjects.length ? geoJsonObjects : parseWebGisJsonObjects(root);
     }
   </script>
 
@@ -1570,28 +1681,42 @@
           if ($("axis-tick-enabled").checked) {
             const start = parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance");
             const end = parseOptionalNumber($("tick-end").value, length, "Tickmark end distance");
-            const interval = parseOptionalNumber($("tick-interval").value, 10, "Tickmark interval");
-            const width = parseOptionalNumber($("tick-width").value, 10, "Tickmark width");
+            const mainInterval = parseOptionalNumber($("tick-main-interval").value, 10, "Main tickmark interval");
+            const mainWidth = parseOptionalNumber($("tick-main-width").value, 10, "Main tickmark width");
+            const subIntervalText = $("tick-sub-interval").value.trim();
+            const subWidthText = $("tick-sub-width").value.trim();
+            if ((subIntervalText && !subWidthText) || (!subIntervalText && subWidthText)) throw new Error("Sub tickmark interval and width must be entered together.");
+            const subInterval = subIntervalText ? parseRequiredNumber(subIntervalText, "Sub tickmark interval") : NaN;
+            const subWidth = subWidthText ? parseRequiredNumber(subWidthText, "Sub tickmark width") : NaN;
             requireFinitePositive(start, "Tickmark start distance", true);
             requireFinitePositive(end, "Tickmark end distance", true);
-            requireFinitePositive(interval, "Tickmark interval", false);
-            requireFinitePositive(width, "Tickmark width", false);
+            requireFinitePositive(mainInterval, "Main tickmark interval", false);
+            requireFinitePositive(mainWidth, "Main tickmark width", false);
+            if (Number.isFinite(subInterval)) requireFinitePositive(subInterval, "Sub tickmark interval", false);
+            if (Number.isFinite(subWidth)) requireFinitePositive(subWidth, "Sub tickmark width", false);
             if (end < start) throw new Error("Tickmark end distance must be greater than or equal to start distance.");
             if (end > length + 1e-9) throw new Error("Tickmark end distance cannot exceed the axis length.");
-            tickmarks = generateTickmarks(axis.origin, trueBearing, start, end, interval, width);
+            tickmarks = generateCombinedTickmarks(axis.origin, trueBearing, {
+              startNm: start,
+              endNm: end,
+              mainIntervalNm: mainInterval,
+              mainWidthNm: mainWidth,
+              subIntervalNm: subInterval,
+              subWidthNm: subWidth
+            });
             if (tickmarks.length > 500) throw new Error("Tickmark count exceeds the limit of 500.");
           }
           addObject(axis);
           for (const tickmark of tickmarks) {
             addObject({
-              name: `${axisName} Tick ${Number(tickmark.distanceNm.toFixed(6))}NM`,
+              name: `${axisName} ${tickmark.kind} Tick ${Number(tickmark.distanceNm.toFixed(6))}NM`,
               type: "Tickmark",
               color: $("tick-color").value,
               createdBullseye: createdBullseyeSnapshot(bull),
               coordinates: tickmark.coordinates
             });
           }
-          clearFields(["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-interval","tick-width"]);
+          clearFields(["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-main-interval","tick-main-width","tick-sub-interval","tick-sub-width"]);
           setMessage(event.currentTarget, "");
         } catch (error) { setMessage(event.currentTarget, error.message); }
       });
@@ -1715,8 +1840,8 @@
             reader.readAsText(file);
           });
           if (/^\s*[\[{]/.test(text)) {
-            const importedObjects = parseGeoJsonObjects(text);
-            if (!importedObjects.length) throw new Error("No supported GeoJSON geometry found.");
+            const importedObjects = parseGeometryJsonObjects(text);
+            if (!importedObjects.length) throw new Error("No supported JSON geometry found.");
             importedObjects.forEach(addObject);
             return;
           }

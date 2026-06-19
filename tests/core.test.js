@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.5", () => {
-  assert.equal(context.APP_VERSION, "1.2.5");
+test("app version is v1.2.6", () => {
+  assert.equal(context.APP_VERSION, "1.2.6");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -166,7 +166,7 @@ test("coordinate fields use single-line textareas with the standard text keyboar
 });
 
 test("numeric fields use the standard decimal keyboard without step restrictions", () => {
-  for (const id of ["sam-range", "sam-radius", "axis-length", "tick-start", "tick-end", "tick-interval", "tick-width", "mission-distance", "mission-width"]) {
+  for (const id of ["sam-range", "sam-radius", "axis-length", "tick-start", "tick-end", "tick-main-interval", "tick-main-width", "tick-sub-interval", "tick-sub-width", "mission-distance", "mission-width"]) {
     const field = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0];
     assert.ok(field, `${id} must exist`);
     assert.match(field, /inputmode="decimal"/);
@@ -273,7 +273,7 @@ test("Object List details can be collapsed from a floating control", () => {
 test("successful object creation clears transient geometry fields", () => {
   assert.match(html, /function clearFields/);
   assert.match(html, /clearFields\(\["sam-name","sam-coordinates","sam-bearing","sam-range","sam-radius"\]\)/);
-  assert.match(html, /clearFields\(\["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-interval","tick-width"\]\)/);
+  assert.match(html, /clearFields\(\["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-main-interval","tick-main-width","tick-sub-interval","tick-sub-width"\]\)/);
   assert.match(html, /clearFields\(\["mission-name","mission-distance","mission-width"\]\)/);
 });
 
@@ -308,6 +308,16 @@ test("coordinate pair parser accepts compact hemisphere-delimited coordinates", 
   const southWest = context.parseCoordinatePair("3500S12900W");
   assert.equal(southWest.lat, -35);
   assert.equal(southWest.lon, -129);
+});
+
+test("coordinate pair parser accepts GEOREF input", () => {
+  const pair = context.parseCoordinatePair("WJLL0000");
+  assert.equal(pair.lat, 40);
+  assert.equal(pair.lon, 130);
+  const spaced = context.parseCoordinatePair("WJ LL 0000");
+  assert.equal(spaced.lat, 40);
+  assert.equal(spaced.lon, 130);
+  assert.throws(() => context.parseCoordinatePair("IIBE00000000"), /Invalid GEOREF/);
 });
 
 test("coordinate pair format detection follows DD DDM and DMS input", () => {
@@ -435,6 +445,21 @@ test("tickmarks include start and end distances", () => {
   assert.ok(marks.every(mark => mark.coordinates.length === 2));
 });
 
+test("combined tickmarks skip sub marks where main marks exist", () => {
+  const marks = context.generateCombinedTickmarks({ lat: 35, lon: 135 }, 45, {
+    startNm: 0,
+    endNm: 30,
+    mainIntervalNm: 10,
+    mainWidthNm: 20,
+    subIntervalNm: 5,
+    subWidthNm: 10
+  });
+  assert.deepEqual(Array.from(marks, mark => `${mark.kind}:${mark.distanceNm}`), [
+    "Main:0", "Sub:5", "Main:10", "Sub:15", "Main:20", "Sub:25", "Main:30"
+  ]);
+  assert.ok(marks.every(mark => mark.coordinates.length === 2));
+});
+
 test("KML uses longitude latitude order and KML colors", () => {
   assert.equal(context.toKmlColor("#123456"), "ff563412");
   const kml = context.buildKml("Mission", [{
@@ -501,6 +526,44 @@ test("GeoJSON import flattens multi and collection geometries", () => {
   assert.deepEqual(Array.from(imported, object => object.type), ["Imported Point", "Imported Line", "Imported Line", "Imported Polygon"]);
   assert.equal(imported[0].coordinates.length, 1);
   assert.equal(imported[3].fillColor, null);
+});
+
+test("WebGIS JSON import reads polyline polygon circle and symbol objects", () => {
+  const imported = context.parseGeometryJsonObjects(JSON.stringify([
+    {
+      name: "Route",
+      type: "polyline",
+      points: ["350000N1290000E", "351000N1291000E"],
+      color: "rgba(37, 102, 234, 1)"
+    },
+    {
+      name: "Area",
+      type: "polygon",
+      points: ["350000N1290000E", "350000N1291000E", "351000N1291000E", "350000N1290000E"],
+      color: "rgba(233, 37, 37, 0.2)",
+      fill: true
+    },
+    {
+      name: "SAM",
+      type: "circle",
+      center: "350000N1290000E",
+      radius: 25,
+      color: "rgba(233, 37, 37, 0.2)",
+      fill: true
+    },
+    {
+      name: "Point",
+      type: "symbol",
+      point: "350000N1290000E",
+      color: "rgba(37, 102, 234, 1)"
+    }
+  ]));
+  assert.deepEqual(Array.from(imported, object => object.type), ["Imported Line", "Imported Polygon", "SAM Ring", "Imported Point"]);
+  assert.equal(imported[0].color, "#2566ea");
+  assert.equal(imported[1].fillColor, "#e92525");
+  assert.equal(imported[2].radius, 25);
+  assert.equal(imported[2].coordinates.length, 73);
+  assert.equal(imported[3].coordinates.length, 1);
 });
 
 test("KML export applies document line width", () => {

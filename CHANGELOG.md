@@ -2,6 +2,20 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.6] - 2026-06-19
+
+### Added
+
+- Axis TickmarkにMain/Sub Tickmark設定を追加
+- GEOREF座標の入力対応を追加
+- WebGIS-style JSON importを追加
+
+### Changed
+
+- TickmarkはMainとSubが同距離の場合、Mainを優先してSubを省略
+- Import GeometryでGeoJSONとして読めないJSONをWebGIS-style JSONとして判定
+- PWAキャッシュをv1.2.6へ更新
+
 ## [1.2.5] - 2026-06-19
 
 ### Added
