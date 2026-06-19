@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.7] - 2026-06-19
+
+### Changed
+
+- Removed Bullseye custom name input
+- Changed default tickmarks to Main 50NM / Width 10NM and Sub 10NM / Width 5NM
+- Grouped Axis tickmarks into one Object List item
+- Export Tickmark Groups as KML MultiGeometry and GeoJSON MultiLineString
+
+## [1.2.6] - 2026-06-19
+
+### Added
+
+- Added Main/Sub Tickmark settings
+- Added GEOREF coordinate input
+- Added WebGIS-style JSON import
+
 ## [1.2.4] - 2026-06-19
 
 ### Changed
