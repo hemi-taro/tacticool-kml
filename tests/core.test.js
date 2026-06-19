@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.6", () => {
-  assert.equal(context.APP_VERSION, "1.2.6");
+test("app version is v1.2.7", () => {
+  assert.equal(context.APP_VERSION, "1.2.7");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -126,7 +126,8 @@ test("application name is Tacticool KML", () => {
 test("field layout follows the v0.12 section order", () => {
   assert.ok(html.indexOf("<h2>Magnetic Variation</h2>") < html.indexOf("<h2>Bullseye</h2>"));
   const bull = html.match(/<h2>Bullseye<\/h2>([\s\S]*?)<\/section>/)?.[1] || "";
-  assert.ok(bull.indexOf('id="bull-coordinates"') < bull.indexOf('id="bull-name"'));
+  assert.match(bull, /id="bull-coordinates"/);
+  assert.doesNotMatch(bull, /id="bull-name"/);
   for (const [formId, buttonText, nameId] of [["sam-form","Add SAM Ring","sam-name"],["axis-form","Add Axis","axis-name"],["mission-form","Add Mission Line","mission-name"]]) {
     const form = html.match(new RegExp(`<form id="${formId}">([\\s\\S]*?)<\\/form>`))?.[1] || "";
     assert.match(form, new RegExp(`<div class="actions add-with-name">[\\s\\S]*?<button type="submit">${buttonText}<\\/button>[\\s\\S]*?id="${nameId}"`));
@@ -199,6 +200,13 @@ test("KML and JSON export use file-download actions", () => {
   assert.match(html, /function createKmlFile/);
   assert.match(html, /function downloadFile/);
   assert.match(html, /buildGeoJson/);
+});
+
+test("tickmark defaults favor sparse main marks with shorter sub marks", () => {
+  assert.match(html, /id="tick-main-interval"[^>]*placeholder="50"/);
+  assert.match(html, /id="tick-main-width"[^>]*placeholder="10"/);
+  assert.match(html, /id="tick-sub-interval"[^>]*placeholder="10"/);
+  assert.match(html, /id="tick-sub-width"[^>]*placeholder="5"/);
 });
 
 test("custom aviation keyboard is removed", () => {
@@ -460,6 +468,28 @@ test("combined tickmarks skip sub marks where main marks exist", () => {
   assert.ok(marks.every(mark => mark.coordinates.length === 2));
 });
 
+test("tickmark groups keep many tickmarks in one object", () => {
+  const marks = context.generateCombinedTickmarks({ lat: 35, lon: 135 }, 45, {
+    startNm: 0,
+    endNm: 20,
+    mainIntervalNm: 20,
+    mainWidthNm: 10,
+    subIntervalNm: 10,
+    subWidthNm: 5
+  });
+  const group = context.createTickmarkGroupObject({
+    axisName: "AXIS 045/225",
+    color: "#1565c0",
+    createdBullseye: { lat: 35, lon: 135, magVar: -8, mode: "gsi2020" },
+    settings: { startNm: 0, endNm: 20, mainIntervalNm: 20, mainWidthNm: 10, subIntervalNm: 10, subWidthNm: 5 },
+    tickmarks: marks
+  });
+  assert.equal(group.type, "Tickmark Group");
+  assert.equal(group.segments.length, 3);
+  assert.equal(group.coordinates.length, 6);
+  assert.match(group.name, /Tickmarks/);
+});
+
 test("KML uses longitude latitude order and KML colors", () => {
   assert.equal(context.toKmlColor("#123456"), "ff563412");
   const kml = context.buildKml("Mission", [{
@@ -472,6 +502,22 @@ test("KML uses longitude latitude order and KML colors", () => {
   assert.match(kml, /135\.000000,35\.000000,0/);
   assert.match(kml, /ff563412/);
   assert.match(kml, /Axis &amp; One/);
+});
+
+test("KML exports Tickmark Group as one MultiGeometry Placemark", () => {
+  const kml = context.buildKml("Mission", [{
+    name: "AXIS Tickmarks",
+    type: "Tickmark Group",
+    color: "#123456",
+    segments: [
+      [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }],
+      [{ lat: 37, lon: 137 }, { lat: 38, lon: 138 }]
+    ],
+    coordinates: [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }, { lat: 37, lon: 137 }, { lat: 38, lon: 138 }]
+  }], 4);
+  assert.match(kml, /<MultiGeometry>/);
+  assert.equal((kml.match(/<Placemark>/g) || []).length, 1);
+  assert.equal((kml.match(/<LineString>/g) || []).length, 2);
 });
 
 test("bearing context resolves local auto variation without requiring Bullseye", () => {
@@ -505,6 +551,21 @@ test("GeoJSON exports points lines and polygons with properties", () => {
   assert.deepEqual(Array.from(geojson.features, feature => feature.geometry.type), ["Point", "LineString", "Polygon"]);
   assert.deepEqual(Array.from(geojson.features[0].geometry.coordinates), [135, 35]);
   assert.equal(geojson.features[2].properties.fillColor, "#abcdef");
+});
+
+test("GeoJSON exports Tickmark Group as MultiLineString", () => {
+  const geojson = JSON.parse(context.buildGeoJson("Mission", [{
+    name: "AXIS Tickmarks",
+    type: "Tickmark Group",
+    color: "#123456",
+    segments: [
+      [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }],
+      [{ lat: 37, lon: 137 }, { lat: 38, lon: 138 }]
+    ],
+    coordinates: [{ lat: 35, lon: 135 }, { lat: 36, lon: 136 }, { lat: 37, lon: 137 }, { lat: 38, lon: 138 }]
+  }]));
+  assert.equal(geojson.features[0].geometry.type, "MultiLineString");
+  assert.equal(geojson.features[0].geometry.coordinates.length, 2);
 });
 
 test("GeoJSON import flattens multi and collection geometries", () => {

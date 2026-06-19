@@ -2,6 +2,16 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.7] - 2026-06-19
+
+### Changed
+
+- BullseyeのカスタムName入力欄を削除
+- Axis Tickmarkの既定値をMain 50NM / Width 10NM、Sub 10NM / Width 5NMへ変更
+- TickmarkをObject List上で1つのTickmark Groupとして管理
+- Tickmark GroupをKMLでは1つのMultiGeometry Placemark、GeoJSONでは1つのMultiLineStringとして出力
+- PWAキャッシュをv1.2.7へ更新
+
 ## [1.2.6] - 2026-06-19
 
 ### Added

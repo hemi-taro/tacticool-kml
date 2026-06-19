@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.6
+# Tacticool KML v1.2.7
 
 Stable release.
 
@@ -43,7 +43,7 @@ SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}
 - DMS: `353030N / 1352000E`
 - GEOREF input only: `WJLL0000`
 
-AxisのTickmarkはMain/Subを設定できます。SubはIntervalとWidthを両方入力した場合だけ生成され、Mainと同じ距離ではMainが優先されます。
+AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 10NM、Sub 10NM / Width 5NMです。Mainと同じ距離ではMainが優先されます。TickmarkはObject List上では1つのTickmark Groupとして管理され、KMLでは1つのMultiGeometry Placemarkとして出力されます。
 
 WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 

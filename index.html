@@ -123,7 +123,6 @@
       <h2>Bullseye</h2>
       <div class="grid">
         <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
-        <label>Name<textarea id="bull-name" class="name-field" rows="1" placeholder="B/E" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
       </div>
       <p id="bull-summary" class="summary"></p>
       <p id="bull-message" class="message"></p>
@@ -142,10 +141,10 @@
         <div id="axis-tick-settings" class="grid" hidden>
           <label>Tickmark start distance (NM)<input id="tick-start" type="text" inputmode="decimal" placeholder="0"></label>
           <label>Tickmark end distance (NM)<input id="tick-end" type="text" inputmode="decimal" placeholder="Axis length"></label>
-          <label>Main interval (NM)<input id="tick-main-interval" type="text" inputmode="decimal" placeholder="10"></label>
+          <label>Main interval (NM)<input id="tick-main-interval" type="text" inputmode="decimal" placeholder="50"></label>
           <label>Main width (NM)<input id="tick-main-width" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Sub interval (NM)<input id="tick-sub-interval" type="text" inputmode="decimal"></label>
-          <label>Sub width (NM)<input id="tick-sub-width" type="text" inputmode="decimal"></label>
+          <label>Sub interval (NM)<input id="tick-sub-interval" type="text" inputmode="decimal" placeholder="10"></label>
+          <label>Sub width (NM)<input id="tick-sub-width" type="text" inputmode="decimal" placeholder="5"></label>
           <label class="color-control">Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Axis</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
@@ -292,7 +291,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.6";
+    var APP_VERSION = "1.2.7";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -755,6 +754,20 @@
       return [...main, ...sub].sort((a, b) => a.distanceNm - b.distanceNm || (a.kind === "Main" ? -1 : 1));
     }
 
+    function createTickmarkGroupObject({ axisName, color, createdBullseye, settings, tickmarks }) {
+      const segments = tickmarks.map(mark => mark.coordinates);
+      return {
+        name: `${axisName} Tickmarks ${Number(settings.startNm.toFixed(6))}-${Number(settings.endNm.toFixed(6))}NM`,
+        type: "Tickmark Group",
+        color,
+        createdBullseye,
+        tickmarkSettings: { ...settings },
+        tickmarkCount: tickmarks.length,
+        segments,
+        coordinates: segments.flat()
+      };
+    }
+
     function escapeXml(value) {
       return String(value).replace(/[&<>"']/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"
@@ -772,6 +785,7 @@
     }
 
     function objectGeometryKind(object) {
+      if (object.segments?.length) return "MultiLineString";
       if (object.coordinates.length === 1 || /Point$/i.test(object.type)) return "Point";
       if (/Area|Polygon/i.test(object.type) || object.fillColor) return "Polygon";
       return "LineString";
@@ -779,6 +793,10 @@
 
     function coordinatesToGeoJson(coordinates) {
       return coordinates.map(point => [point.lon, point.lat]);
+    }
+
+    function objectCoordinateSegments(object) {
+      return object.segments?.length ? object.segments : [object.coordinates];
     }
 
     function projectPreviewCoordinates(coordinates, width, height, padding) {
@@ -814,6 +832,8 @@
           ? `<Point><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></Point>`
           : kind === "Polygon"
             ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
+            : kind === "MultiLineString"
+              ? `<MultiGeometry>${objectCoordinateSegments(object).map(segment => `<LineString><tessellate>1</tessellate><coordinates>${coordinatesToKml(segment)}</coordinates></LineString>`).join("")}</MultiGeometry>`
             : `<LineString><tessellate>1</tessellate><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></LineString>`;
         return `${style}<Placemark><name>${escapeXml(object.name)}</name><styleUrl>#${id}</styleUrl>${geometry}</Placemark>`;
       }).join("");
@@ -837,7 +857,13 @@
             },
             geometry: {
               type: kind,
-              coordinates: kind === "Point" ? coordinates[0] : kind === "Polygon" ? [coordinates] : coordinates
+              coordinates: kind === "Point"
+                ? coordinates[0]
+                : kind === "Polygon"
+                  ? [coordinates]
+                  : kind === "MultiLineString"
+                    ? objectCoordinateSegments(object).map(segment => coordinatesToGeoJson(segment))
+                    : coordinates
             }
           };
         })
@@ -973,7 +999,7 @@
         if (!Number.isFinite(magVar)) {
           throw new Error("Bullseye coordinates or magnetic variation are invalid.");
         }
-        return { name: $("bull-name").value.trim() || "B/E", lat, lon, magVar, autoMagVar, mode };
+        return { name: "B/E", lat, lon, magVar, autoMagVar, mode };
       }
 
       function bullseyeBearingContext(bull) {
@@ -1151,14 +1177,19 @@
             svg.append(circle);
             continue;
           }
-          const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-          polyline.setAttribute("points", points.map(point => `${point.x},${point.y}`).join(" "));
-          polyline.setAttribute("fill", object.fillColor || "none");
-          polyline.setAttribute("fill-opacity", object.fillColor ? "0.2" : "0");
-          polyline.setAttribute("stroke", object.color);
-          polyline.setAttribute("stroke-width", String(previewWidth));
-          polyline.setAttribute("vector-effect", "non-scaling-stroke");
-          svg.append(polyline);
+          let segmentOffset = 0;
+          for (const segment of objectCoordinateSegments(object)) {
+            const segmentPoints = points.slice(segmentOffset, segmentOffset + segment.length);
+            segmentOffset += segment.length;
+            const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            polyline.setAttribute("points", segmentPoints.map(point => `${point.x},${point.y}`).join(" "));
+            polyline.setAttribute("fill", object.fillColor || "none");
+            polyline.setAttribute("fill-opacity", object.fillColor ? "0.2" : "0");
+            polyline.setAttribute("stroke", object.color);
+            polyline.setAttribute("stroke-width", String(previewWidth));
+            polyline.setAttribute("vector-effect", "non-scaling-stroke");
+            svg.append(polyline);
+          }
         }
       }
 
@@ -1385,9 +1416,32 @@
           fillRow.append(fillLabel, createPresetColorEditor(object, "fillColor", `Fill color for ${object.name}`));
           details.append(fillRow);
         }
+        if (object.type === "Tickmark Group" && object.tickmarkSettings) {
+          const settings = object.tickmarkSettings;
+          const tickmarkSummary = document.createElement("div");
+          tickmarkSummary.className = "summary";
+          const subText = Number.isFinite(settings.subIntervalNm) && Number.isFinite(settings.subWidthNm)
+            ? `, Sub ${Number(settings.subIntervalNm.toFixed(6))}NM / ${Number(settings.subWidthNm.toFixed(6))}NM`
+            : "";
+          tickmarkSummary.textContent = `Tickmarks: ${object.tickmarkCount || objectCoordinateSegments(object).length} lines, Main ${Number(settings.mainIntervalNm.toFixed(6))}NM / ${Number(settings.mainWidthNm.toFixed(6))}NM${subText}`;
+          details.append(tickmarkSummary);
+        }
         const coordinates = document.createElement("div");
         coordinates.className = "coordinate-list";
-        object.coordinates.forEach((point, index) => coordinates.append(createCoordinateEntry(index, point)));
+        if (object.segments?.length) {
+          let index = 0;
+          object.segments.forEach((segment, segmentIndex) => {
+            const header = document.createElement("div");
+            header.textContent = `Line ${segmentIndex + 1}`;
+            coordinates.append(header);
+            segment.forEach(point => {
+              coordinates.append(createCoordinateEntry(index, point));
+              index += 1;
+            });
+          });
+        } else {
+          object.coordinates.forEach((point, index) => coordinates.append(createCoordinateEntry(index, point)));
+        }
         details.append(coordinates);
         return details;
       }
@@ -1681,13 +1735,12 @@
           if ($("axis-tick-enabled").checked) {
             const start = parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance");
             const end = parseOptionalNumber($("tick-end").value, length, "Tickmark end distance");
-            const mainInterval = parseOptionalNumber($("tick-main-interval").value, 10, "Main tickmark interval");
+            const mainInterval = parseOptionalNumber($("tick-main-interval").value, 50, "Main tickmark interval");
             const mainWidth = parseOptionalNumber($("tick-main-width").value, 10, "Main tickmark width");
             const subIntervalText = $("tick-sub-interval").value.trim();
             const subWidthText = $("tick-sub-width").value.trim();
-            if ((subIntervalText && !subWidthText) || (!subIntervalText && subWidthText)) throw new Error("Sub tickmark interval and width must be entered together.");
-            const subInterval = subIntervalText ? parseRequiredNumber(subIntervalText, "Sub tickmark interval") : NaN;
-            const subWidth = subWidthText ? parseRequiredNumber(subWidthText, "Sub tickmark width") : NaN;
+            const subInterval = subIntervalText ? parseRequiredNumber(subIntervalText, "Sub tickmark interval") : 10;
+            const subWidth = subWidthText ? parseRequiredNumber(subWidthText, "Sub tickmark width") : 5;
             requireFinitePositive(start, "Tickmark start distance", true);
             requireFinitePositive(end, "Tickmark end distance", true);
             requireFinitePositive(mainInterval, "Main tickmark interval", false);
@@ -1707,15 +1760,20 @@
             if (tickmarks.length > 500) throw new Error("Tickmark count exceeds the limit of 500.");
           }
           addObject(axis);
-          for (const tickmark of tickmarks) {
-            addObject({
-              name: `${axisName} ${tickmark.kind} Tick ${Number(tickmark.distanceNm.toFixed(6))}NM`,
-              type: "Tickmark",
-              color: $("tick-color").value,
-              createdBullseye: createdBullseyeSnapshot(bull),
-              coordinates: tickmark.coordinates
-            });
-          }
+          if (tickmarks.length) addObject(createTickmarkGroupObject({
+            axisName,
+            color: $("tick-color").value,
+            createdBullseye: createdBullseyeSnapshot(bull),
+            settings: {
+              startNm: parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance"),
+              endNm: parseOptionalNumber($("tick-end").value, length, "Tickmark end distance"),
+              mainIntervalNm: mainInterval,
+              mainWidthNm: mainWidth,
+              subIntervalNm: subInterval,
+              subWidthNm: subWidth
+            },
+            tickmarks
+          }));
           clearFields(["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-main-interval","tick-main-width","tick-sub-interval","tick-sub-width"]);
           setMessage(event.currentTarget, "");
         } catch (error) { setMessage(event.currentTarget, error.message); }
@@ -1922,7 +1980,7 @@
         showTemporaryExportMessage("JSON download started.");
       });
 
-      document.querySelectorAll("#bull-name, #bull-magvar, #bull-coordinates")
+      document.querySelectorAll("#bull-magvar, #bull-coordinates")
         .forEach(element => element.addEventListener("input", updateBullSummary));
       function updateAxisNamePlaceholder() {
         try {
