@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.7 Specification
+# Tacticool KML v1.2.8 Specification
 
 ## Purpose
 
@@ -100,6 +100,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - If Main and Sub distances overlap, the Main Tickmark is kept and the Sub Tickmark is skipped
 - Tickmarks are stored as one Tickmark Group object to keep Object List compact
 - Tickmark Group details show the line count and Main/Sub settings
+- Tickmark start distance is a display lower bound; Main/Sub interval candidates remain anchored to B/E
 
 ### Mission Line
 
@@ -107,6 +108,22 @@ trueBearing = magneticBearing + magVarEastPositive
 - A single perpendicular line on a selected Axis
 - Inputs: B/E distance, total width, name, and color
 - Width extends equally to both sides of the Axis
+
+### B/E Spider
+
+- Created from the Bullseye section
+- Inputs: full circle toggle, start radial, end radial, radial interval, start range, end range, normal color, and cardinal color
+- Full circle ignores start/end radial and generates clockwise radials from 000 up to less than 360
+- Sector mode generates clockwise radials from start to end, including end only when it lands on the interval
+- Start and end radial are rejected when their normalized values are identical
+- Radial interval must be an integer from 1 to 180 degrees
+- End range must be greater than start range and no more than 1000NM
+- Total radial count is limited to 360
+- 000, 090, 180, and 270 are cardinal radials
+- Cardinal radials are separated from normal radials to allow stronger color and width
+- Object List shows one B/E Spider object and does not list every spider coordinate
+- KML exports normal and cardinal radials as separate Placemarks when both exist
+- GeoJSON exports normal and cardinal radials as separate MultiLineString features when both exist
 
 ### SAM Ring
 
@@ -161,6 +178,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 - Objects are stored in memory with stable IDs, name, type, line color, optional fill color, and coordinate arrays
 - Tickmark Group objects store multiple line segments and a flattened coordinate array for preview bounds
+- B/E Spider objects store normal and cardinal radial segments plus a flattened coordinate array for preview bounds
 - B/E-created objects store a created Bullseye snapshot for display only
 - SAM Ring objects store radius for display only
 - Object List order determines preview, KML export, and GeoJSON export order
@@ -176,7 +194,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - Expanded details allow renaming, Line color preset selection, and Fill color editing where applicable
 - Expanded detail color changes update all matching color controls and the preview immediately
 - On wider screens, object name editing and Line color presets share one row; narrow screens stack them
-- Expanded details show Center, Radius, Created B/E, Endpoint Var, and Inbound HDG where applicable
+- Expanded details show Center, Radius, Created B/E, Endpoint Var, Inbound HDG, and Spider settings where applicable
 - Created B/E and Center details include variation in the same line when variation metadata is available
 - Axis Endpoint Var follows the magnetic variation mode used when the Axis was created
 - Axis Inbound HDG is calculated from endpoint-to-B/E true bearing and the endpoint variation
@@ -204,11 +222,13 @@ trueBearing = magneticBearing + magVarEastPositive
 - Imported geometry is validated after file selection
 - GeoJSON export creates one FeatureCollection containing all Object List entries
 - Tickmark Group exports to GeoJSON as one MultiLineString feature
+- B/E Spider exports to GeoJSON as one or two MultiLineString features for normal and cardinal radials
 - GeoJSON properties include name, type, line color, and optional fill color
 - WebGIS-style JSON export is not provided
 - KML Point output uses an IconStyle color without an external icon URL
-- Export creates one Style and Placemark per object
+- Export usually creates one Style and Placemark per object
 - Tickmark Group exports to KML as one MultiGeometry Placemark containing multiple LineString entries
+- B/E Spider exports to KML as separate normal and cardinal MultiGeometry Placemarks when both exist
 - Line width is configurable for the whole document
 - Polygon fills use semi-transparent KML colors
 - Empty document name defaults to local download date/time

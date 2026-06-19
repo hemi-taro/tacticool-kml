@@ -2,6 +2,20 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.2.8] - 2026-06-20
+
+### Added
+
+- BullseyeからB/E Spiderを作成する機能を追加
+- Spiderの通常ラジアルと000/090/180/270カーディナルラジアルを別色・別太さで出力
+- SpiderをKMLでは通常/カーディナル別Placemark、GeoJSONでは別Featureとして出力
+
+### Fixed
+
+- Axis Tickmark有効時にMain interval関連で作成に失敗するバグを修正
+- TickmarkのStart distanceをinterval開始点ではなく、B/E基準tickmarkの表示下限として扱うよう修正
+- PWAキャッシュをv1.2.8へ更新
+
 ## [1.2.7] - 2026-06-19
 
 ### Changed
