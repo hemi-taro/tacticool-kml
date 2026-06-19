@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.3.2", () => {
-  assert.equal(context.APP_VERSION, "1.3.2");
+test("app version is v1.3.3", () => {
+  assert.equal(context.APP_VERSION, "1.3.3");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -793,6 +793,15 @@ test("KML and GeoJSON export Box area grid as same object group", () => {
   assert.equal(geojson.features[0].geometry.type, "Polygon");
   assert.equal(geojson.features[1].properties.role, "box-grid");
   assert.equal(geojson.features[1].geometry.type, "MultiLineString");
+});
+
+test("Object List details include Box internal line coordinates", () => {
+  const box = context.generateBoxWithInternalLines({ lat: 35, lon: 129 }, 20, 20, 0, { widthDivisions: 2, depthRatio: "7:3" });
+  const text = context.formatGridSegmentCoordinates(box.gridSegments, "ddm");
+  assert.match(text, /Internal lines/);
+  assert.match(text, /Line 1/);
+  assert.match(text, /1: \d+°\s+\d{2}\.\d{4}'\s+[NS]\s+\/\s+\d+°\s+\d{2}\.\d{4}'\s+[EW]/);
+  assert.match(html, /formatGridSegmentCoordinates\(object\.gridSegments, coordinateFormat\)/);
 });
 
 test("KML exports a Custom Area without fill when fill is disabled", () => {

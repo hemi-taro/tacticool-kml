@@ -1,4 +1,4 @@
-# Tacticool KML v1.3.2 Specification
+# Tacticool KML v1.3.3 Specification
 
 ## Purpose
 
@@ -171,6 +171,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - Internal Box lines are stored with the Box-derived Custom Area
 - KML exports Box internal lines as a separate same-name `Grid` Placemark
 - GeoJSON exports Box internal lines as a `box-grid` MultiLineString feature
+- Expanded Object List details display Box internal line endpoint coordinates
 - Empty Custom Name is auto-filled as `BOX {center coordinate}`
 - Center is displayed in expanded Object List details after the Box becomes a Custom Area
 - Box-derived Custom Area details show center variation when magnetic variation mode is Auto or Manual
