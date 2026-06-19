@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.2.9", () => {
-  assert.equal(context.APP_VERSION, "1.2.9");
+test("app version is v1.3.0", () => {
+  assert.equal(context.APP_VERSION, "1.3.0");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -139,11 +139,16 @@ test("field layout follows the v0.12 section order", () => {
 
 test("Bullseye section supports Spider creation", () => {
   const bull = html.match(/<h2>Bullseye<\/h2>([\s\S]*?)<\/section>/)?.[1] || "";
-  for (const id of ["bull-spider-enabled", "bull-spider-settings", "bull-spider-full", "bull-spider-start-radial", "bull-spider-end-radial", "bull-spider-interval", "bull-spider-start-range", "bull-spider-end-range", "bull-spider-ring-interval", "bull-spider-color", "bull-spider-cardinal-color", "add-bull-spider"]) {
+  for (const id of ["bull-spider-enabled", "bull-spider-settings", "bull-spider-full", "bull-spider-start-radial", "bull-spider-end-radial", "bull-spider-major-interval", "bull-spider-minor-interval", "bull-spider-start-range", "bull-spider-end-range", "bull-spider-ring-interval", "bull-spider-color", "bull-spider-cardinal-color", "add-bull-spider"]) {
     assert.match(bull, new RegExp(`id="${id}"`));
   }
   assert.match(bull, /Add B\/E Spider/);
+  assert.match(bull, /Major radial interval/);
+  assert.match(bull, /Minor radial interval/);
+  assert.match(bull, /id="bull-spider-major-interval"[^>]+placeholder="10"/);
   assert.match(bull, /id="bull-spider-ring-interval"[^>]+placeholder="10"/);
+  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-major-interval"\)\.value, 10, "Major radial interval"\)/);
+  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-minor-interval"\)\.value, null, "Minor radial interval"\)/);
   assert.match(html, /parseOptionalNumber\(\$\("bull-spider-ring-interval"\)\.value, 10, "Range ring interval"\)/);
 });
 
@@ -537,78 +542,85 @@ test("KML exports Tickmark Group as one MultiGeometry Placemark", () => {
   assert.equal((kml.match(/<LineString>/g) || []).length, 2);
 });
 
-test("Spider radial generation splits cardinal radials", () => {
+test("Spider radial generation splits cardinal major and minor radials", () => {
   const spider = context.createSpiderObject({
     bull: { lat: 35, lon: 135, magVar: 0, mode: "none" },
     bearingContext: { magVar: 0, mode: "none" },
-    settings: { fullCircle: false, startRadial: 80, endRadial: 140, intervalDeg: 10, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
+    settings: { fullCircle: false, startRadial: 80, endRadial: 140, majorIntervalDeg: 10, minorIntervalDeg: 5, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
     color: "#8aa3b5",
     cardinalColor: "#1565c0"
   });
   assert.equal(spider.type, "B/E Spider");
-  assert.deepEqual(Array.from(spider.spiderSettings.radials), [80, 90, 100, 110, 120, 130, 140]);
+  assert.deepEqual(Array.from(spider.spiderSettings.majorRadials), [80, 100, 110, 120, 130, 140]);
+  assert.deepEqual(Array.from(spider.spiderSettings.minorRadials), [85, 95, 105, 115, 125, 135]);
+  assert.deepEqual(Array.from(spider.spiderSettings.cardinalRadials), [90]);
   assert.equal(spider.segments.length, 6);
+  assert.equal(spider.minorSegments.length, 6);
   assert.equal(spider.cardinalSegments.length, 1);
   assert.equal(spider.rangeRingSegments.length, 2);
-  assert.equal(spider.spiderSettings.normalCount, 6);
+  assert.equal(spider.spiderSettings.majorCount, 6);
+  assert.equal(spider.spiderSettings.minorCount, 6);
   assert.equal(spider.spiderSettings.cardinalCount, 1);
   assert.deepEqual(Array.from(spider.spiderSettings.ringRangesNm), [50, 100]);
 });
 
 test("Spider full circle and wrapping radial ranges are clockwise", () => {
-  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: true, intervalDeg: 90 })), [0, 90, 180, 270]);
-  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: false, startRadial: 330, endRadial: 30, intervalDeg: 30 })), [330, 0, 30]);
-  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: false, startRadial: 80, endRadial: 145, intervalDeg: 30 })), [80, 110, 140]);
-  assert.throws(() => context.generateSpiderRadials({ fullCircle: false, startRadial: 90, endRadial: 450, intervalDeg: 10 }), /different/);
+  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: true, majorIntervalDeg: 90 })), [0, 90, 180, 270]);
+  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: false, startRadial: 330, endRadial: 30, majorIntervalDeg: 30 })), [330, 0, 30]);
+  assert.deepEqual(Array.from(context.generateSpiderRadials({ fullCircle: false, startRadial: 80, endRadial: 145, majorIntervalDeg: 30 })), [80, 110, 140]);
+  assert.throws(() => context.generateSpiderRadials({ fullCircle: false, startRadial: 90, endRadial: 450, majorIntervalDeg: 10 }), /different/);
 });
 
 test("Spider validation limits ranges and intervals", () => {
-  assert.throws(() => context.generateSpiderRadials({ fullCircle: true, intervalDeg: 0 }), /between 1 and 180/);
-  assert.throws(() => context.generateSpiderRadials({ fullCircle: true, intervalDeg: 1.5 }), /integer/);
+  assert.throws(() => context.generateSpiderRadials({ fullCircle: true, majorIntervalDeg: 0 }), /between 1 and 180/);
+  assert.throws(() => context.generateSpiderRadials({ fullCircle: true, majorIntervalDeg: 1.5 }), /integer/);
+  assert.throws(() => context.classifySpiderRadials({ fullCircle: true, majorIntervalDeg: 10, minorIntervalDeg: 7 }), /must divide/);
   assert.throws(() => context.createSpiderObject({
     bull: { lat: 35, lon: 135, magVar: 0, mode: "none" },
     bearingContext: { magVar: 0, mode: "none" },
-    settings: { fullCircle: true, intervalDeg: 10, startRangeNm: 100, endRangeNm: 50, ringIntervalNm: 50 },
+    settings: { fullCircle: true, majorIntervalDeg: 10, startRangeNm: 100, endRangeNm: 50, ringIntervalNm: 50 },
     color: "#8aa3b5",
     cardinalColor: "#1565c0"
   }), /End range/);
   assert.throws(() => context.createSpiderObject({
     bull: { lat: 35, lon: 135, magVar: 0, mode: "none" },
     bearingContext: { magVar: 0, mode: "none" },
-    settings: { fullCircle: true, intervalDeg: 10, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 0 },
+    settings: { fullCircle: true, majorIntervalDeg: 10, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 0 },
     color: "#8aa3b5",
     cardinalColor: "#1565c0"
   }), /Range ring interval/);
 });
 
-test("KML exports B/E Spider radials and range rings as separate Placemarks", () => {
+test("KML exports B/E Spider major minor cardinal and range rings as separate Placemarks", () => {
   const spider = context.createSpiderObject({
     bull: { lat: 35, lon: 135, magVar: 0, mode: "none" },
     bearingContext: { magVar: 0, mode: "none" },
-    settings: { fullCircle: false, startRadial: 80, endRadial: 100, intervalDeg: 10, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
+    settings: { fullCircle: false, startRadial: 80, endRadial: 100, majorIntervalDeg: 10, minorIntervalDeg: 5, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
     color: "#8aa3b5",
     cardinalColor: "#1565c0"
   });
   const kml = context.buildKml("Mission", [spider], 4);
-  assert.equal((kml.match(/<Placemark>/g) || []).length, 3);
-  assert.match(kml, /<name>B\/E Spider 080-100 0-100NM<\/name>/);
+  assert.equal((kml.match(/<Placemark>/g) || []).length, 4);
+  assert.match(kml, /<name>B\/E Spider 080-100 0-100NM Major<\/name>/);
+  assert.match(kml, /<name>B\/E Spider 080-100 0-100NM Minor<\/name>/);
   assert.match(kml, /<name>B\/E Spider 080-100 0-100NM Cardinal<\/name>/);
   assert.match(kml, /<name>B\/E Spider 080-100 0-100NM Rings<\/name>/);
+  assert.match(kml, /<color>99b5a38a<\/color>/);
   assert.match(kml, /<width>2<\/width>/);
   assert.match(kml, /<width>4<\/width>/);
 });
 
-test("GeoJSON exports B/E Spider normal cardinal and range ring features", () => {
+test("GeoJSON exports B/E Spider major minor cardinal and range ring features", () => {
   const spider = context.createSpiderObject({
     bull: { lat: 35, lon: 135, magVar: 0, mode: "none" },
     bearingContext: { magVar: 0, mode: "none" },
-    settings: { fullCircle: false, startRadial: 80, endRadial: 100, intervalDeg: 10, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
+    settings: { fullCircle: false, startRadial: 80, endRadial: 100, majorIntervalDeg: 10, minorIntervalDeg: 5, startRangeNm: 0, endRangeNm: 100, ringIntervalNm: 50 },
     color: "#8aa3b5",
     cardinalColor: "#1565c0"
   });
   const geojson = JSON.parse(context.buildGeoJson("Mission", [spider]));
-  assert.equal(geojson.features.length, 3);
-  assert.deepEqual(Array.from(geojson.features, feature => feature.properties.role), ["normal", "cardinal", "range-rings"]);
+  assert.equal(geojson.features.length, 4);
+  assert.deepEqual(Array.from(geojson.features, feature => feature.properties.role), ["major", "minor", "cardinal", "range-rings"]);
   assert.ok(geojson.features.every(feature => feature.geometry.type === "MultiLineString"));
 });
 
@@ -616,7 +628,7 @@ test("coastline preview data is embedded as SVG path source", () => {
   assert.ok(Array.isArray(context.COASTLINE_SVG_PATHS));
   assert.ok(context.COASTLINE_SVG_PATHS.length > 100);
   assert.ok(context.COASTLINE_SVG_PATHS.every(item => Array.isArray(item.bbox) && typeof item.d === "string" && item.d.startsWith("M")));
-  assert.match(html, /coastline-preview/);
+  assert.match(html, /\.coastline-preview\s*\{[^}]*opacity:\s*0\.5/);
 });
 
 test("bearing context resolves local auto variation without requiring Bullseye", () => {
@@ -742,7 +754,7 @@ test("KML export preserves object list order and creates filled polygons", () =>
   ], 4);
   assert.ok(kml.indexOf("<name>First</name>") < kml.indexOf("<name>Area</name>"));
   assert.match(kml, /<Polygon>/);
-  assert.match(kml, /<PolyStyle><color>55bdab87<\/color><\/PolyStyle>/);
+  assert.match(kml, /<PolyStyle><color>33bdab87<\/color><\/PolyStyle>/);
 });
 
 test("KML exports a Custom Area without fill when fill is disabled", () => {

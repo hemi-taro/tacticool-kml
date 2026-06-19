@@ -51,7 +51,7 @@
     .object-text span { font-size: .78rem; color: #65727e; margin-top: 2px; }
     .empty { color: #6a7680; font-size: .88rem; }
     .preview { width: 100%; height: auto; margin-top: 12px; background: #f7f9fb; border: 1px solid #d7dde3; border-radius: 6px; }
-    .coastline-preview { fill: none; stroke: #aeb8c2; stroke-width: 0.7; opacity: 0.35; vector-effect: non-scaling-stroke; }
+    .coastline-preview { fill: none; stroke: #aeb8c2; stroke-width: 0.7; opacity: 0.5; vector-effect: non-scaling-stroke; }
     .section-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
     .section-toolbar h2 { margin: 0; }
     .format-toggle { display: flex; border: 1px solid #aeb9c4; border-radius: 7px; overflow: hidden; }
@@ -130,7 +130,8 @@
         <label class="check"><input id="bull-spider-full" type="checkbox"> Full circle</label>
         <label>Start radial<input id="bull-spider-start-radial" type="text" inputmode="decimal" placeholder="000"></label>
         <label>End radial<input id="bull-spider-end-radial" type="text" inputmode="decimal" placeholder="360"></label>
-        <label>Radial interval<input id="bull-spider-interval" type="text" inputmode="numeric" placeholder="10"></label>
+        <label>Major radial interval<input id="bull-spider-major-interval" type="text" inputmode="numeric" placeholder="10"></label>
+        <label>Minor radial interval<input id="bull-spider-minor-interval" type="text" inputmode="numeric" placeholder="none"></label>
         <label>Start range (NM)<input id="bull-spider-start-range" type="text" inputmode="decimal" placeholder="0"></label>
         <label>End range (NM)<input id="bull-spider-end-range" type="text" inputmode="decimal"></label>
         <label>Range ring interval (NM)<input id="bull-spider-ring-interval" type="text" inputmode="decimal" placeholder="10"></label>
@@ -305,7 +306,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.2.9";
+    var APP_VERSION = "1.3.0";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -792,29 +793,66 @@
     }
 
     function validateSpiderRadialSettings(settings) {
-      if (!Number.isInteger(settings.intervalDeg)) throw new Error("Radial interval must be an integer.");
-      if (settings.intervalDeg < 1 || settings.intervalDeg > 180) throw new Error("Radial interval must be between 1 and 180.");
+      if (!Number.isInteger(settings.majorIntervalDeg)) throw new Error("Major radial interval must be an integer.");
+      if (settings.majorIntervalDeg < 1 || settings.majorIntervalDeg > 180) throw new Error("Major radial interval must be between 1 and 180.");
+      if (settings.minorIntervalDeg !== null && settings.minorIntervalDeg !== undefined) {
+        if (!Number.isInteger(settings.minorIntervalDeg)) throw new Error("Minor radial interval must be an integer.");
+        if (settings.minorIntervalDeg < 1 || settings.minorIntervalDeg > 180) throw new Error("Minor radial interval must be between 1 and 180.");
+        if (settings.majorIntervalDeg % settings.minorIntervalDeg !== 0) throw new Error("Minor radial interval must divide the major radial interval.");
+      }
       if (!settings.fullCircle && normalizeBearing(settings.startRadial) === normalizeBearing(settings.endRadial)) {
         throw new Error("Start and end radial must be different.");
       }
     }
 
-    function generateSpiderRadials(settings) {
+    function generateSpiderRadialsForInterval(settings, intervalDeg) {
       validateSpiderRadialSettings(settings);
       const radials = [];
       if (settings.fullCircle) {
-        for (let radial = 0; radial < 360 - 1e-9; radial += settings.intervalDeg) {
+        for (let radial = 0; radial < 360 - 1e-9; radial += intervalDeg) {
           radials.push(normalizeBearing(radial));
         }
       } else {
         const start = normalizeBearing(settings.startRadial);
         const sweep = normalizeBearing(settings.endRadial - settings.startRadial);
-        for (let offset = 0; offset <= sweep + 1e-9; offset += settings.intervalDeg) {
+        for (let offset = 0; offset <= sweep + 1e-9; offset += intervalDeg) {
           radials.push(normalizeBearing(start + offset));
         }
       }
       if (radials.length > 360) throw new Error("Spider radial count exceeds the limit of 360.");
       return radials;
+    }
+
+    function generateSpiderRadials(settings) {
+      return generateSpiderRadialsForInterval(settings, settings.majorIntervalDeg);
+    }
+
+    function radialListContains(radials, radial) {
+      return radials.some(candidate => Math.abs(normalizeBearing(candidate - radial)) < 1e-9);
+    }
+
+    function classifySpiderRadials(settings) {
+      const majorSource = generateSpiderRadials(settings);
+      const minorSource = settings.minorIntervalDeg === null || settings.minorIntervalDeg === undefined
+        ? []
+        : generateSpiderRadialsForInterval(settings, settings.minorIntervalDeg);
+      const cardinalRadials = [];
+      const majorRadials = [];
+      const minorRadials = [];
+      const addUnique = (list, radial) => {
+        if (!radialListContains(list, radial)) list.push(radial);
+      };
+      majorSource.forEach(radial => {
+        if (isCardinalRadial(radial)) addUnique(cardinalRadials, radial);
+        else addUnique(majorRadials, radial);
+      });
+      minorSource.forEach(radial => {
+        if (isCardinalRadial(radial)) addUnique(cardinalRadials, radial);
+        else if (!radialListContains(majorRadials, radial)) addUnique(minorRadials, radial);
+      });
+      const total = cardinalRadials.length + majorRadials.length + minorRadials.length;
+      if (total > 360) throw new Error("Spider radial count exceeds the limit of 360.");
+      return { cardinalRadials, majorRadials, minorRadials };
     }
 
     function validateSpiderRangeSettings(settings) {
@@ -870,15 +908,14 @@
 
     function createSpiderObject({ bull, bearingContext, settings, color, cardinalColor }) {
       validateSpiderRangeSettings(settings);
-      const radials = generateSpiderRadials(settings);
+      const { cardinalRadials, majorRadials, minorRadials } = classifySpiderRadials(settings);
       const ringRangesNm = generateSpiderRingRanges(settings);
-      const normalSegments = [];
+      const majorSegments = [];
+      const minorSegments = [];
       const cardinalSegments = [];
-      radials.forEach(radial => {
-        const segment = generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm);
-        if (isCardinalRadial(radial)) cardinalSegments.push(segment);
-        else normalSegments.push(segment);
-      });
+      majorRadials.forEach(radial => majorSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
+      minorRadials.forEach(radial => minorSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
+      cardinalRadials.forEach(radial => cardinalSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
       const rangeRingSegments = ringRangesNm.map(rangeNm => generateSpiderRangeRing(bull, bearingContext, settings, rangeNm));
       return {
         name: formatSpiderName(settings),
@@ -886,14 +923,17 @@
         color,
         cardinalColor,
         lineWidthFactor: 0.5,
+        minorLineWidthFactor: 0.35,
+        minorLineAlpha: "99",
         cardinalLineWidthFactor: 1,
         ringLineWidthFactor: 0.5,
         createdBullseye: typeof createdBullseyeSnapshot === "function" ? createdBullseyeSnapshot(bull) : { name: bull.name, lat: bull.lat, lon: bull.lon, magVar: bull.magVar, mode: bull.mode },
-        spiderSettings: { ...settings, radials, ringRangesNm, normalCount: normalSegments.length, cardinalCount: cardinalSegments.length, ringCount: rangeRingSegments.length },
-        segments: normalSegments,
+        spiderSettings: { ...settings, majorRadials, minorRadials, cardinalRadials, ringRangesNm, majorCount: majorSegments.length, minorCount: minorSegments.length, cardinalCount: cardinalSegments.length, ringCount: rangeRingSegments.length },
+        segments: majorSegments,
+        minorSegments,
         cardinalSegments,
         rangeRingSegments,
-        coordinates: [...normalSegments.flat(), ...cardinalSegments.flat(), ...rangeRingSegments.flat()]
+        coordinates: [...majorSegments.flat(), ...minorSegments.flat(), ...cardinalSegments.flat(), ...rangeRingSegments.flat()]
       };
     }
 
@@ -980,8 +1020,12 @@
         if (object.type === "B/E Spider") {
           const items = [];
           if (object.segments?.length) {
-            const id = `style-${index}-normal`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width * (object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(object.name)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.segments)}</Placemark>`);
+            const id = `style-${index}-major`;
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width * (object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Major`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.segments)}</Placemark>`);
+          }
+          if (object.minorSegments?.length) {
+            const id = `style-${index}-minor`;
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, object.minorLineAlpha || "99")}</color><width>${formatKmlWidth(width * (object.minorLineWidthFactor || 0.35))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Minor`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.minorSegments)}</Placemark>`);
           }
           if (object.cardinalSegments?.length) {
             const id = `style-${index}-cardinal`;
@@ -998,7 +1042,7 @@
         const style = kind === "Point"
           ? `<Style id="${id}"><IconStyle><color>${toKmlColor(object.color)}</color></IconStyle></Style>`
           : kind === "Polygon"
-            ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width)}</width></LineStyle><PolyStyle>${object.fillColor ? `<color>${toKmlColor(object.fillColor, "55")}</color>` : "<fill>0</fill>"}</PolyStyle></Style>`
+            ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width)}</width></LineStyle><PolyStyle>${object.fillColor ? `<color>${toKmlColor(object.fillColor, "33")}</color>` : "<fill>0</fill>"}</PolyStyle></Style>`
             : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width)}</width></LineStyle></Style>`;
         const geometry = kind === "Point"
           ? `<Point><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></Point>`
@@ -1022,15 +1066,30 @@
             if (object.segments?.length) features.push({
               type: "Feature",
               properties: {
-                name: object.name,
+                name: `${object.name} Major`,
                 type: object.type,
-                role: "normal",
+                role: "major",
                 lineColor: object.color,
                 fillColor: null
               },
               geometry: {
                 type: "MultiLineString",
                 coordinates: object.segments.map(segment => coordinatesToGeoJson(segment))
+              }
+            });
+            if (object.minorSegments?.length) features.push({
+              type: "Feature",
+              properties: {
+                name: `${object.name} Minor`,
+                group: object.name,
+                type: object.type,
+                role: "minor",
+                lineColor: object.color,
+                fillColor: null
+              },
+              geometry: {
+                type: "MultiLineString",
+                coordinates: object.minorSegments.map(segment => coordinatesToGeoJson(segment))
               }
             });
             if (object.cardinalSegments?.length) features.push({
@@ -1400,7 +1459,7 @@
           path.setAttribute("d", coastlinePathToPreview(coastline.d, projection.project));
           svg.append(path);
         }
-        const drawSegments = (segments, points, color, fillColor, strokeWidth) => {
+        const drawSegments = (segments, points, color, fillColor, strokeWidth, strokeOpacity = 1) => {
           let segmentOffset = 0;
           for (const segment of segments) {
             const segmentPoints = points.slice(segmentOffset, segmentOffset + segment.length);
@@ -1408,8 +1467,9 @@
             const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
             polyline.setAttribute("points", segmentPoints.map(point => `${point.x},${point.y}`).join(" "));
             polyline.setAttribute("fill", fillColor || "none");
-            polyline.setAttribute("fill-opacity", fillColor ? "0.2" : "0");
+            polyline.setAttribute("fill-opacity", fillColor ? "0.15" : "0");
             polyline.setAttribute("stroke", color);
+            polyline.setAttribute("stroke-opacity", String(strokeOpacity));
             polyline.setAttribute("stroke-width", String(strokeWidth));
             polyline.setAttribute("vector-effect", "non-scaling-stroke");
             svg.append(polyline);
@@ -1428,11 +1488,13 @@
             continue;
           }
           if (object.type === "B/E Spider") {
-            const normalLength = (object.segments || []).flat().length;
+            const majorLength = (object.segments || []).flat().length;
+            const minorLength = (object.minorSegments || []).flat().length;
             const cardinalLength = (object.cardinalSegments || []).flat().length;
-            drawSegments(object.segments || [], points.slice(0, normalLength), object.color, null, previewWidth * (object.lineWidthFactor || 1));
-            drawSegments(object.cardinalSegments || [], points.slice(normalLength, normalLength + cardinalLength), object.cardinalColor || object.color, null, previewWidth * (object.cardinalLineWidthFactor || 1));
-            drawSegments(object.rangeRingSegments || [], points.slice(normalLength + cardinalLength), object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
+            drawSegments(object.segments || [], points.slice(0, majorLength), object.color, null, previewWidth * (object.lineWidthFactor || 1));
+            drawSegments(object.minorSegments || [], points.slice(majorLength, majorLength + minorLength), object.color, null, previewWidth * (object.minorLineWidthFactor || 0.35), 0.6);
+            drawSegments(object.cardinalSegments || [], points.slice(majorLength + minorLength, majorLength + minorLength + cardinalLength), object.cardinalColor || object.color, null, previewWidth * (object.cardinalLineWidthFactor || 1));
+            drawSegments(object.rangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength), object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
           } else {
             drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, previewWidth);
           }
@@ -1677,7 +1739,8 @@
           const spiderSummary = document.createElement("div");
           spiderSummary.className = "summary";
           const radialText = settings.fullCircle ? "Full circle" : `${formatRadialValue(settings.startRadial)} -> ${formatRadialValue(settings.endRadial)}`;
-          spiderSummary.textContent = `Spider: ${radialText}, interval ${settings.intervalDeg}°, range ${Number(settings.startRangeNm.toFixed(6))}-${Number(settings.endRangeNm.toFixed(6))}NM, rings ${settings.ringCount}, normal ${settings.normalCount}, cardinal ${settings.cardinalCount}`;
+          const minorText = settings.minorIntervalDeg ? `, Minor ${settings.minorIntervalDeg}° (${settings.minorCount})` : "";
+          spiderSummary.textContent = `Spider: ${radialText}, Major ${settings.majorIntervalDeg}° (${settings.majorCount})${minorText}, Cardinal ${settings.cardinalCount}, rings ${settings.ringCount}, range ${Number(settings.startRangeNm.toFixed(6))}-${Number(settings.endRangeNm.toFixed(6))}NM`;
           details.append(spiderSummary);
           const cardinalRow = document.createElement("div");
           cardinalRow.className = "object-name-edit";
@@ -2076,7 +2139,8 @@
             fullCircle,
             startRadial: fullCircle ? 0 : requiredNumber("bull-spider-start-radial", "Start radial"),
             endRadial: fullCircle ? 360 : requiredNumber("bull-spider-end-radial", "End radial"),
-            intervalDeg: parseOptionalNumber($("bull-spider-interval").value, 10, "Radial interval"),
+            majorIntervalDeg: parseOptionalNumber($("bull-spider-major-interval").value, 10, "Major radial interval"),
+            minorIntervalDeg: parseOptionalNumber($("bull-spider-minor-interval").value, null, "Minor radial interval"),
             startRangeNm: parseOptionalNumber($("bull-spider-start-range").value, 0, "Start range"),
             endRangeNm: requiredNumber("bull-spider-end-range", "End range"),
             ringIntervalNm: parseOptionalNumber($("bull-spider-ring-interval").value, 10, "Range ring interval")

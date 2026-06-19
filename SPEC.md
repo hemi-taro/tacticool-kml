@@ -1,4 +1,4 @@
-# Tacticool KML v1.2.9 Specification
+# Tacticool KML v1.3.0 Specification
 
 ## Purpose
 
@@ -112,20 +112,23 @@ trueBearing = magneticBearing + magVarEastPositive
 ### B/E Spider
 
 - Created from the Bullseye section
-- Inputs: full circle toggle, start radial, end radial, radial interval, start range, end range, range ring interval, normal color, and cardinal color
+- Inputs: full circle toggle, start radial, end radial, Major radial interval, optional Minor radial interval, start range, end range, range ring interval, spider color, and Cardinal color
 - Full circle ignores start/end radial and generates clockwise radials from 000 up to less than 360
-- Sector mode generates clockwise radials from start to end, including end only when it lands on the interval
+- Sector mode generates clockwise radials from start to end, including end only when it lands on the relevant interval
 - Start and end radial are rejected when their normalized values are identical
-- Radial interval must be an integer from 1 to 180 degrees
+- Major radial interval defaults to 10 degrees and must be an integer from 1 to 180 degrees
+- Minor radial interval is optional; blank means no Minor radials are generated
+- When enabled, Minor radial interval must be an integer from 1 to 180 degrees and must divide the Major radial interval
 - End range must be greater than start range and no more than 1000NM
 - Total radial count is limited to 360
 - Range ring interval must be positive
 - Range rings are generated from start range to end range; 0NM is not drawn and end range is always included
 - 000, 090, 180, and 270 are cardinal radials
-- Cardinal radials are separated from normal radials to allow stronger color and width
+- Cardinal, Major, Minor, and range-ring geometry are separated to allow different visual weight
+- Minor radials use the spider color with lighter alpha and thinner line width
 - Object List shows one B/E Spider object and does not list every spider coordinate
-- KML exports normal radials, cardinal radials, and range rings as separate Placemarks when present
-- GeoJSON exports normal radials, cardinal radials, and range rings as separate MultiLineString features when present
+- KML exports Major radials, Minor radials, Cardinal radials, and range rings as separate Placemarks when present
+- GeoJSON exports Major radials, Minor radials, Cardinal radials, and range rings as separate MultiLineString features when present
 
 ### SAM Ring
 
@@ -136,7 +139,7 @@ trueBearing = magneticBearing + magVarEastPositive
 - Generated as a closed 72-segment circle
 - Polygon fill is disabled by default
 - Fill color is shown only when polygon fill is enabled
-- Fill color defaults to a pale color and KML output uses semi-transparent fill when enabled
+- Fill color defaults to a pale color and KML output uses light semi-transparent fill when enabled
 
 ### Custom Point / Line / Area
 
@@ -180,7 +183,7 @@ trueBearing = magneticBearing + magVarEastPositive
 
 - Objects are stored in memory with stable IDs, name, type, line color, optional fill color, and coordinate arrays
 - Tickmark Group objects store multiple line segments and a flattened coordinate array for preview bounds
-- B/E Spider objects store normal radial, cardinal radial, and range ring segments plus a flattened coordinate array for preview bounds
+- B/E Spider objects store Major radial, optional Minor radial, Cardinal radial, and range ring segments plus a flattened coordinate array for preview bounds
 - B/E-created objects store a created Bullseye snapshot for display only
 - SAM Ring objects store radius for display only
 - Object List order determines preview, KML export, and GeoJSON export order
@@ -224,22 +227,22 @@ trueBearing = magneticBearing + magVarEastPositive
 - Imported geometry is validated after file selection
 - GeoJSON export creates one FeatureCollection containing all Object List entries
 - Tickmark Group exports to GeoJSON as one MultiLineString feature
-- B/E Spider exports to GeoJSON as separate MultiLineString features for normal radials, cardinal radials, and range rings
+- B/E Spider exports to GeoJSON as separate MultiLineString features for Major radials, Minor radials, Cardinal radials, and range rings
 - GeoJSON properties include name, type, line color, and optional fill color
 - WebGIS-style JSON export is not provided
 - KML Point output uses an IconStyle color without an external icon URL
 - Export usually creates one Style and Placemark per object
 - Tickmark Group exports to KML as one MultiGeometry Placemark containing multiple LineString entries
-- B/E Spider exports to KML as separate normal, cardinal, and range-ring MultiGeometry Placemarks when present
+- B/E Spider exports to KML as separate Major, Minor, Cardinal, and range-ring MultiGeometry Placemarks when present
 - Line width is configurable for the whole document
-- Polygon fills use semi-transparent KML colors
+- Polygon fills use light semi-transparent KML colors
 - Empty document name defaults to local download date/time
 - Export order matches Object List order
 
 ## Preview
 
 - SVG preview shows relative geometry placement without map tiles
-- SVG preview includes simplified world coastline as a faint background reference
+- SVG preview includes simplified world coastline as a background reference
 - Coastline preview data is not included in KML or GeoJSON export
 - Line width and fill colors are represented
 - Preview is not a navigation map and does not prove geographic correctness

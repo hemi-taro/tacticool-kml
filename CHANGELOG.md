@@ -2,6 +2,19 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.3.0] - 2026-06-20
+
+### Added
+
+- B/E SpiderにMajor radial intervalと任意のMinor radial intervalを追加
+- B/E SpiderのMajor / Minor / Cardinal / Range ringsをKMLとGeoJSONで別要素として出力
+
+### Changed
+
+- Polygon fillの透明度をより薄く調整
+- Preview背景のworld coastline opacityを上げて見やすく調整
+- PWAキャッシュをv1.3.0へ更新
+
 ## [1.2.9] - 2026-06-20
 
 ### Added
