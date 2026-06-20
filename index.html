@@ -128,15 +128,16 @@
       </div>
       <div id="bull-spider-settings" class="grid" hidden>
         <label class="check"><input id="bull-spider-full" type="checkbox"> Full circle</label>
+        <label>Range ring interval (NM)<input id="bull-spider-ring-interval" type="text" inputmode="decimal" placeholder="10"></label>
         <label>Start radial<input id="bull-spider-start-radial" type="text" inputmode="decimal" placeholder="000"></label>
         <label>End radial<input id="bull-spider-end-radial" type="text" inputmode="decimal" placeholder="360"></label>
-        <label>Major radial interval<input id="bull-spider-major-interval" type="text" inputmode="numeric" placeholder="10"></label>
-        <label>Minor radial interval<input id="bull-spider-minor-interval" type="text" inputmode="numeric" placeholder="none"></label>
+        <label>Major radial interval<input id="bull-spider-major-interval" type="text" inputmode="numeric" placeholder="30"></label>
+        <label>Minor radial interval<input id="bull-spider-minor-interval" type="text" inputmode="numeric" placeholder="10"></label>
         <label>Start range (NM)<input id="bull-spider-start-range" type="text" inputmode="decimal" placeholder="0"></label>
         <label>End range (NM)<input id="bull-spider-end-range" type="text" inputmode="decimal"></label>
-        <label>Range ring interval (NM)<input id="bull-spider-ring-interval" type="text" inputmode="decimal" placeholder="10"></label>
         <label class="color-control">Spider color<input id="bull-spider-color" type="color" value="#8aa3b5"></label>
         <label class="color-control">Cardinal color<input id="bull-spider-cardinal-color" type="color" value="#1565c0"></label>
+        <p class="summary">Minor radials overlapping Major or Cardinal are skipped.</p>
         <div class="actions"><button id="add-bull-spider" type="button">Add B/E Spider</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button></div>
       </div>
       <p id="bull-summary" class="summary"></p>
@@ -148,7 +149,7 @@
       <form id="axis-form">
         <p id="axis-active-bullseye" class="summary"></p>
         <div class="grid">
-          <label>Heading<input id="axis-heading" type="text" inputmode="decimal"></label>
+          <label>Radial<input id="axis-heading" type="text" inputmode="decimal"></label>
           <label>Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
           <label class="color-control">Color<input id="axis-color" type="color" value="#1565c0"></label>
           <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
@@ -310,7 +311,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.4.1";
+    var APP_VERSION = "1.4.2";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -493,6 +494,19 @@
       segments.forEach((segment, segmentIndex) => {
         lines.push(`Line ${segmentIndex + 1}`);
         segment.forEach((point, pointIndex) => {
+          lines.push(`${pointIndex + 1}: ${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`);
+        });
+      });
+      return lines.join("\n");
+    }
+
+    function formatTickmarkCoordinates(tickmarks, format) {
+      if (!tickmarks?.length) return "";
+      const lines = ["Tickmark lines"];
+      tickmarks.forEach(mark => {
+        const label = `${Number(mark.distanceNm.toFixed(6))}NM`;
+        lines.push(label);
+        mark.coordinates.forEach((point, pointIndex) => {
           lines.push(`${pointIndex + 1}: ${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`);
         });
       });
@@ -863,6 +877,7 @@
         createdBullseye,
         tickmarkSettings: { ...settings },
         tickmarkCount: tickmarks.length,
+        tickmarks: tickmarks.map(mark => ({ distanceNm: mark.distanceNm, kind: mark.kind, coordinates: mark.coordinates })),
         segments,
         coordinates: segments.flat()
       };
@@ -1902,6 +1917,12 @@
             : "";
           tickmarkSummary.textContent = `Tickmarks: ${object.tickmarkCount || objectCoordinateSegments(object).length} lines, Main ${Number(settings.mainIntervalNm.toFixed(6))}NM / ${Number(settings.mainWidthNm.toFixed(6))}NM${subText}`;
           details.append(tickmarkSummary);
+          const tickmarkCoordinates = document.createElement("pre");
+          tickmarkCoordinates.className = "coordinate-list";
+          tickmarkCoordinates.dataset.coordinateText = formatTickmarkCoordinates(object.tickmarks, coordinateFormat);
+          tickmarkCoordinates.textContent = tickmarkCoordinates.dataset.coordinateText;
+          details.append(tickmarkCoordinates);
+          return details;
         }
         if (object.type === "B/E Spider" && object.spiderSettings) {
           const settings = object.spiderSettings;
@@ -2333,8 +2354,8 @@
             fullCircle,
             startRadial: fullCircle ? 0 : requiredNumber("bull-spider-start-radial", "Start radial"),
             endRadial: fullCircle ? 360 : requiredNumber("bull-spider-end-radial", "End radial"),
-            majorIntervalDeg: parseOptionalNumber($("bull-spider-major-interval").value, 10, "Major radial interval"),
-            minorIntervalDeg: parseOptionalNumber($("bull-spider-minor-interval").value, null, "Minor radial interval"),
+            majorIntervalDeg: parseOptionalNumber($("bull-spider-major-interval").value, 30, "Major radial interval"),
+            minorIntervalDeg: parseOptionalNumber($("bull-spider-minor-interval").value, 10, "Minor radial interval"),
             startRangeNm: parseOptionalNumber($("bull-spider-start-range").value, 0, "Start range"),
             endRangeNm: requiredNumber("bull-spider-end-range", "End range"),
             ringIntervalNm: parseOptionalNumber($("bull-spider-ring-interval").value, 10, "Range ring interval")

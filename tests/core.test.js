@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.4.1", () => {
-  assert.equal(context.APP_VERSION, "1.4.1");
+test("app version is v1.4.2", () => {
+  assert.equal(context.APP_VERSION, "1.4.2");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -24,6 +24,8 @@ test("app uses concise coordinate and magnetic field labels", () => {
   assert.match(html, /Width \(NM\)/);
   assert.match(html, /Depth \(NM\)/);
   assert.match(html, /Depth orientation</);
+  assert.match(html, />Radial<input id="axis-heading"/);
+  assert.doesNotMatch(html, />Heading<input id="axis-heading"/);
 });
 
 test("Axis and Mission Line appear before SAM and Custom panels and are collapsible", () => {
@@ -145,10 +147,13 @@ test("Bullseye section supports Spider creation", () => {
   assert.match(bull, /Add B\/E Spider/);
   assert.match(bull, /Major radial interval/);
   assert.match(bull, /Minor radial interval/);
-  assert.match(bull, /id="bull-spider-major-interval"[^>]+placeholder="10"/);
+  assert.ok(bull.indexOf("bull-spider-ring-interval") < bull.indexOf("bull-spider-start-radial"));
+  assert.match(bull, /id="bull-spider-major-interval"[^>]+placeholder="30"/);
+  assert.match(bull, /id="bull-spider-minor-interval"[^>]+placeholder="10"/);
   assert.match(bull, /id="bull-spider-ring-interval"[^>]+placeholder="10"/);
-  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-major-interval"\)\.value, 10, "Major radial interval"\)/);
-  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-minor-interval"\)\.value, null, "Minor radial interval"\)/);
+  assert.match(bull, /Minor radials overlapping Major or Cardinal are skipped/);
+  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-major-interval"\)\.value, 30, "Major radial interval"\)/);
+  assert.match(html, /parseOptionalNumber\(\$\("bull-spider-minor-interval"\)\.value, 10, "Minor radial interval"\)/);
   assert.match(html, /parseOptionalNumber\(\$\("bull-spider-ring-interval"\)\.value, 10, "Range ring interval"\)/);
 });
 
@@ -532,6 +537,7 @@ test("tickmark groups keep many tickmarks in one object", () => {
   assert.equal(group.type, "Tickmark Group");
   assert.equal(group.segments.length, 3);
   assert.equal(group.coordinates.length, 6);
+  assert.deepEqual(Array.from(group.tickmarks.map(mark => mark.distanceNm)), [0, 10, 20]);
   assert.match(group.name, /Tickmarks/);
 });
 

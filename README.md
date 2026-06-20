@@ -1,4 +1,4 @@
-# Tacticool KML v1.4.1
+# Tacticool KML v1.4.2
 
 Stable release.
 
@@ -43,15 +43,15 @@ SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}
 - DMS: `353030N / 1352000E`
 - GEOREF input only: `WJLL0000`
 
-AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 10NM、Sub 10NM / Width 5NMです。Start distanceは表示下限で、intervalの基準は常にB/Eです。Mainと同じ距離ではMainが優先されます。TickmarkはObject List上では1つのTickmark Groupとして管理され、KMLでは1つのMultiGeometry Placemarkとして出力されます。
+AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 10NM、Sub 10NM / Width 5NMです。Start distanceは表示下限で、intervalの基準は常にB/Eです。Mainと同じ距離ではMainが優先されます。TickmarkはObject List上では1つのTickmark Groupとして管理され、詳細には0NM、10NMのように各線の距離を表示します。KMLでは1つのMultiGeometry Placemarkとして出力されます。
 
-B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Full circleまたは時計回りのStart/End radial、Major radial interval、任意のMinor radial interval、Start/End range、Range ring intervalを指定できます。000/090/180/270はCardinal、Majorは通常表示、Minorはより薄く細い線として出力されます。Minor radial intervalが空ならMinorは描画されません。Object List上では1つのB/E Spiderとして管理されます。
+B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Full circleまたは時計回りのStart/End radial、Major radial interval、Minor radial interval、Start/End range、Range ring intervalを指定できます。Majorの既定値は30度、Minorの既定値は10度です。000/090/180/270はCardinal、Majorは通常表示、Minorはより薄く細い線として出力されます。MajorまたはCardinalと重なるMinorは省略されます。Minor radial intervalが空ならMinorは描画されません。Object List上では1つのB/E Spiderとして管理されます。
 
 Previewには軽量化したworld coastlineを背景表示します。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
 
 WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 
-CSV exportは、対応アプリで読み込める座標CSVを出力します。円やArcも点列として出力します。
+CSV exportは、対応アプリで読み込める座標CSVを出力します。円やArcも点列として出力します。独立した線、ring、arc、polygon、Box内部線は空行で区切ります。
 
 距離単位はNMです。Auto (Japan GSI 2020.0)、Auto (WMM2025)、Manualでは入力方位を磁方位として扱い、東偏を正、西偏を負として真方位へ変換します。None (True)では入力方位を真方位として扱い、磁気偏差補正を行いません。Auto (Japan GSI 2020.0)は国土地理院の2020.0年値近似式を使う日本周辺専用の概算モードです。GSI範囲外ではAuto (WMM2025)を使ってください。
 

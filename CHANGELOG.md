@@ -2,6 +2,22 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.4.2] - 2026-06-20
+
+### Added
+
+- Public release note作成ルールを`docs/PUBLIC_RELEASE.md`へ追加
+- Tickmark Group詳細に各tickmark線の距離ラベルを表示
+
+### Changed
+
+- Axis入力の`Heading`表記を`Radial`へ変更
+- B/E Spiderの既定値をMajor 30度、Minor 10度へ変更
+- B/E Spiderの`Range ring interval`をStart/End radialより前に配置
+- B/E SpiderにMinor重複省略の説明を追加
+- README/SPECにCSVの独立線区切りを明記
+- PWAキャッシュをv1.4.2へ更新
+
 ## [1.4.1] - 2026-06-20
 
 ### Fixed
