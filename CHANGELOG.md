@@ -2,6 +2,20 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.4.3] - 2026-06-20
+
+### Changed
+
+- B/E SpiderをONにした時の既定をFull circleに変更
+- B/E Spider設定をBullseye座標入力とは別に折りたたみ可能に変更
+- Sector Spider用のStart/End radial placeholderを削除
+- PWAキャッシュをv1.4.3へ更新
+
+### Fixed
+
+- B/E Spider追加時にB/E未入力やradial/range不正のエラーが表示されない問題を修正
+- 各フォームに表示用message欄があることをテストで確認
+
 ## [1.4.2] - 2026-06-20
 
 ### Added
