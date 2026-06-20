@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.4.0", () => {
-  assert.equal(context.APP_VERSION, "1.4.0");
+test("app version is v1.4.1", () => {
+  assert.equal(context.APP_VERSION, "1.4.1");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -206,10 +206,15 @@ test("PWA metadata and service worker registration are present", () => {
   assert.match(html, /navigator\.serviceWorker\.register\("\.\/service-worker\.js"\)/);
 });
 
-test("KML JSON and FlightNav CSV export use file-download actions", () => {
+test("KML GeoJSON and CSV export use file-download actions", () => {
   assert.match(html, /id="export-kml"/);
   assert.match(html, /id="export-json"/);
   assert.match(html, /id="export-flightnav"/);
+  assert.match(html, />Export KML<\/button>/);
+  assert.match(html, />GeoJSON<\/button>/);
+  assert.match(html, />CSV<\/button>/);
+  assert.doesNotMatch(html, /Export FlightNav CSV/);
+  assert.doesNotMatch(html, /download time/);
   assert.doesNotMatch(html, /id="share-kml"/);
   assert.doesNotMatch(html, /navigator\.share/);
   assert.match(html, /function exportKml/);
@@ -217,6 +222,7 @@ test("KML JSON and FlightNav CSV export use file-download actions", () => {
   assert.match(html, /function downloadFile/);
   assert.match(html, /buildGeoJson/);
   assert.match(html, /buildFlightNavigatorCsv/);
+  assert.doesNotMatch(html, /-flightnav\.csv/);
 });
 
 test("tickmark defaults favor sparse main marks with shorter sub marks", () => {
@@ -812,13 +818,13 @@ test("Flight Navigator CSV exports all geometry as coordinate rows with object b
     spider
   ]);
   const lines = csv.trim().split(/\r?\n/);
-  assert.equal(lines[0], "Latitude1,Latitude2,NS,Longitude1,Longitude2,EW,Radius,");
+  assert.equal(lines[0], "Latitude1,Latitude2,NS,Longitude1,Longitude2,EW,Line,");
   assert.ok(lines.slice(1).filter(line => line !== "Blank,,,,,,,").every(line => line.endsWith(",,")));
   assert.doesNotMatch(csv, /,60,\r?\n/);
   assert.doesNotMatch(csv, /,10,\r?\n/);
   assert.doesNotMatch(csv, /,20,\r?\n/);
   assert.ok(lines.filter(line => /^34/.test(line) && line.endsWith(",,")).length > 10);
-  assert.equal(lines.filter(line => line === "Blank,,,,,,,").length, 3);
+  assert.equal(lines.filter(line => line === "Blank,,,,,,,").length, 9);
 });
 
 test("Object List details include Box internal line coordinates", () => {

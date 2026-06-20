@@ -1,4 +1,4 @@
-# Tacticool KML v1.4.0 Specification
+# Tacticool KML v1.4.1 Specification
 
 ## Purpose
 
@@ -248,12 +248,12 @@ trueBearing = magneticBearing + magVarEastPositive
 - Polygon fills use light semi-transparent KML colors
 - Empty document name defaults to local download date/time
 - Export order matches Object List order
-- FlightNav CSV export creates one coordinate CSV in Object List order
-- FlightNav CSV uses `Latitude1,Latitude2,NS,Longitude1,Longitude2,EW,Radius,`
-- FlightNav CSV uses `Blank,,,,,,,` after each Object List item
-- FlightNav CSV leaves `Radius` and the final empty column blank
-- FlightNav CSV does not export per-object color
-- FlightNav CSV writes all geometry as coordinate rows, including SAM Ring circles, B/E Spider range rings, Arc segments, tickmarks, spider radials, and Box internal lines
+- CSV export creates one coordinate CSV in Object List order
+- CSV export uses `Latitude1,Latitude2,NS,Longitude1,Longitude2,EW,Line,`
+- CSV export uses `Blank,,,,,,,` after each independent line, ring, arc, polygon, or internal Box line
+- CSV export leaves `Line` and the final empty column blank
+- CSV export does not export per-object color
+- CSV export writes all geometry as coordinate rows, including SAM Ring circles, B/E Spider range rings, Arc segments, tickmarks, spider radials, and Box internal lines
 
 ## Preview
 

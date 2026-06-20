@@ -2,6 +2,20 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.4.1] - 2026-06-20
+
+### Fixed
+
+- CSV exportでB/E Spiderなどの独立線分が連結されないよう、線分・ring・arcごとに区切り行を出力
+
+### Changed
+
+- Export UIを`Export KML`、`GeoJSON`、`CSV`へ整理
+- CSV exportのファイル名から`flightnav`サフィックスを削除
+- CSV headerの`Radius`列名を`Line`へ変更
+- Document name placeholderから`(download time)`を削除
+- PWAキャッシュをv1.4.1へ更新
+
 ## [1.4.0] - 2026-06-20
 
 ### Added
