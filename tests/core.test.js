@@ -12,8 +12,8 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(match[1], context);
 
-test("app version is v1.3.3", () => {
-  assert.equal(context.APP_VERSION, "1.3.3");
+test("app version is v1.4.0", () => {
+  assert.equal(context.APP_VERSION, "1.4.0");
 });
 
 test("app uses concise coordinate and magnetic field labels", () => {
@@ -206,15 +206,17 @@ test("PWA metadata and service worker registration are present", () => {
   assert.match(html, /navigator\.serviceWorker\.register\("\.\/service-worker\.js"\)/);
 });
 
-test("KML and JSON export use file-download actions", () => {
+test("KML JSON and FlightNav CSV export use file-download actions", () => {
   assert.match(html, /id="export-kml"/);
   assert.match(html, /id="export-json"/);
+  assert.match(html, /id="export-flightnav"/);
   assert.doesNotMatch(html, /id="share-kml"/);
   assert.doesNotMatch(html, /navigator\.share/);
   assert.match(html, /function exportKml/);
   assert.match(html, /function createKmlFile/);
   assert.match(html, /function downloadFile/);
   assert.match(html, /buildGeoJson/);
+  assert.match(html, /buildFlightNavigatorCsv/);
 });
 
 test("tickmark defaults favor sparse main marks with shorter sub marks", () => {
@@ -793,6 +795,30 @@ test("KML and GeoJSON export Box area grid as same object group", () => {
   assert.equal(geojson.features[0].geometry.type, "Polygon");
   assert.equal(geojson.features[1].properties.role, "box-grid");
   assert.equal(geojson.features[1].geometry.type, "MultiLineString");
+});
+
+test("Flight Navigator CSV exports all geometry as coordinate rows with object blanks", () => {
+  const box = context.generateBoxWithInternalLines({ lat: 35, lon: 129 }, 20, 20, 0, { widthDivisions: 2 });
+  const spider = context.createSpiderObject({
+    bull: { name: "B/E", lat: 34, lon: 129, magVar: 0, mode: "none" },
+    bearingContext: { mode: "none", origin: { lat: 34, lon: 129 } },
+    settings: { startRangeNm: 10, endRangeNm: 20, ringIntervalNm: 10, fullCircle: true, majorIntervalDeg: 90, minorIntervalDeg: null },
+    color: "#1268c3",
+    cardinalColor: "#1268c3"
+  });
+  const csv = context.buildFlightNavigatorCsv("Mission", [
+    { name: "SAM", type: "SAM Ring", center: { lat: 34, lon: 129 }, radius: 60, coordinates: context.generateCircle(34, 129, 60, 72), color: "#d32f2f" },
+    { name: "BOX", type: "Custom Area", coordinates: box.outline, gridSegments: box.gridSegments, color: "#455a64" },
+    spider
+  ]);
+  const lines = csv.trim().split(/\r?\n/);
+  assert.equal(lines[0], "Latitude1,Latitude2,NS,Longitude1,Longitude2,EW,Radius,");
+  assert.ok(lines.slice(1).filter(line => line !== "Blank,,,,,,,").every(line => line.endsWith(",,")));
+  assert.doesNotMatch(csv, /,60,\r?\n/);
+  assert.doesNotMatch(csv, /,10,\r?\n/);
+  assert.doesNotMatch(csv, /,20,\r?\n/);
+  assert.ok(lines.filter(line => /^34/.test(line) && line.endsWith(",,")).length > 10);
+  assert.equal(lines.filter(line => line === "Blank,,,,,,,").length, 3);
 });
 
 test("Object List details include Box internal line coordinates", () => {

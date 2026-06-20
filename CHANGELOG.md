@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.4.0] - 2026-06-20
+
+### Added
+
+- FlightNav CSV exportを追加
+- FlightNav CSVでLine/Area、SAM Ring、B/E Spider range rings、Box内部線を座標点列として出力
+- オフライン用DOCX作成仕様として`OFFLINE_BUILD.md`を追加
+
+### Changed
+
+- PWAキャッシュをv1.4.0へ更新
+
 ## [1.3.3] - 2026-06-20
 
 ### Added
