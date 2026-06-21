@@ -2,6 +2,36 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.4.6] - 2026-06-21
+
+### Changed
+
+- Main layoutの最大幅を1100pxへ拡張
+- Full circleをAdd Spiderの横へ移動し、Add Spider有効時のみ表示
+- Full circle有効時のStart/End radialを灰色表示に変更
+- Axis、Mission Line、SAM、Custom Bearing/Rangeの短い入力欄もcompact layoutへ変更
+- PWAキャッシュをv1.4.6へ更新
+
+## [1.4.5] - 2026-06-21
+
+### Changed
+
+- B/E Spider、Tickmark、Custom Arc、Custom Boxの短い数値入力欄を横詰めレイアウトへ変更
+- PWAキャッシュをv1.4.5へ更新
+
+## [1.4.4] - 2026-06-21
+
+### Changed
+
+- B/E Spiderの短い数値入力欄をコンパクト化
+- B/E SpiderのAddボタン行を左寄せに調整
+- PWAキャッシュをv1.4.4へ更新
+
+### Fixed
+
+- CSV exportで分が0の座標を度のみへ省略していた問題を修正
+- Minor radial intervalに0を入力するとMinor radialを描画しないよう修正
+
 ## [1.4.3] - 2026-06-20
 
 ### Changed

@@ -19,7 +19,7 @@
     header h1 { font-size: 1.25rem; margin: 0; }
     header p { margin: 5px 0 0; color: #cbd5df; font-size: .85rem; }
     #update-app { flex: 0 0 auto; width: 42px; min-height: 42px; padding: 0; border: 1px solid #ffffff55; border-radius: 50%; background: #ffffff18; font-size: 1.55rem; line-height: 1; }
-    main { max-width: 980px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
     section { background: white; border: 1px solid #d7dde3; border-radius: 9px; padding: 14px; }
     h2 { margin: 0 0 12px; font-size: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -31,11 +31,14 @@
     input[type="color"] { width: 48px; min-height: 40px; padding: 3px; }
     input[type="checkbox"] { width: 22px; min-height: 22px; }
     .check { display: flex; align-items: center; gap: 7px; align-self: end; min-height: 42px; }
+    .spider-toggle-row { display: flex; align-items: end; gap: 18px; flex-wrap: wrap; }
+    .disabled-field { color: #8a96a3; opacity: .55; }
     button { border: 0; padding: 9px 14px; background: #1769aa; color: white; font-weight: 700; cursor: pointer; }
     button.secondary { background: #52616f; }
     button.danger { background: #a63232; }
     button.small { min-height: 34px; padding: 5px 10px; }
     .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .spider-actions { grid-column: 1 / -1; justify-content: flex-start; }
     .add-with-name { align-items: end; flex-wrap: nowrap; }
     .add-with-name label { flex: 1; min-width: 0; }
     .add-with-name button { flex: 0 0 auto; }
@@ -62,6 +65,12 @@
     .setting-row { display: inline-grid; justify-self: start; gap: 4px; }
     .setting-row .format-toggle { width: max-content; }
     .setting-label { font-size: .78rem; font-weight: 650; color: #6a7680; }
+    .compact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: 10px 12px; justify-content: start; align-items: end; }
+    .short-field { justify-self: start; width: min(100%, 14ch); }
+    .short-field input, .short-field select { width: 100%; }
+    .compact-grid .check { justify-self: start; }
+    .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
+    .compact-grid .color-control { grid-column: span 3; min-width: min(100%, 360px); }
     .color-control input[type="color"] { width: 48px; }
     .color-picker-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .color-presets { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
@@ -91,10 +100,16 @@
     .coordinate-value { min-width: 0; }
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
+      .compact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .short-field { width: 100%; }
+      .compact-grid .color-control, .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
       .ddm { grid-template-columns: 1fr 1fr 64px; }
       .object-detail-grid { display: grid; grid-template-columns: 1fr; }
       .object-name-edit { display: grid; }
       .object-name-edit label { flex: 1 1 auto; width: auto; max-width: none; }
+    }
+    @media (max-width: 420px) {
+      .compact-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -124,23 +139,25 @@
       <h2>Bullseye</h2>
       <div class="grid">
         <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
-        <label class="check"><input id="bull-spider-enabled" type="checkbox"> Add Spider</label>
+        <div class="spider-toggle-row">
+          <label class="check"><input id="bull-spider-enabled" type="checkbox"> Add Spider</label>
+          <label id="bull-spider-full-row" class="check" hidden><input id="bull-spider-full" type="checkbox" checked> Full circle</label>
+        </div>
       </div>
       <details id="bull-spider-panel" open hidden>
         <summary>Spider settings</summary>
-        <div id="bull-spider-settings" class="grid" hidden>
-          <label class="check"><input id="bull-spider-full" type="checkbox" checked> Full circle</label>
-          <label>Range ring interval (NM)<input id="bull-spider-ring-interval" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Start radial<input id="bull-spider-start-radial" type="text" inputmode="decimal"></label>
-          <label>End radial<input id="bull-spider-end-radial" type="text" inputmode="decimal"></label>
-          <label>Major radial interval<input id="bull-spider-major-interval" type="text" inputmode="numeric" placeholder="30"></label>
-          <label>Minor radial interval<input id="bull-spider-minor-interval" type="text" inputmode="numeric" placeholder="10"></label>
-          <label>Start range (NM)<input id="bull-spider-start-range" type="text" inputmode="decimal" placeholder="0"></label>
-          <label>End range (NM)<input id="bull-spider-end-range" type="text" inputmode="decimal"></label>
+        <div id="bull-spider-settings" class="compact-grid" hidden>
+          <label class="short-field">Range ring interval (NM)<input id="bull-spider-ring-interval" type="text" inputmode="decimal" placeholder="10"></label>
+          <label id="bull-spider-start-radial-label" class="short-field">Start radial<input id="bull-spider-start-radial" type="text" inputmode="decimal"></label>
+          <label id="bull-spider-end-radial-label" class="short-field">End radial<input id="bull-spider-end-radial" type="text" inputmode="decimal"></label>
+          <label class="short-field">Major radial interval<input id="bull-spider-major-interval" type="text" inputmode="numeric" placeholder="30"></label>
+          <label class="short-field">Minor radial interval<input id="bull-spider-minor-interval" type="text" inputmode="numeric" placeholder="10"></label>
+          <label class="short-field">Start range (NM)<input id="bull-spider-start-range" type="text" inputmode="decimal" placeholder="0"></label>
+          <label class="short-field">End range (NM)<input id="bull-spider-end-range" type="text" inputmode="decimal"></label>
           <label class="color-control">Spider color<input id="bull-spider-color" type="color" value="#8aa3b5"></label>
           <label class="color-control">Cardinal color<input id="bull-spider-cardinal-color" type="color" value="#1565c0"></label>
-          <p class="summary">Minor radials overlapping Major or Cardinal are skipped.</p>
-          <div class="actions"><button id="add-bull-spider" type="button">Add B/E Spider</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button></div>
+          <p class="summary">Minor radials overlapping Major or Cardinal are skipped. Enter 0 to disable Minor radials.</p>
+          <div class="actions spider-actions"><button id="add-bull-spider" type="button">Add B/E Spider</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button></div>
           <p id="bull-spider-message" class="message"></p>
         </div>
       </details>
@@ -152,19 +169,19 @@
       <summary>Add Axis</summary>
       <form id="axis-form">
         <p id="axis-active-bullseye" class="summary"></p>
-        <div class="grid">
-          <label>Radial<input id="axis-heading" type="text" inputmode="decimal"></label>
-          <label>Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
+        <div class="compact-grid">
+          <label class="short-field">Radial<input id="axis-heading" type="text" inputmode="decimal"></label>
+          <label class="short-field">Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
           <label class="color-control">Color<input id="axis-color" type="color" value="#1565c0"></label>
           <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
         </div>
-        <div id="axis-tick-settings" class="grid" hidden>
-          <label>Tickmark start distance (NM)<input id="tick-start" type="text" inputmode="decimal" placeholder="0"></label>
-          <label>Tickmark end distance (NM)<input id="tick-end" type="text" inputmode="decimal" placeholder="Axis length"></label>
-          <label>Main interval (NM)<input id="tick-main-interval" type="text" inputmode="decimal" placeholder="50"></label>
-          <label>Main width (NM)<input id="tick-main-width" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Sub interval (NM)<input id="tick-sub-interval" type="text" inputmode="decimal" placeholder="10"></label>
-          <label>Sub width (NM)<input id="tick-sub-width" type="text" inputmode="decimal" placeholder="5"></label>
+        <div id="axis-tick-settings" class="compact-grid" hidden>
+          <label class="short-field">Start distance (NM)<input id="tick-start" type="text" inputmode="decimal" placeholder="0"></label>
+          <label class="short-field">End distance (NM)<input id="tick-end" type="text" inputmode="decimal" placeholder="Axis length"></label>
+          <label class="short-field">Main interval (NM)<input id="tick-main-interval" type="text" inputmode="decimal" placeholder="50"></label>
+          <label class="short-field">Main width (NM)<input id="tick-main-width" type="text" inputmode="decimal" placeholder="10"></label>
+          <label class="short-field">Sub interval (NM)<input id="tick-sub-interval" type="text" inputmode="decimal" placeholder="10"></label>
+          <label class="short-field">Sub width (NM)<input id="tick-sub-width" type="text" inputmode="decimal" placeholder="5"></label>
           <label class="color-control">Tickmark color<input id="tick-color" type="color" value="#1565c0"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Axis</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="axis-name" class="name-field" rows="1" placeholder="HDG/RECIP" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
@@ -175,10 +192,10 @@
     <details id="mission-panel" class="panel">
       <summary>Add Mission Line</summary>
       <form id="mission-form">
-        <div class="grid">
-          <label>Axis<select id="mission-axis" required></select></label>
-          <label>Distance from B/E (NM)<input id="mission-distance" type="text" inputmode="decimal"></label>
-          <label>Width (NM)<input id="mission-width" type="text" inputmode="decimal" placeholder="40"></label>
+        <div class="compact-grid">
+          <label class="short-field">Axis<select id="mission-axis" required></select></label>
+          <label class="short-field">Distance from B/E (NM)<input id="mission-distance" type="text" inputmode="decimal"></label>
+          <label class="short-field">Width (NM)<input id="mission-width" type="text" inputmode="decimal" placeholder="40"></label>
           <label class="color-control">Line color<input id="mission-color" type="color" value="#455a64"></label>
         </div>
         <div class="actions add-with-name"><button type="submit">Add Mission Line</button><button type="button" class="secondary object-list-jump" aria-label="Go to Object List" title="Go to Object List">↓</button><label>Name<textarea id="mission-name" class="name-field" rows="1" placeholder="Distance NM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label></div>
@@ -195,15 +212,15 @@
           <label>Center method<select id="sam-center-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option></select></label>
           <label class="check"><input id="sam-at-bullseye" type="checkbox"> At B/E</label>
         </div>
-        <div id="sam-bullseye-center" class="grid" hidden>
-          <label>Bearing<input id="sam-bearing" type="text" inputmode="decimal"></label>
-          <label>Range (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
+        <div id="sam-bullseye-center" class="compact-grid" hidden>
+          <label class="short-field">Bearing<input id="sam-bearing" type="text" inputmode="decimal"></label>
+          <label class="short-field">Range (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="sam-direct-center" class="grid">
           <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
-        <div class="grid">
-          <label>Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
+        <div class="compact-grid">
+          <label class="short-field">Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
           <label class="color-control">Line color<input id="sam-color" type="color" value="#d32f2f"></label>
           <label class="check"><input id="sam-fill-enabled" type="checkbox"> Enable polygon fill</label>
           <label id="sam-fill-row" class="color-control" hidden>Fill color<input id="sam-fill-color" type="color" value="#f6d6d6"></label>
@@ -223,9 +240,9 @@
         <div id="custom-direct-point" class="grid">
           <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
-        <div id="custom-bullseye-point" class="grid" hidden>
-          <label>Bearing<input id="custom-bearing" type="text" inputmode="decimal"></label>
-          <label>Range (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
+        <div id="custom-bullseye-point" class="compact-grid" hidden>
+          <label class="short-field">Bearing<input id="custom-bearing" type="text" inputmode="decimal"></label>
+          <label class="short-field">Range (NM)<input id="custom-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="custom-arc-point" hidden>
           <div class="grid">
@@ -235,13 +252,13 @@
           <div id="custom-arc-direct-center" class="grid">
             <label>Center coordinates (Lat / Lon)<textarea id="custom-arc-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
-          <div class="grid">
-          <label>Start radial<input id="custom-arc-start" type="text" inputmode="decimal"></label>
-          <label>End radial<input id="custom-arc-end" type="text" inputmode="decimal"></label>
-          <label>Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
-          <label>Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
-          <label>Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
-          <label id="custom-arc-count-field" hidden>Manual point count (3–181)<input id="custom-arc-count" type="text" inputmode="numeric" placeholder="3–181"></label>
+          <div class="compact-grid">
+          <label class="short-field">Start radial<input id="custom-arc-start" type="text" inputmode="decimal"></label>
+          <label class="short-field">End radial<input id="custom-arc-end" type="text" inputmode="decimal"></label>
+          <label class="short-field">Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
+          <label class="short-field">Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
+          <label class="short-field">Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
+          <label id="custom-arc-count-field" class="short-field" hidden>Manual points<input id="custom-arc-count" type="text" inputmode="numeric" placeholder="3–181"></label>
           <p id="custom-arc-summary" class="summary"></p>
           </div>
         </div>
@@ -253,18 +270,18 @@
           <div id="custom-box-direct-center" class="grid">
             <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
-          <div id="custom-box-bullseye-center" class="grid" hidden>
-            <label>Bearing<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
-            <label>Range (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
+          <div id="custom-box-bullseye-center" class="compact-grid" hidden>
+            <label class="short-field">Bearing<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
+            <label class="short-field">Range (NM)<input id="custom-box-range" type="text" inputmode="decimal"></label>
           </div>
-          <div class="grid">
-            <label>Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
-            <label>Depth (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
-            <label>Depth orientation<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
-            <label>Width divisions<input id="custom-box-width-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
-            <label>Depth divisions<input id="custom-box-depth-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
-            <label>Width ratio<input id="custom-box-width-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
-            <label>Depth ratio<input id="custom-box-depth-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
+          <div class="compact-grid">
+            <label class="short-field">Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
+            <label class="short-field">Depth (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
+            <label class="short-field">Depth orientation<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
+            <label class="short-field">Width divisions<input id="custom-box-width-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
+            <label class="short-field">Depth divisions<input id="custom-box-depth-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
+            <label class="short-field">Width ratio<input id="custom-box-width-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
+            <label class="short-field">Depth ratio<input id="custom-box-depth-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
           </div>
         </div>
         <div class="actions"><button id="custom-generate" type="button" class="secondary">Generate</button></div>
@@ -315,7 +332,7 @@
   </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.4.3";
+    var APP_VERSION = "1.4.6";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -890,7 +907,7 @@
     function validateSpiderRadialSettings(settings) {
       if (!Number.isInteger(settings.majorIntervalDeg)) throw new Error("Major radial interval must be an integer.");
       if (settings.majorIntervalDeg < 1 || settings.majorIntervalDeg > 180) throw new Error("Major radial interval must be between 1 and 180.");
-      if (settings.minorIntervalDeg !== null && settings.minorIntervalDeg !== undefined) {
+      if (settings.minorIntervalDeg !== null && settings.minorIntervalDeg !== undefined && settings.minorIntervalDeg !== 0) {
         if (!Number.isInteger(settings.minorIntervalDeg)) throw new Error("Minor radial interval must be an integer.");
         if (settings.minorIntervalDeg < 1 || settings.minorIntervalDeg > 180) throw new Error("Minor radial interval must be between 1 and 180.");
         if (settings.majorIntervalDeg % settings.minorIntervalDeg !== 0) throw new Error("Minor radial interval must divide the major radial interval.");
@@ -928,7 +945,7 @@
 
     function classifySpiderRadials(settings) {
       const majorSource = generateSpiderRadials(settings);
-      const minorSource = settings.minorIntervalDeg === null || settings.minorIntervalDeg === undefined
+      const minorSource = settings.minorIntervalDeg === null || settings.minorIntervalDeg === undefined || settings.minorIntervalDeg === 0
         ? []
         : generateSpiderRadialsForInterval(settings, settings.minorIntervalDeg);
       const cardinalRadials = [];
@@ -1282,7 +1299,8 @@
         degrees += 1;
         minutes = 0;
       }
-      const first = minutes || fraction ? `${degrees}${String(minutes).padStart(2, "0")}` : String(degrees);
+      const degreeDigits = degrees < 100 ? 2 : String(degrees).length;
+      const first = `${String(degrees).padStart(degreeDigits, "0")}${String(minutes).padStart(2, "0")}`;
       const second = fraction ? String(fraction).padStart(4, "0") : "";
       return [first, second, hemisphere];
     }
@@ -2346,10 +2364,13 @@
       function updateSpiderSettingsVisibility() {
         const enabled = $("bull-spider-enabled").checked;
         const fullCircle = $("bull-spider-full").checked;
+        $("bull-spider-full-row").hidden = !enabled;
         $("bull-spider-panel").hidden = !enabled;
         $("bull-spider-settings").hidden = !enabled;
         $("bull-spider-start-radial").disabled = fullCircle;
         $("bull-spider-end-radial").disabled = fullCircle;
+        $("bull-spider-start-radial-label").classList.toggle("disabled-field", fullCircle);
+        $("bull-spider-end-radial-label").classList.toggle("disabled-field", fullCircle);
         if (enabled) $("bull-spider-panel").open = true;
         if (!enabled) setSpiderMessage("");
       }
