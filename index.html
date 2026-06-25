@@ -19,7 +19,16 @@
     header h1 { font-size: 1.25rem; margin: 0; }
     header p { margin: 5px 0 0; color: #cbd5df; font-size: .85rem; }
     #update-app { flex: 0 0 auto; width: 42px; min-height: 42px; padding: 0; border: 1px solid #ffffff55; border-radius: 50%; background: #ffffff18; font-size: 1.55rem; line-height: 1; }
-    main { max-width: 1100px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
+    main { padding: 14px; }
+    #workspace-layout { display: grid; gap: 14px; }
+    #input-pane { display: grid; gap: 14px; min-width: 0; }
+    #preview-pane { min-width: 0; }
+    .preview-panel { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; padding: 0; overflow: hidden; }
+    .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #d7dde3; }
+    .preview-toolbar h2 { margin: 0; }
+    .preview-zoom-controls { display: flex; gap: 6px; }
+    .preview-zoom-controls button { width: 40px; min-height: 40px; padding: 0; background: #52616f; }
+    #workspace-divider { display: none; }
     section { background: white; border: 1px solid #d7dde3; border-radius: 9px; padding: 14px; }
     h2 { margin: 0 0 12px; font-size: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -53,7 +62,17 @@
     .object-text strong, .object-text span { display: block; overflow-wrap: anywhere; }
     .object-text span { font-size: .78rem; color: #65727e; margin-top: 2px; }
     .empty { color: #6a7680; font-size: .88rem; }
-    .preview { width: 100%; height: auto; margin-top: 12px; background: #f7f9fb; border: 1px solid #d7dde3; border-radius: 6px; }
+    .preview { width: 100%; height: auto; background: #f7f9fb; border: 0; border-radius: 0; }
+    .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #f7f9fb; }
+    .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .pending-custom-preview, .pending-preview { pointer-events: none; }
+    #preview-coordinate-popup { position: absolute; z-index: 4; max-width: 280px; padding: 8px 10px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; cursor: copy; font-size: .82rem; }
+    #preview-coordinate-popup[hidden] { display: none; }
+    #preview-ruler-layer { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; }
+    .preview-ruler-line { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .preview-ruler-end { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .preview-ruler-label { fill: #fff; stroke: #152536; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; }
+    .preview-ruler-start { fill: #d32f2f; stroke: #fff; vector-effect: non-scaling-stroke; }
     .coastline-preview { fill: none; stroke: #aeb8c2; stroke-width: 0.7; vector-effect: non-scaling-stroke; }
     .section-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
     .section-toolbar h2 { margin: 0; }
@@ -67,6 +86,10 @@
     .setting-label { font-size: .78rem; font-weight: 650; color: #6a7680; }
     .compact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: 10px 12px; justify-content: start; align-items: end; }
     .short-field { justify-self: start; width: min(100%, 14ch); }
+    .select-field { justify-self: start; width: min(100%, 28ch); }
+    .ratio-field { justify-self: start; width: min(100%, 22ch); }
+    .mission-grid { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: end; }
+    .mission-grid .color-control { flex-basis: 100%; }
     .short-field input, .short-field select { width: 100%; }
     .compact-grid .check { justify-self: start; }
     .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
@@ -98,6 +121,25 @@
     .coordinate-entry { display: grid; grid-template-columns: 3ch 1fr; gap: .7ch; font-variant-numeric: tabular-nums; }
     .coordinate-index { text-align: right; }
     .coordinate-value { min-width: 0; }
+    .field-medium { width: min(75%, 42rem); }
+    .method-field { width: min(60%, 32rem); }
+    @media (min-width: 1101px) {
+      body { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+      #workspace-layout {
+        --input-pane-width: 33.333%;
+        height: auto;
+        min-height: 0;
+        grid-template-columns: minmax(420px, var(--input-pane-width)) 8px minmax(500px, 1fr);
+        gap: 0;
+      }
+      #input-pane { overflow-y: auto; padding-right: 12px; align-content: start; }
+      #workspace-divider { display: block; cursor: col-resize; touch-action: none; margin: 0 1px; border-radius: 6px; background: #c8d0d7; }
+      #workspace-divider:hover, #workspace-divider.dragging { background: #52616f; }
+      #preview-pane { padding-left: 12px; min-height: 0; }
+      .preview-panel { height: 100%; }
+      .preview { height: 100%; min-height: 0; }
+      footer { padding-left: 0; padding-right: 0; }
+    }
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
       .compact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -107,6 +149,7 @@
       .object-detail-grid { display: grid; grid-template-columns: 1fr; }
       .object-name-edit { display: grid; }
       .object-name-edit label { flex: 1 1 auto; width: auto; max-width: none; }
+      .field-medium, .method-field, .ratio-field, .select-field { width: 100%; }
     }
     @media (max-width: 420px) {
       .compact-grid { grid-template-columns: 1fr; }
@@ -118,7 +161,8 @@
     <div class="header-title"><h1>Tacticool KML <span id="app-version"></span></h1><p>Offline Bullseye geometry and KML / GeoJSON export</p></div>
     <button id="update-app" type="button" aria-label="Check for Updates / Clear Cache" title="Check for Updates / Clear Cache">↻</button>
   </header>
-  <main>
+  <main id="workspace-layout">
+    <div id="input-pane">
     <section>
       <h2>Settings</h2>
       <div class="grid settings-grid">
@@ -192,8 +236,8 @@
     <details id="mission-panel" class="panel">
       <summary>Add Mission Line</summary>
       <form id="mission-form">
-        <div class="compact-grid">
-          <label class="short-field">Axis<select id="mission-axis" required></select></label>
+        <div class="mission-grid">
+          <label class="select-field">Axis<select id="mission-axis" required></select></label>
           <label class="short-field">Distance from B/E (NM)<input id="mission-distance" type="text" inputmode="decimal"></label>
           <label class="short-field">Width (NM)<input id="mission-width" type="text" inputmode="decimal" placeholder="40"></label>
           <label class="color-control">Line color<input id="mission-color" type="color" value="#455a64"></label>
@@ -256,8 +300,8 @@
           <label class="short-field">Start radial<input id="custom-arc-start" type="text" inputmode="decimal"></label>
           <label class="short-field">End radial<input id="custom-arc-end" type="text" inputmode="decimal"></label>
           <label class="short-field">Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
-          <label class="short-field">Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
-          <label class="short-field">Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
+          <label class="select-field">Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
+          <label class="select-field">Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
           <label id="custom-arc-count-field" class="short-field" hidden>Manual points<input id="custom-arc-count" type="text" inputmode="numeric" placeholder="3–181"></label>
           <p id="custom-arc-summary" class="summary"></p>
           </div>
@@ -277,11 +321,9 @@
           <div class="compact-grid">
             <label class="short-field">Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
             <label class="short-field">Depth (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
-            <label class="short-field">Depth orientation<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
-            <label class="short-field">Width divisions<input id="custom-box-width-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
-            <label class="short-field">Depth divisions<input id="custom-box-depth-divisions" type="text" inputmode="numeric" placeholder="No equal split"></label>
-            <label class="short-field">Width ratio<input id="custom-box-width-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
-            <label class="short-field">Depth ratio<input id="custom-box-depth-ratio" type="text" inputmode="text" placeholder="Example 7:3"></label>
+            <label class="short-field">Depth bearing<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
+            <label class="ratio-field">Width ratio<input id="custom-box-width-ratio" type="text" inputmode="text" placeholder="Ex) 1:1:1"></label>
+            <label class="ratio-field">Depth ratio<input id="custom-box-depth-ratio" type="text" inputmode="text" placeholder="Ex) 1:1:1"></label>
           </div>
         </div>
         <div class="actions"><button id="custom-generate" type="button" class="secondary">Generate</button></div>
@@ -320,19 +362,37 @@
         <label>Document name<textarea id="document-name" class="name-field" rows="1" placeholder="YYYY-MM-DD-HHMM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
         <label>KML line width<input id="kml-line-width" type="text" inputmode="decimal" placeholder="4"></label>
       </div>
-      <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
       <div class="actions"><button id="export-kml" type="button">Export KML</button><button id="export-json" type="button" class="secondary">GeoJSON</button><button id="export-flightnav" type="button" class="secondary">CSV</button></div>
       <p id="export-message" class="message"></p>
     </section>
+    <footer>
+      <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
+      <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
+      <div>This app does not collect or transmit data.</div>
+    </footer>
+    </div>
+    <div id="workspace-divider" role="separator" aria-label="Resize input and preview panes" aria-orientation="vertical" tabindex="0"></div>
+    <aside id="preview-pane">
+      <section class="preview-panel">
+        <div class="preview-toolbar">
+          <h2>Preview</h2>
+          <div class="preview-zoom-controls">
+            <button id="preview-zoom-out" type="button" aria-label="Zoom preview out">−</button>
+            <button id="preview-zoom-reset" type="button" aria-label="Reset preview zoom">⌂</button>
+            <button id="preview-zoom-in" type="button" aria-label="Zoom preview in">＋</button>
+          </div>
+        </div>
+        <div id="preview-stage" class="preview-stage">
+          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
+          <svg id="preview-ruler-layer" viewBox="0 0 600 300" aria-hidden="true"></svg>
+          <button id="preview-coordinate-popup" type="button" hidden aria-label="Copy preview coordinate"></button>
+        </div>
+      </section>
+    </aside>
   </main>
-  <footer>
-    <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
-    <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
-    <div>This app does not collect or transmit data.</div>
-  </footer>
 
   <script id="core-logic">
-    var APP_VERSION = "1.4.6";
+    var APP_VERSION = "1.6.1";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -489,6 +549,13 @@
       return `AXIS ${formatAxisName(magneticHeading)} ${formatCoordinatePairCompact(bullseye, format)}`;
     }
 
+    function nextBullseyePointName(existingObjects) {
+      let number = 1;
+      const names = new Set(existingObjects.map(object => String(object.name || "").toUpperCase()));
+      while (names.has(number === 1 ? "BULLS" : `BULLS${number}`)) number += 1;
+      return number === 1 ? "BULLS" : `BULLS${number}`;
+    }
+
     function formatCoordinate(value, isLat, format) {
       const hemisphere = value < 0 ? (isLat ? "S" : "W") : (isLat ? "N" : "E");
       const absolute = Math.abs(value);
@@ -547,7 +614,9 @@
       if (format === "ddm") {
         const minutes = Number(minutesFull.toFixed(4));
         const minuteText = trimFixed(minutesFull, 4);
-        return minutes === 0 ? `${degrees}° ${hemisphere}` : `${degrees}° ${minuteText.padStart(minuteText.length === 1 ? 2 : minuteText.length, "0")}' ${hemisphere}`;
+        const [wholeMinutes, fraction] = minuteText.split(".");
+        const paddedMinutes = `${wholeMinutes.padStart(2, "0")}${fraction === undefined ? "" : `.${fraction}`}`;
+        return minutes === 0 ? `${degrees}° ${hemisphere}` : `${degrees}° ${paddedMinutes}' ${hemisphere}`;
       }
       let minutes = Math.floor(minutesFull);
       let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
@@ -749,6 +818,24 @@
       return { lat: toDegrees(lat2), lon: ((toDegrees(lon2) + 540) % 360) - 180 };
     }
 
+    function calculateRangeBearing(start, end) {
+      const lat1 = toRadians(start.lat);
+      const lat2 = toRadians(end.lat);
+      const deltaLat = lat2 - lat1;
+      const deltaLon = toRadians(end.lon - start.lon);
+      const a = Math.sin(deltaLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) ** 2;
+      const distanceNm = EARTH_RADIUS_NM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(Math.max(0, 1 - a)));
+      const bearing = (fromLat, fromLon, toLat, toLon) => normalizeBearing(toDegrees(Math.atan2(
+        Math.sin(toLon - fromLon) * Math.cos(toLat),
+        Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat) * Math.cos(toLat) * Math.cos(toLon - fromLon)
+      )));
+      return {
+        distanceNm,
+        forwardTrue: bearing(lat1, toRadians(start.lon), lat2, toRadians(end.lon)),
+        reverseTrue: bearing(lat2, toRadians(end.lon), lat1, toRadians(start.lon))
+      };
+    }
+
     function describeArcPoints(startBearingTrue, endBearingTrue, direction, pointCountSetting) {
       const start = normalizeBearing(startBearingTrue);
       const end = normalizeBearing(endBearingTrue);
@@ -789,16 +876,6 @@
       return [...corners, { ...corners[0] }];
     }
 
-    function parseBoxDivisions(value, label) {
-      const text = String(value ?? "").trim();
-      if (!text) return [];
-      const count = Number(text);
-      if (!Number.isInteger(count) || count < 1 || count > 100) {
-        throw new Error(`${label} must be a whole number from 1 to 100.`);
-      }
-      return Array.from({ length: Math.max(0, count - 1) }, (_, index) => (index + 1) / count);
-    }
-
     function parseBoxRatio(value, label) {
       const text = String(value ?? "").trim();
       if (!text) return [];
@@ -814,21 +891,12 @@
       });
     }
 
-    function boxFractionsFromSettings(divisions, ratio, label) {
-      const divisionFractions = parseBoxDivisions(divisions, `${label} divisions`);
-      const ratioFractions = parseBoxRatio(ratio, `${label} ratio`);
-      if (divisionFractions.length && ratioFractions.length) {
-        throw new Error(`Choose either ${label} divisions or ${label} ratio, not both.`);
-      }
-      return divisionFractions.length ? divisionFractions : ratioFractions;
-    }
-
     function generateBoxWithInternalLines(center, xLengthNm, yLengthNm, positiveYBearingTrue, settings = {}) {
       const outline = generateBoxPoints(center, xLengthNm, yLengthNm, positiveYBearingTrue);
       const halfX = Number(xLengthNm) / 2;
       const halfY = Number(yLengthNm) / 2;
-      const widthFractions = boxFractionsFromSettings(settings.widthDivisions, settings.widthRatio, "Width");
-      const depthFractions = boxFractionsFromSettings(settings.depthDivisions, settings.depthRatio, "Depth");
+      const widthFractions = parseBoxRatio(settings.widthRatio, "Width ratio");
+      const depthFractions = parseBoxRatio(settings.depthRatio, "Depth ratio");
       const gridSegments = [];
       for (const fraction of widthFractions) {
         const offset = -halfX + Number(xLengthNm) * fraction;
@@ -1022,13 +1090,19 @@
       validateSpiderRangeSettings(settings);
       const { cardinalRadials, majorRadials, minorRadials } = classifySpiderRadials(settings);
       const ringRangesNm = generateSpiderRingRanges(settings);
+      const cardinalRingRangesNm = ringRangesNm.filter(rangeNm => {
+        const multiple = rangeNm / settings.ringIntervalNm;
+        return Math.abs(multiple - Math.round(multiple)) < 1e-9 && Math.round(multiple) % 5 === 0;
+      });
+      const normalRingRangesNm = ringRangesNm.filter(rangeNm => !cardinalRingRangesNm.some(value => Math.abs(value - rangeNm) < 1e-9));
       const majorSegments = [];
       const minorSegments = [];
       const cardinalSegments = [];
       majorRadials.forEach(radial => majorSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
       minorRadials.forEach(radial => minorSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
       cardinalRadials.forEach(radial => cardinalSegments.push(generateSpiderSegment(bull, resolveTrueBearing(radial, bearingContext), settings.startRangeNm, settings.endRangeNm)));
-      const rangeRingSegments = ringRangesNm.map(rangeNm => generateSpiderRangeRing(bull, bearingContext, settings, rangeNm));
+      const rangeRingSegments = normalRingRangesNm.map(rangeNm => generateSpiderRangeRing(bull, bearingContext, settings, rangeNm));
+      const cardinalRangeRingSegments = cardinalRingRangesNm.map(rangeNm => generateSpiderRangeRing(bull, bearingContext, settings, rangeNm));
       return {
         name: formatSpiderName(settings),
         type: "B/E Spider",
@@ -1040,12 +1114,13 @@
         cardinalLineWidthFactor: 1,
         ringLineWidthFactor: 0.5,
         createdBullseye: typeof createdBullseyeSnapshot === "function" ? createdBullseyeSnapshot(bull) : { name: bull.name, lat: bull.lat, lon: bull.lon, magVar: bull.magVar, mode: bull.mode },
-        spiderSettings: { ...settings, majorRadials, minorRadials, cardinalRadials, ringRangesNm, majorCount: majorSegments.length, minorCount: minorSegments.length, cardinalCount: cardinalSegments.length, ringCount: rangeRingSegments.length },
+        spiderSettings: { ...settings, majorRadials, minorRadials, cardinalRadials, ringRangesNm, cardinalRingRangesNm, majorCount: majorSegments.length, minorCount: minorSegments.length, cardinalCount: cardinalSegments.length, ringCount: rangeRingSegments.length + cardinalRangeRingSegments.length },
         segments: majorSegments,
         minorSegments,
         cardinalSegments,
         rangeRingSegments,
-        coordinates: [...majorSegments.flat(), ...minorSegments.flat(), ...cardinalSegments.flat(), ...rangeRingSegments.flat()]
+        cardinalRangeRingSegments,
+        coordinates: [...majorSegments.flat(), ...minorSegments.flat(), ...cardinalSegments.flat(), ...rangeRingSegments.flat(), ...cardinalRangeRingSegments.flat()]
       };
     }
 
@@ -1106,7 +1181,39 @@
         project: point => ({
           x: offsetX + (point.lon - minLon) * scale,
           y: height - (offsetY + (point.lat - minLat) * scale)
+        }),
+        unproject: point => ({
+          lat: minLat + (height - point.y - offsetY) / scale,
+          lon: minLon + (point.x - offsetX) / scale
         })
+      };
+    }
+
+    function defaultPreviewCoordinates() {
+      return [{ lat: 24, lon: 122 }, { lat: 46, lon: 146 }];
+    }
+
+    function previewProjectionCoordinates(coordinates) {
+      if (!coordinates.length) return defaultPreviewCoordinates();
+      const minLat = Math.min(...coordinates.map(point => point.lat));
+      const maxLat = Math.max(...coordinates.map(point => point.lat));
+      const minLon = Math.min(...coordinates.map(point => point.lon));
+      const maxLon = Math.max(...coordinates.map(point => point.lon));
+      if (maxLat - minLat < 1e-9 && maxLon - minLon < 1e-9) {
+        const point = coordinates[0];
+        return [{ lat: point.lat - 2, lon: point.lon - 3 }, { lat: point.lat + 2, lon: point.lon + 3 }];
+      }
+      return coordinates;
+    }
+
+    function previewCoastBounds(projection) {
+      const topLeft = projection.unproject({ x: -300, y: -150 });
+      const bottomRight = projection.unproject({ x: 900, y: 450 });
+      return {
+        minLon: Math.min(topLeft.lon, bottomRight.lon),
+        maxLon: Math.max(topLeft.lon, bottomRight.lon),
+        minLat: Math.min(topLeft.lat, bottomRight.lat),
+        maxLat: Math.max(topLeft.lat, bottomRight.lat)
       };
     }
 
@@ -1146,6 +1253,10 @@
           if (object.rangeRingSegments?.length) {
             const id = `style-${index}-rings`;
             items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, "aa")}</color><width>${formatKmlWidth(width * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.rangeRingSegments)}</Placemark>`);
+          }
+          if (object.cardinalRangeRingSegments?.length) {
+            const id = `style-${index}-cardinal-rings`;
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.cardinalColor || object.color)}</color><width>${formatKmlWidth(width * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Cardinal Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.cardinalRangeRingSegments)}</Placemark>`);
           }
           return items;
         }
@@ -1237,6 +1348,20 @@
               geometry: {
                 type: "MultiLineString",
                 coordinates: object.rangeRingSegments.map(segment => coordinatesToGeoJson(segment))
+              }
+            });
+            if (object.cardinalRangeRingSegments?.length) features.push({
+              type: "Feature",
+              properties: {
+                name: `${object.name} Cardinal Rings`,
+                sourceType: object.type,
+                role: "cardinal-rings",
+                lineColor: object.cardinalColor || object.color,
+                lineWidthFactor: object.ringLineWidthFactor || object.lineWidthFactor || 1
+              },
+              geometry: {
+                type: "MultiLineString",
+                coordinates: object.cardinalRangeRingSegments.map(segment => coordinatesToGeoJson(segment))
               }
             });
             return features;
@@ -1337,6 +1462,7 @@
         writeSegments(object.minorSegments);
         writeSegments(object.cardinalSegments);
         writeSegments(object.rangeRingSegments);
+        writeSegments(object.cardinalRangeRingSegments);
       } else if (object.segments?.length) {
         writeSegments(object.segments);
       } else if (object.coordinates?.length) {
@@ -1455,6 +1581,10 @@
       let nextId = 1;
       let nextCustomPointId = 1;
       let coordinateFormat = "ddm";
+      let previewZoom = 1;
+      let previewPanX = 0;
+      let previewPanY = 0;
+      let lastPreviewProjection = null;
       const expandedObjectIds = new Set();
       const LINE_PRESET_COLORS = ["#1565C0","#D32F2F","#455A64","#2E7D32","#EF6C00","#FBC02D","#6A1B9A","#00838F","#111827"];
       const FILL_PRESET_COLORS = ["#F6D6D6","#D7E8F5","#DCEEDC","#F7E4CC","#FFF3C4"];
@@ -1633,31 +1763,195 @@
         return entry;
       }
 
+      function applyPreviewZoom() {
+        const width = 600 / previewZoom;
+        const height = 300 / previewZoom;
+        const viewBox = `${(600 - width) / 2 + previewPanX} ${(300 - height) / 2 + previewPanY} ${width} ${height}`;
+        $("kml-preview").setAttribute("viewBox", viewBox);
+        $("preview-ruler-layer").setAttribute("viewBox", viewBox);
+        updatePreviewRulerScale();
+      }
+
+      function updatePreviewRulerScale() {
+        const label = $("preview-ruler-layer").querySelector(".preview-ruler-label");
+        if (label) {
+          label.setAttribute("font-size", String(12 / previewZoom));
+          label.setAttribute("stroke-width", String(4 / previewZoom));
+          if (label.dataset.midY) label.setAttribute("y", String(Number(label.dataset.midY) - 12 / previewZoom));
+        }
+        const startMarker = $("preview-ruler-layer").querySelector(".preview-ruler-start");
+        if (startMarker) {
+          startMarker.setAttribute("r", String(4 / previewZoom));
+          startMarker.setAttribute("stroke-width", String(1.5 / previewZoom));
+        }
+      }
+
+      function setPreviewZoom(value, anchor = null) {
+        const oldZoom = previewZoom;
+        previewZoom = Math.min(8, Math.max(0.5, Number(value) || 1));
+        if (anchor && previewZoom !== oldZoom) {
+          const oldWidth = 600 / oldZoom;
+          const oldHeight = 300 / oldZoom;
+          const newWidth = 600 / previewZoom;
+          const newHeight = 300 / previewZoom;
+          previewPanX += (anchor.x - 300) * (1 - newWidth / oldWidth);
+          previewPanY += (anchor.y - 150) * (1 - newHeight / oldHeight);
+        }
+        applyPreviewZoom();
+      }
+
+      function buildPendingAxisDraft() {
+        try {
+          if (!$("axis-heading").value.trim() || !$("axis-length").value.trim()) return [];
+          const bull = getBullseye();
+          const heading = requiredNumber("axis-heading", "Radial");
+          const length = requiredNumber("axis-length", "Length");
+          requireFinitePositive(length, "Length", false);
+          const trueBearing = resolveTrueBearing(heading, bullseyeBearingContext(bull));
+          const axis = {
+            name: "Pending Axis",
+            type: "Axis",
+            color: $("axis-color").value,
+            origin: { lat: bull.lat, lon: bull.lon },
+            trueBearing,
+            length,
+            coordinates: [{ lat: bull.lat, lon: bull.lon }, destinationPoint(bull.lat, bull.lon, trueBearing, length)]
+          };
+          const drafts = [axis];
+          if ($("axis-tick-enabled").checked) {
+            const settings = {
+              startNm: parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance"),
+              endNm: parseOptionalNumber($("tick-end").value, length, "Tickmark end distance"),
+              mainIntervalNm: parseOptionalNumber($("tick-main-interval").value, 50, "Main tickmark interval"),
+              mainWidthNm: parseOptionalNumber($("tick-main-width").value, 10, "Main tickmark width"),
+              subIntervalNm: parseOptionalNumber($("tick-sub-interval").value, 10, "Sub tickmark interval"),
+              subWidthNm: parseOptionalNumber($("tick-sub-width").value, 5, "Sub tickmark width")
+            };
+            const tickmarks = generateCombinedTickmarks(axis.origin, trueBearing, settings);
+            if (tickmarks.length && tickmarks.length <= 500) drafts.push(createTickmarkGroupObject({
+              axisName: "Pending Axis",
+              color: $("tick-color").value,
+              createdBullseye: createdBullseyeSnapshot(bull),
+              settings,
+              tickmarks
+            }));
+          }
+          return drafts;
+        } catch {
+          return [];
+        }
+      }
+
+      function buildPendingMissionDraft() {
+        try {
+          if (!$("mission-distance").value.trim()) return null;
+          const axis = objects.find(object => object.id === Number($("mission-axis").value) && object.type === "Axis");
+          if (!axis) return null;
+          const distance = requiredNumber("mission-distance", "Distance");
+          const width = parseOptionalNumber($("mission-width").value, 40, "Width");
+          if (distance > axis.length + 1e-9) return null;
+          return { name: "Pending Mission Line", type: "Mission Line", color: $("mission-color").value, coordinates: generatePerpendicularLine(axis.origin, axis.trueBearing, distance, width) };
+        } catch {
+          return null;
+        }
+      }
+
+      function buildPendingSamDraft() {
+        try {
+          if (!$("sam-radius").value.trim()) return null;
+          const radius = requiredNumber("sam-radius", "Radius");
+          let center;
+          if ($("sam-at-bullseye").checked) {
+            const bull = getBullseye();
+            center = { lat: bull.lat, lon: bull.lon };
+          } else if ($("sam-center-mode").value === "direct") {
+            if (!$("sam-coordinates").value.trim()) return null;
+            center = parseCoordinatePair($("sam-coordinates").value);
+          } else {
+            if (!$("sam-bearing").value.trim() || !$("sam-range").value.trim()) return null;
+            const bull = getBullseye();
+            center = destinationPoint(bull.lat, bull.lon, resolveTrueBearing(requiredNumber("sam-bearing", "Bearing"), bullseyeBearingContext(bull)), requiredNumber("sam-range", "Range"));
+          }
+          return {
+            name: "Pending SAM Ring",
+            type: "SAM Ring",
+            color: $("sam-color").value,
+            fillColor: $("sam-fill-enabled").checked ? $("sam-fill-color").value : null,
+            coordinates: generateCircle(center.lat, center.lon, radius, 72)
+          };
+        } catch {
+          return null;
+        }
+      }
+
+      function buildPendingSpiderDraft() {
+        try {
+          if (!$("bull-spider-enabled").checked || !$("bull-spider-end-range").value.trim()) return null;
+          const bull = getBullseye();
+          const fullCircle = $("bull-spider-full").checked;
+          return createSpiderObject({
+            bull,
+            bearingContext: bullseyeBearingContext(bull),
+            settings: {
+              fullCircle,
+              startRadial: fullCircle ? 0 : requiredNumber("bull-spider-start-radial", "Start radial"),
+              endRadial: fullCircle ? 360 : requiredNumber("bull-spider-end-radial", "End radial"),
+              majorIntervalDeg: parseOptionalNumber($("bull-spider-major-interval").value, 30, "Major radial interval"),
+              minorIntervalDeg: parseOptionalNumber($("bull-spider-minor-interval").value, 10, "Minor radial interval"),
+              startRangeNm: parseOptionalNumber($("bull-spider-start-range").value, 0, "Start range"),
+              endRangeNm: requiredNumber("bull-spider-end-range", "End range"),
+              ringIntervalNm: parseOptionalNumber($("bull-spider-ring-interval").value, 10, "Range ring interval")
+            },
+            color: $("bull-spider-color").value,
+            cardinalColor: $("bull-spider-cardinal-color").value
+          });
+        } catch {
+          return null;
+        }
+      }
+
+      function buildPendingBullseyePointDraft() {
+        try {
+          const bull = getBullseye();
+          return {
+            name: "Pending BULLS",
+            type: "B/E Point",
+            color: $("bull-spider-cardinal-color").value,
+            coordinates: [{ lat: bull.lat, lon: bull.lon }]
+          };
+        } catch {
+          return null;
+        }
+      }
+
+      function buildPendingPreviewObjects() {
+        return [
+          buildPendingBullseyePointDraft(),
+          ...buildPendingAxisDraft(),
+          buildPendingMissionDraft(),
+          buildPendingSamDraft(),
+          buildPendingSpiderDraft()
+        ].filter(Boolean);
+      }
+
       function renderPreview() {
         const svg = $("kml-preview");
         svg.replaceChildren();
-        const allCoordinates = objects.flatMap(object => object.coordinates);
-        if (!allCoordinates.length) {
-          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-          text.setAttribute("x", "300");
-          text.setAttribute("y", "150");
-          text.setAttribute("text-anchor", "middle");
-          text.setAttribute("fill", "#65727e");
-          text.textContent = "No geometry to preview";
-          svg.append(text);
-          return;
-        }
-        const projection = createPreviewProjection(allCoordinates, 600, 300, 20);
-        const projected = allCoordinates.map(projection.project);
+        const pendingObjects = buildPendingPreviewObjects();
+        const pendingCoordinates = customPoints.map(({ lat, lon }) => ({ lat, lon }));
+        const pendingGridCoordinates = (customPoints.gridSegments || []).flat();
+        const geometryCoordinates = [
+          ...objects.flatMap(object => object.coordinates),
+          ...pendingObjects.flatMap(object => object.coordinates),
+          ...pendingCoordinates,
+          ...pendingGridCoordinates
+        ];
+        const projection = createPreviewProjection(previewProjectionCoordinates(geometryCoordinates), 600, 300, 20);
+        lastPreviewProjection = projection;
+        const projected = geometryCoordinates.map(projection.project);
         let offset = 0;
         const previewWidth = Math.max(1, Number($("kml-line-width").value) || 4);
-        const coastMargin = 1;
-        const coastBounds = {
-          minLon: projection.bounds.minLon - coastMargin,
-          maxLon: projection.bounds.maxLon + coastMargin,
-          minLat: projection.bounds.minLat - coastMargin,
-          maxLat: projection.bounds.maxLat + coastMargin
-        };
+        const coastBounds = previewCoastBounds(projection);
         for (const coastline of COASTLINE_SVG_PATHS) {
           if (!bboxIntersects(coastline.bbox, coastBounds)) continue;
           const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -1666,7 +1960,7 @@
           path.setAttribute("d", coastlinePathToPreview(coastline.d, projection.project));
           svg.append(path);
         }
-        const drawSegments = (segments, points, color, fillColor, strokeWidth, strokeOpacity = 1) => {
+        const drawSegments = (segments, points, color, fillColor, strokeWidth, strokeOpacity = 1, className = "") => {
           let segmentOffset = 0;
           for (const segment of segments) {
             const segmentPoints = points.slice(segmentOffset, segmentOffset + segment.length);
@@ -1679,6 +1973,7 @@
             polyline.setAttribute("stroke-opacity", String(strokeOpacity));
             polyline.setAttribute("stroke-width", String(strokeWidth));
             polyline.setAttribute("vector-effect", "non-scaling-stroke");
+            if (className) polyline.setAttribute("class", className);
             svg.append(polyline);
           }
         };
@@ -1698,10 +1993,12 @@
             const majorLength = (object.segments || []).flat().length;
             const minorLength = (object.minorSegments || []).flat().length;
             const cardinalLength = (object.cardinalSegments || []).flat().length;
+            const ringLength = (object.rangeRingSegments || []).flat().length;
             drawSegments(object.segments || [], points.slice(0, majorLength), object.color, null, previewWidth * (object.lineWidthFactor || 1));
             drawSegments(object.minorSegments || [], points.slice(majorLength, majorLength + minorLength), object.color, null, previewWidth * (object.minorLineWidthFactor || 0.35), 0.6);
             drawSegments(object.cardinalSegments || [], points.slice(majorLength + minorLength, majorLength + minorLength + cardinalLength), object.cardinalColor || object.color, null, previewWidth * (object.cardinalLineWidthFactor || 1));
-            drawSegments(object.rangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength), object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
+            drawSegments(object.rangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength, majorLength + minorLength + cardinalLength + ringLength), object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
+            drawSegments(object.cardinalRangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength + ringLength), object.cardinalColor || object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
           } else {
             drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, previewWidth);
             if (object.gridSegments?.length) {
@@ -1709,6 +2006,60 @@
             }
           }
         }
+        const drawPendingObject = object => {
+          const opacity = 0.45;
+          if (objectGeometryKind(object) === "Point") {
+            const point = projection.project(object.coordinates[0]);
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("class", "pending-preview");
+            circle.setAttribute("cx", point.x);
+            circle.setAttribute("cy", point.y);
+            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("fill", object.color);
+            circle.setAttribute("fill-opacity", String(opacity));
+            svg.append(circle);
+            return;
+          }
+          if (object.type === "B/E Spider") {
+            drawSegments(object.segments || [], (object.segments || []).flat().map(projection.project), object.color, null, previewWidth * (object.lineWidthFactor || 1), opacity, "pending-preview");
+            drawSegments(object.minorSegments || [], (object.minorSegments || []).flat().map(projection.project), object.color, null, previewWidth * (object.minorLineWidthFactor || 0.35), opacity, "pending-preview");
+            drawSegments(object.cardinalSegments || [], (object.cardinalSegments || []).flat().map(projection.project), object.cardinalColor || object.color, null, previewWidth, opacity, "pending-preview");
+            drawSegments(object.rangeRingSegments || [], (object.rangeRingSegments || []).flat().map(projection.project), object.color, null, previewWidth * 0.5, opacity, "pending-preview");
+            drawSegments(object.cardinalRangeRingSegments || [], (object.cardinalRangeRingSegments || []).flat().map(projection.project), object.cardinalColor || object.color, null, previewWidth * 0.5, opacity, "pending-preview");
+          } else {
+            drawSegments(objectCoordinateSegments(object), object.coordinates.map(projection.project), object.color, object.fillColor, previewWidth, opacity, "pending-preview");
+            if (object.gridSegments?.length) drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, previewWidth * 0.75, opacity, "pending-preview");
+          }
+        };
+        pendingObjects.forEach(drawPendingObject);
+        if (pendingCoordinates.length) {
+          const pending = pendingCoordinates.map(projection.project);
+          const closeShape = $("custom-close-shape").checked && pendingCoordinates.length >= 3;
+          if (closeShape && (pendingCoordinates[0].lat !== pendingCoordinates.at(-1).lat || pendingCoordinates[0].lon !== pendingCoordinates.at(-1).lon)) {
+            pending.push(pending[0]);
+          }
+          drawSegments(
+            [pending],
+            pending,
+            $("custom-line-color").value,
+            closeShape && $("custom-fill-enabled").checked ? $("custom-fill-color").value : null,
+            previewWidth,
+            0.5,
+            "pending-custom-preview"
+          );
+          if (customPoints.gridSegments?.length) {
+            drawSegments(
+              customPoints.gridSegments,
+              customPoints.gridSegments.flat().map(projection.project),
+              $("custom-line-color").value,
+              null,
+              previewWidth * 0.75,
+              0.45,
+              "pending-custom-preview"
+            );
+          }
+        }
+        applyPreviewZoom();
       }
 
       function renderObjects() {
@@ -1883,6 +2234,14 @@
         lineColorLabel.textContent = "Line color";
         lineColorRow.append(lineColorLabel, createPresetColorEditor(object, "color", `Line color for ${object.name}`));
         detailGrid.append(lineColorRow);
+        if (/^Custom (?:Point|Line|Area)$/.test(object.type)) {
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "secondary small";
+          edit.textContent = "Edit Custom";
+          edit.addEventListener("click", () => loadCustomObjectForEditing(object));
+          detailGrid.append(edit);
+        }
         details.append(detailGrid);
         if (object.center) {
           const center = document.createElement("div");
@@ -2001,6 +2360,33 @@
         return details;
       }
 
+      function loadCustomObjectForEditing(object) {
+        const coordinates = object.coordinates.map(point => ({ lat: point.lat, lon: point.lon }));
+        if (object.type === "Custom Area" && coordinates.length > 1) {
+          const first = coordinates[0];
+          const last = coordinates.at(-1);
+          if (first.lat === last.lat && first.lon === last.lon) coordinates.pop();
+        }
+        customPoints.length = 0;
+        coordinates.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
+        customPoints.gridSegments = object.gridSegments?.map(segment => segment.map(point => ({ ...point }))) || null;
+        pendingCustomCenter = object.center ? { ...object.center } : null;
+        pendingCustomCreatedBullseye = object.createdBullseye ? { ...object.createdBullseye } : null;
+        pendingCustomCenterVariation = object.centerVariation ? { ...object.centerVariation } : null;
+        $("custom-point-mode").value = "direct";
+        $("custom-point-mode").dispatchEvent(new Event("change"));
+        $("custom-name").value = object.name;
+        $("custom-line-color").value = object.color || "#455a64";
+        $("custom-close-shape").checked = object.type === "Custom Area";
+        $("custom-fill-enabled").checked = Boolean(object.fillColor);
+        $("custom-fill-color").value = object.fillColor || "#dadddf";
+        $("custom-fill-row").hidden = !object.fillColor;
+        $("custom-panel").open = true;
+        renderCustomPoints();
+        setMessage($("custom-form"), "Loaded as a new Custom draft. Original object is unchanged.");
+        $("custom-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
       function renderCustomPoints() {
         const list = $("custom-point-list");
         list.replaceChildren();
@@ -2030,6 +2416,7 @@
           pendingCustomCenter = null;
           renderCustomPoints();
         });
+        renderPreview();
       }
 
       function renderAxisOptions() {
@@ -2201,14 +2588,12 @@
             const isStandaloneBox = customPoints.length === 0;
             const xLength = requiredNumber("custom-box-x", "Width");
             const yLength = requiredNumber("custom-box-y", "Depth");
-            const yBearing = requiredNumber("custom-box-y-bearing", "Depth orientation");
+            const yBearing = requiredNumber("custom-box-y-bearing", "Depth bearing");
             requireFinitePositive(xLength, "Width", false);
             requireFinitePositive(yLength, "Depth", false);
-            requireFinitePositive(yBearing, "Depth orientation", true);
+            requireFinitePositive(yBearing, "Depth bearing", true);
             const box = getBoxCenter();
             const boxGeometry = generateBoxWithInternalLines(box.center, xLength, yLength, resolveTrueBearing(yBearing, box.bearingContext), {
-              widthDivisions: $("custom-box-width-divisions").value,
-              depthDivisions: $("custom-box-depth-divisions").value,
               widthRatio: $("custom-box-width-ratio").value,
               depthRatio: $("custom-box-depth-ratio").value
             });
@@ -2269,7 +2654,7 @@
           pendingCustomCenter = null;
           pendingCustomCreatedBullseye = null;
           pendingCustomCenterVariation = null;
-          clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range","custom-arc-coordinates","custom-arc-start","custom-arc-end","custom-arc-radius","custom-arc-count","custom-box-coordinates","custom-box-bearing","custom-box-range","custom-box-x","custom-box-y","custom-box-y-bearing","custom-box-width-divisions","custom-box-depth-divisions","custom-box-width-ratio","custom-box-depth-ratio"]);
+          clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range","custom-arc-coordinates","custom-arc-start","custom-arc-end","custom-arc-radius","custom-arc-count","custom-box-coordinates","custom-box-bearing","custom-box-range","custom-box-x","custom-box-y","custom-box-y-bearing","custom-box-width-ratio","custom-box-depth-ratio"]);
           $("custom-close-shape").checked = false;
           renderCustomPoints();
           setMessage(event.currentTarget, "");
@@ -2414,6 +2799,13 @@
             color: $("bull-spider-color").value,
             cardinalColor: $("bull-spider-cardinal-color").value
           }));
+          addObject({
+            name: nextBullseyePointName(objects),
+            type: "B/E Point",
+            color: $("bull-spider-cardinal-color").value,
+            createdBullseye: createdBullseyeSnapshot(bull),
+            coordinates: [{ lat: bull.lat, lon: bull.lon }]
+          });
           setSpiderMessage("");
         } catch (error) {
           setSpiderMessage("Error. Enter valid radial / distance.");
@@ -2479,6 +2871,25 @@
       });
       $("custom-fill-enabled").addEventListener("change", () => {
         $("custom-fill-row").hidden = !$("custom-fill-enabled").checked;
+        renderPreview();
+      });
+      $("custom-close-shape").addEventListener("change", renderPreview);
+      $("custom-line-color").addEventListener("input", renderPreview);
+      $("custom-fill-color").addEventListener("input", renderPreview);
+      let previewInputFrame = 0;
+      const schedulePreviewRender = () => {
+        cancelAnimationFrame(previewInputFrame);
+        previewInputFrame = requestAnimationFrame(renderPreview);
+      };
+      document.querySelectorAll([
+        "#bull-coordinates", "#bull-magvar-mode", "#bull-magvar",
+        "#bull-spider-enabled", "#bull-spider-full", "#bull-spider-ring-interval", "#bull-spider-start-radial", "#bull-spider-end-radial", "#bull-spider-major-interval", "#bull-spider-minor-interval", "#bull-spider-start-range", "#bull-spider-end-range", "#bull-spider-color", "#bull-spider-cardinal-color",
+        "#axis-heading", "#axis-length", "#axis-color", "#axis-tick-enabled", "#tick-start", "#tick-end", "#tick-main-interval", "#tick-main-width", "#tick-sub-interval", "#tick-sub-width", "#tick-color",
+        "#mission-axis", "#mission-distance", "#mission-width", "#mission-color",
+        "#sam-center-mode", "#sam-at-bullseye", "#sam-coordinates", "#sam-bearing", "#sam-range", "#sam-radius", "#sam-color", "#sam-fill-enabled", "#sam-fill-color"
+      ].join(",")).forEach(field => {
+        field.addEventListener("input", schedulePreviewRender);
+        field.addEventListener("change", schedulePreviewRender);
       });
 
       $("clear-all").addEventListener("click", () => {
@@ -2628,6 +3039,268 @@
         $("mission-name").placeholder = $("mission-distance").value.trim() === "" ? "Distance NM" : formatMissionLineName(numberValue("mission-distance"));
       });
       $("kml-line-width").addEventListener("input", renderPreview);
+      $("preview-zoom-out").addEventListener("click", () => setPreviewZoom(previewZoom / 1.25));
+      $("preview-zoom-reset").addEventListener("click", () => {
+        previewPanX = 0;
+        previewPanY = 0;
+        setPreviewZoom(1);
+        clearPreviewRuler();
+      });
+      $("preview-zoom-in").addEventListener("click", () => setPreviewZoom(previewZoom * 1.25));
+
+      function previewEventPoint(event) {
+        const rect = $("kml-preview").getBoundingClientRect();
+        const viewBox = $("kml-preview").viewBox.baseVal;
+        return {
+          x: viewBox.x + (event.clientX - rect.left) / rect.width * viewBox.width,
+          y: viewBox.y + (event.clientY - rect.top) / rect.height * viewBox.height
+        };
+      }
+
+      function previewCoordinateAtEvent(event) {
+        if (!lastPreviewProjection?.unproject) return null;
+        return lastPreviewProjection.unproject(previewEventPoint(event));
+      }
+
+      function measurementLabel(start, end) {
+        const measurement = calculateRangeBearing(start, end);
+        const source = globalBearingModeSource();
+        if (source.mode === "none") {
+          return `${formatHeadingValue(measurement.forwardTrue)}°T → ${measurement.distanceNm.toFixed(1)} NM ← ${formatHeadingValue(measurement.reverseTrue)}°T`;
+        }
+        const startVar = centerVariationFromContext(bearingContextForPoint(source, start), start).magVar;
+        const endVar = centerVariationFromContext(bearingContextForPoint(source, end), end).magVar;
+        return `${formatHeadingValue(trueToMag(measurement.forwardTrue, startVar))}°M → ${measurement.distanceNm.toFixed(1)} NM ← ${formatHeadingValue(trueToMag(measurement.reverseTrue, endVar))}°M`;
+      }
+
+      function drawPreviewRuler(startPoint, endPoint, startCoordinate, endCoordinate) {
+        if (!startPoint || !endPoint || !startCoordinate || !endCoordinate) return;
+        const layer = $("preview-ruler-layer");
+        layer.replaceChildren();
+        const ns = "http://www.w3.org/2000/svg";
+        const line = document.createElementNS(ns, "line");
+        line.setAttribute("class", "preview-ruler-line");
+        line.setAttribute("x1", startPoint.x);
+        line.setAttribute("y1", startPoint.y);
+        line.setAttribute("x2", endPoint.x);
+        line.setAttribute("y2", endPoint.y);
+        const tick = (point, other) => {
+          const length = Math.hypot(other.x - point.x, other.y - point.y) || 1;
+          const dx = -(other.y - point.y) / length * 6;
+          const dy = (other.x - point.x) / length * 6;
+          const mark = document.createElementNS(ns, "line");
+          mark.setAttribute("class", "preview-ruler-end");
+          mark.setAttribute("x1", point.x - dx);
+          mark.setAttribute("y1", point.y - dy);
+          mark.setAttribute("x2", point.x + dx);
+          mark.setAttribute("y2", point.y + dy);
+          return mark;
+        };
+        const text = document.createElementNS(ns, "text");
+        text.setAttribute("class", "preview-ruler-label");
+        text.setAttribute("x", (startPoint.x + endPoint.x) / 2);
+        text.dataset.midY = String((startPoint.y + endPoint.y) / 2);
+        text.setAttribute("y", Number(text.dataset.midY) - 12 / previewZoom);
+        text.setAttribute("font-size", String(12 / previewZoom));
+        text.setAttribute("stroke-width", String(4 / previewZoom));
+        text.textContent = measurementLabel(startCoordinate, endCoordinate);
+        const startMarker = document.createElementNS(ns, "circle");
+        startMarker.setAttribute("class", "preview-ruler-start");
+        startMarker.setAttribute("cx", startPoint.x);
+        startMarker.setAttribute("cy", startPoint.y);
+        startMarker.setAttribute("r", String(4 / previewZoom));
+        startMarker.setAttribute("stroke-width", String(1.5 / previewZoom));
+        layer.append(line, tick(startPoint, endPoint), tick(endPoint, startPoint), startMarker, text);
+      }
+
+      function clearPreviewRuler() {
+        $("preview-ruler-layer").replaceChildren();
+      }
+
+      function showPreviewCoordinate(event) {
+        const coordinate = previewCoordinateAtEvent(event);
+        if (!coordinate) return;
+        const popup = $("preview-coordinate-popup");
+        popup.textContent = formatCoordinatePairCompact(coordinate, coordinateFormat);
+        popup.dataset.coordinate = popup.textContent;
+        const stageRect = $("preview-stage").getBoundingClientRect();
+        popup.style.left = `${Math.max(4, event.clientX - stageRect.left + 8)}px`;
+        popup.style.top = `${Math.max(4, event.clientY - stageRect.top + 8)}px`;
+        popup.hidden = false;
+      }
+
+      function bindPreviewInteractions() {
+        const svg = $("kml-preview");
+        const popup = $("preview-coordinate-popup");
+        const activeTouches = new Map();
+        let panPointer = null;
+        let panLast = null;
+        let ruler = null;
+        let pinch = null;
+        let longPressTimer = null;
+        let touchRulerTimer = null;
+        const cancelTimers = () => {
+          clearTimeout(longPressTimer);
+          clearTimeout(touchRulerTimer);
+          longPressTimer = null;
+          touchRulerTimer = null;
+        };
+        popup.addEventListener("click", async () => {
+          const text = popup.dataset.coordinate || popup.textContent;
+          let copied = false;
+          try {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          } catch {
+            const helper = document.createElement("textarea");
+            helper.value = text;
+            helper.style.position = "fixed";
+            helper.style.opacity = "0";
+            document.body.appendChild(helper);
+            helper.select();
+            try { copied = document.execCommand("copy"); } catch {}
+            helper.remove();
+          }
+          popup.textContent = `${text} · ${copied ? "Copied" : "Copy failed"}`;
+        });
+        svg.addEventListener("contextmenu", event => {
+          event.preventDefault();
+          showPreviewCoordinate(event);
+        });
+        svg.addEventListener("wheel", event => {
+          event.preventDefault();
+          setPreviewZoom(previewZoom * (event.deltaY < 0 ? 1.2 : 1 / 1.2), previewEventPoint(event));
+        }, { passive: false });
+        svg.addEventListener("pointerdown", event => {
+          svg.setPointerCapture?.(event.pointerId);
+          if (event.pointerType === "touch") {
+            activeTouches.set(event.pointerId, { event, startX: event.clientX, startY: event.clientY });
+            cancelTimers();
+            if (activeTouches.size === 1) {
+              longPressTimer = setTimeout(() => showPreviewCoordinate(event), 550);
+              panPointer = event.pointerId;
+              panLast = { x: event.clientX, y: event.clientY };
+            } else if (activeTouches.size === 2) {
+              panPointer = null;
+              const touches = [...activeTouches.values()].map(value => value.event);
+              pinch = {
+                startDistance: Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY),
+                startZoom: previewZoom,
+                active: false
+              };
+              touchRulerTimer = setTimeout(() => {
+                const touches = [...activeTouches.values()].map(value => value.event);
+                const startPoint = previewEventPoint(touches[0]);
+                const endPoint = previewEventPoint(touches[1]);
+                pinch = null;
+                ruler = { touch: true };
+                drawPreviewRuler(startPoint, endPoint, previewCoordinateAtEvent(touches[0]), previewCoordinateAtEvent(touches[1]));
+              }, 350);
+            }
+            return;
+          }
+          if (event.button === 1) {
+            event.preventDefault();
+            const point = previewEventPoint(event);
+            ruler = { pointerId: event.pointerId, startPoint: point, startCoordinate: previewCoordinateAtEvent(event) };
+            return;
+          }
+          if (event.button === 0) {
+            if ($("preview-ruler-layer").childElementCount) clearPreviewRuler();
+            popup.hidden = true;
+            panPointer = event.pointerId;
+            panLast = { x: event.clientX, y: event.clientY };
+          }
+        });
+        svg.addEventListener("pointermove", event => {
+          if (event.pointerType === "touch" && activeTouches.has(event.pointerId)) {
+            const touch = activeTouches.get(event.pointerId);
+            touch.event = event;
+            if (Math.hypot(event.clientX - touch.startX, event.clientY - touch.startY) > 8) clearTimeout(longPressTimer);
+            if (pinch && activeTouches.size === 2 && !ruler?.touch) {
+              const touches = [...activeTouches.values()].map(value => value.event);
+              const distance = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+              if (Math.abs(distance - pinch.startDistance) > 12) {
+                clearTimeout(touchRulerTimer);
+                pinch.active = true;
+              }
+              if (pinch.active) {
+                const midpoint = {
+                  clientX: (touches[0].clientX + touches[1].clientX) / 2,
+                  clientY: (touches[0].clientY + touches[1].clientY) / 2
+                };
+                setPreviewZoom(pinch.startZoom * distance / Math.max(1, pinch.startDistance), previewEventPoint(midpoint));
+                return;
+              }
+            }
+            if (ruler?.touch && activeTouches.size === 2) {
+              const touches = [...activeTouches.values()].map(value => value.event);
+              drawPreviewRuler(previewEventPoint(touches[0]), previewEventPoint(touches[1]), previewCoordinateAtEvent(touches[0]), previewCoordinateAtEvent(touches[1]));
+              return;
+            }
+          }
+          if (ruler?.pointerId === event.pointerId) {
+            drawPreviewRuler(ruler.startPoint, previewEventPoint(event), ruler.startCoordinate, previewCoordinateAtEvent(event));
+            return;
+          }
+          if (panPointer === event.pointerId && panLast) {
+            const rect = svg.getBoundingClientRect();
+            const viewBox = svg.viewBox.baseVal;
+            previewPanX -= (event.clientX - panLast.x) / rect.width * viewBox.width;
+            previewPanY -= (event.clientY - panLast.y) / rect.height * viewBox.height;
+            panLast = { x: event.clientX, y: event.clientY };
+            applyPreviewZoom();
+          }
+        });
+        const finish = event => {
+          cancelTimers();
+          activeTouches.delete(event.pointerId);
+          if (activeTouches.size < 2) pinch = null;
+          if (ruler?.pointerId === event.pointerId) ruler = null;
+          if (ruler?.touch && activeTouches.size < 2) ruler = null;
+          if (panPointer === event.pointerId) {
+            panPointer = null;
+            panLast = null;
+          }
+          if (svg.hasPointerCapture?.(event.pointerId)) svg.releasePointerCapture?.(event.pointerId);
+        };
+        svg.addEventListener("pointerup", finish);
+        svg.addEventListener("pointercancel", finish);
+      }
+      bindPreviewInteractions();
+
+      function bindWorkspaceDivider() {
+        const workspace = $("workspace-layout");
+        const divider = $("workspace-divider");
+        let active = false;
+        const reset = () => workspace.style.setProperty("--input-pane-width", "33.333%");
+        divider.addEventListener("pointerdown", event => {
+          if (!matchMedia("(min-width: 1101px)").matches) return;
+          event.preventDefault();
+          active = true;
+          divider.classList.add("dragging");
+          divider.setPointerCapture?.(event.pointerId);
+        });
+        divider.addEventListener("pointermove", event => {
+          if (!active) return;
+          const bounds = workspace.getBoundingClientRect();
+          const width = Math.min(bounds.width - 500, Math.max(420, event.clientX - bounds.left));
+          workspace.style.setProperty("--input-pane-width", `${width}px`);
+        });
+        const end = event => {
+          if (!active) return;
+          active = false;
+          divider.classList.remove("dragging");
+          if (divider.hasPointerCapture?.(event.pointerId)) divider.releasePointerCapture?.(event.pointerId);
+        };
+        divider.addEventListener("pointerup", end);
+        divider.addEventListener("pointercancel", end);
+        divider.addEventListener("dblclick", reset);
+        divider.addEventListener("keydown", event => {
+          if (event.key === "Home" || event.key === "Enter") reset();
+        });
+      }
+      bindWorkspaceDivider();
       document.querySelectorAll(".object-list-jump").forEach(button => button.addEventListener("click", scrollToObjectList));
       $("collapse-object-details").addEventListener("click", () => {
         expandedObjectIds.clear();

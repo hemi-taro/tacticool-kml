@@ -2,6 +2,48 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.6.1] - 2026-06-26
+
+### Added
+
+- 有効なB/E座標のPoint仮表示
+- Spider追加時の独立した`BULLS` Point Object
+
+### Fixed
+
+- 空のPreviewで日本全体を表示し、北海道・四国・沖縄など分割された海岸線も描画
+- Previewズーム時のルーラー文字サイズと測距起点表示
+- 右クリック座標のDDM分を2桁表示
+
+## [1.6.0] - 2026-06-26
+
+### Added
+
+- B/E Spider、Axis / Tickmark、Mission Line、SAM Ringの入力中Preview
+- Previewのパン、カーソル位置ズーム、座標コピー、方位・距離ルーラー
+- iPad Previewのドラッグ、ピンチズーム、長押し座標表示、二本指ルーラー
+- Spiderで5本ごとのRange ringをCardinal colorで強調
+
+### Changed
+
+- Mission LineのAxis選択欄とCustom BoxのRatio入力欄を拡張
+- 短い数値入力欄だけをcompact幅に限定
+
+## [1.5.0] - 2026-06-26
+
+### Added
+
+- Object ListのCustom Point / Line / AreaをCustom入力欄へ複製する`Edit Custom`
+- Generate済み・未追加Custom geometryの半透明Preview
+- PC横画面の入力1：Preview 2の分割表示、Previewズーム、ドラッグ幅調整
+
+### Changed
+
+- Box内部線設定をWidth / Depth ratioへ統合
+- Ratio例を`Ex) 1:1:1`へ短縮
+- `Depth orientation`を`Depth bearing`へ変更
+- PC横画面では左入力欄だけをスクロールし、Previewを右側へ常時表示
+
 ## [1.4.6] - 2026-06-21
 
 ### Changed

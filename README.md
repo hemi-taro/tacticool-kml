@@ -1,4 +1,4 @@
-# Tacticool KML
+# Tacticool KML v1.6.1
 
 Offline bullseye geometry and KML / GeoJSON / CSV export tool.
 
@@ -22,6 +22,9 @@ It supports KML, GeoJSON, and coordinate CSV export for compatible map tools.
 - Mission lines
 - SAM rings
 - B/E spider radials and range rings
+- Live geometry preview before adding objects
+- Interactive preview pan, zoom, coordinate copy, and bearing/range ruler
+- Separate BULLS point creation with B/E Spider
 - Custom Point / Line / Area
 - Arc and Box generation
 - KML export
