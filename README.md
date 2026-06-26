@@ -1,76 +1,69 @@
-# Tacticool KML v1.6.1
+# Tacticool KML v1.7.1
 
-Offline bullseye geometry and KML / GeoJSON / CSV export tool.
+Stable release.
 
-[Open App](https://hemi-taro.github.io/tacticool-kml/)
+Bullseye基準のAxis、Mission Line、SAM Ring、Custom Point / Line / Areaを作成し、KMLまたはGeoJSONとして出力するPWAです。インストール後は完全オフラインで動作します。
 
-## Overview
+## Open App
 
-Tacticool KML is a single-page offline web app for creating simple aviation-style geometry from a bullseye reference point.
+[Tacticool KML](https://hemi-taro.github.io/tacticool-kml/)
 
-It supports KML, GeoJSON, and coordinate CSV export for compatible map tools.
+## Install on iPhone / iPad
 
-## Features
+1. 上記URLをSafariで開きます。
+2. Safariの共有ボタンから`ホーム画面に追加`を選択します。
+3. ホーム画面のアイコンから起動します。
 
-- Bullseye coordinate entry
-- Automatic magnetic variation:
-  - Japan GSI 2020.0 approximate model
-  - WMM2025
-  - Manual variation
-  - True heading mode
-- Axis and tickmark generation
-- Mission lines
-- SAM rings
-- B/E spider radials and range rings
-- Live geometry preview before adding objects
-- Interactive preview pan, zoom, coordinate copy, and bearing/range ruler
-- Separate BULLS point creation with B/E Spider
-- Custom Point / Line / Area
-- Arc and Box generation
-- KML export
-- GeoJSON export
-- CSV coordinate export
-- KML / GeoJSON / WebGIS-style JSON import
-- Offline PWA support for iPhone and iPad
-
-## Coordinate Input
-
-Coordinates can be entered in DD, DDM, DMS, compact hemisphere-delimited formats, or GEOREF.
-
-Examples:
-
-```text
-35.508333, 135.333333
-3530.500N / 13520.000E
-34° 04' N / 129° 04' E
-353030N / 1352000E
-WJLL0000
-```
+古いバージョンが表示される場合は、アプリ右上の更新アイコンを押してください。更新確認にはインターネット接続が必要です。
 
 ## Basic Use
 
-1. Select magnetic variation mode and coordinate display format.
-2. Enter the Bullseye coordinates.
-3. Add Axis, Mission Line, SAM Ring, B/E Spider, or Custom geometry.
-4. Review and reorder objects in the Object List.
-5. Export as KML, GeoJSON, or CSV.
+1. SettingsでMagnetic VariationとDisplay formatを選択します。
+2. Bullseye座標を入力します。
+3. Axis、Mission Line、B/E Spider、SAM Ring、Custom Point / Line / Areaを追加します。
+4. Object Listで内容を確認し、必要に応じて並べ替えます。
+5. 必要ならMap LayersへKML / GeoJSONを参考表示として追加します。
+6. プレビューを確認して`Export KML`、`GeoJSON`、または`CSV`を押します。
 
-## Notes
+Object Listの並び順はプレビュー、KML出力、GeoJSON出力の順序へ反映されます。Import GeometryはKML、GeoJSON、WebGIS-style JSONを読み込みます。
 
-- Distance units are nautical miles.
-- KML and GeoJSON output preserve Object List order.
-- CSV output is coordinate-row based and separates independent lines with blank rows.
-- The preview map is only a lightweight visual reference and is not exported.
-- The app runs locally after loading and does not collect or transmit data.
+Map LayersはKML / GeoJSONをプレビューに重ねるだけの参考レイヤーです。Object Listには追加されず、編集・出力対象にもなりません。レイヤーごとに表示/非表示と削除ができます。iOSでも選択できるようにファイル選択は全ファイルを許可し、読み込み時にKML / GeoJSON以外を拒否します。
 
-## Japanese Note
+Custom Point / Line / Areaでは、直接座標、B/E Bearing / Range、Arc、Boxからポイントを生成できます。1点はPoint、2点以上はLine、Close shape有効時はAreaとして追加されます。Arcは中心を直接座標またはAt B/Eで指定でき、ポイント数をAutoまたは3–181点のManualで設定できます。BoxはWidth/Depthの等分割または比率分割による内部線を追加できます。Box内部線の座標はObject List詳細で確認できます。
 
-このツールは、オフラインで動作するBullseye基準のKML / GeoJSON / CSV作成ツールです。生成された座標・図形は、使用前に必ず確認してください。
+Color欄は小さいネイティブカラーピッカーとプリセット色から選択できます。Object Listの一覧行では小さいLine color pickerのみを表示し、項目を展開すると名前、Line color preset、Fill colorを編集できます。詳細内で色を変更すると、一覧行とプレビューへ即時反映されます。
+
+Axis、Mission Line、SAM Ring、Custom Point / Line / Areaは折りたたみ式です。各Addボタン横の下矢印でObject Listへ移動できます。Object Listで詳細が開いている時は右下の上矢印ですべて閉じられます。SAM RingとCustom Areaのpolygon fillは初期状態では無効です。ONにするとFill colorが表示されます。
+
+SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}`になります。BoxとArcは生成時にNameが空なら`BOX {中心座標}`または`ARC {中心座標}`を自動入力します。Axisの既定名は`AXIS {方位/反方位} {B/E座標}`です。これらの短い名前やB/E表示では、入力されていない小数や分秒のゼロ埋めを省略します。内部計算とKML/GeoJSON出力の精度は維持します。
+
+## Coordinate Input
+
+緯度と経度は`/`、`,`、または方位記号で区切ります。DD・DDM・DMSを自動判定します。座標欄は広い画面ではdecimal keyboard、iPhone幅ではtext keyboardを使います。
+
+- DD: `35.508333, 135.333333`
+- DDM: `3530.500N / 13520.000E` or `34° 04' N / 129° 04' E`
+- DMS: `353030N / 1352000E`
+- GEOREF input only: `WJLL0000`
+
+AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 10NM、Sub 10NM / Width 5NMです。Start distanceは表示下限で、intervalの基準は常にB/Eです。Mainと同じ距離ではMainが優先されます。TickmarkはObject List上では1つのTickmark Groupとして管理され、詳細には0NM、10NMのように各線の距離を表示します。KMLでは1つのMultiGeometry Placemarkとして出力されます。
+
+B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Add SpiderをONにするとSpider設定だけを展開でき、B/E座標入力は常に表示されます。Full circleが既定で、Sector指定時はStart/End radialを手入力します。Major radial intervalの既定値は30度、Minor radial intervalの既定値は10度です。000/090/180/270はCardinal、Majorは通常表示、Minorはより薄く細い線として出力されます。MajorまたはCardinalと重なるMinorは省略されます。Minor radial intervalに0を入力するとMinorは描画されません。Object List上では1つのB/E Spiderとして管理されます。
+
+Previewには軽量化したworld coastlineを背景表示します。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
+
+WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
+
+CSV exportは、対応アプリで読み込める座標CSVを出力します。円やArcも点列として出力します。独立した線、ring、arc、polygon、Box内部線は空行で区切ります。LAT1/LON1は分が0の場合も`3500`、`12900`のように度+2桁分で出力します。
+
+距離単位はNMです。Auto (Japan GSI 2020.0)、Auto (WMM2025)、Manualでは入力方位を磁方位として扱い、東偏を正、西偏を負として真方位へ変換します。None (True)では入力方位を真方位として扱い、磁気偏差補正を行いません。Auto (Japan GSI 2020.0)は国土地理院の2020.0年値近似式を使う日本周辺専用の概算モードです。GSI範囲外ではAuto (WMM2025)を使ってください。
+
+## Privacy
+
+This app does not collect or transmit data.
 
 ## Disclaimer
 
-This tool is provided as-is. Verify all generated geometry before operational use.
+Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.
 
-## Copyright
-
-Copyright (c) 2026 hemi-taro. All rights reserved.
+Copyright © 2026 hemi-taro. All rights reserved. Permission to reuse, redistribute, or modify this software has not been granted.

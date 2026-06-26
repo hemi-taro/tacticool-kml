@@ -2,6 +2,30 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.7.1] - 2026-06-26
+
+### Changed
+
+- Renamed Preview Layers to Map Layers
+- Allowed Map Layers file selection to show all files on iOS, with unsupported files rejected after selection
+
+## [1.7.0] - 2026-06-26
+
+### Added
+
+- Preview Layers for reference-only KML / GeoJSON overlays
+- Per-layer visibility toggle and deletion
+
+### Changed
+
+- Coordinate fields use decimal keyboard on wider screens and text keyboard on iPhone-width screens
+- KML import now reuses the shared parser and supports MultiGeometry LineString groups
+
+### Fixed
+
+- Preview coastline is refreshed from the current pan/zoom viewBox
+- Footer now stays outside the main input/preview layout
+
 ## [1.6.1] - 2026-06-26
 
 ### Added

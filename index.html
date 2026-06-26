@@ -62,6 +62,10 @@
     .object-text strong, .object-text span { display: block; overflow-wrap: anywhere; }
     .object-text span { font-size: .78rem; color: #65727e; margin-top: 2px; }
     .empty { color: #6a7680; font-size: .88rem; }
+    .preview-layer-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+    .preview-layer-list li { display: flex; align-items: center; gap: 10px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; }
+    .preview-layer-list .object-text { flex: 1; }
+    .preview-layer-geometry { pointer-events: none; }
     .preview { width: 100%; height: auto; background: #f7f9fb; border: 0; border-radius: 0; }
     .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #f7f9fb; }
     .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -124,7 +128,7 @@
     .field-medium { width: min(75%, 42rem); }
     .method-field { width: min(60%, 32rem); }
     @media (min-width: 1101px) {
-      body { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+      body { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
       #workspace-layout {
         --input-pane-width: 33.333%;
         height: auto;
@@ -138,7 +142,7 @@
       #preview-pane { padding-left: 12px; min-height: 0; }
       .preview-panel { height: 100%; }
       .preview { height: 100%; min-height: 0; }
-      footer { padding-left: 0; padding-right: 0; }
+      footer { padding: 8px 18px; }
     }
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
@@ -356,7 +360,7 @@
       <button id="collapse-object-details" class="collapse-object-details" type="button" aria-label="Collapse all object details" title="Collapse all object details" hidden>▲</button>
     </section>
 
-    <section>
+    <section id="export-section">
       <h2>Export</h2>
       <div class="grid">
         <label>Document name<textarea id="document-name" class="name-field" rows="1" placeholder="YYYY-MM-DD-HHMM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
@@ -365,11 +369,16 @@
       <div class="actions"><button id="export-kml" type="button">Export KML</button><button id="export-json" type="button" class="secondary">GeoJSON</button><button id="export-flightnav" type="button" class="secondary">CSV</button></div>
       <p id="export-message" class="message"></p>
     </section>
-    <footer>
-      <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
-      <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
-      <div>This app does not collect or transmit data.</div>
-    </footer>
+
+    <details id="preview-layers-panel" class="panel">
+      <summary>Map Layers</summary>
+      <div class="actions">
+        <button id="add-preview-layer" type="button" class="secondary">Add KML / GeoJSON</button>
+        <input id="preview-layer-file" type="file" hidden>
+      </div>
+      <ul id="preview-layer-list" class="preview-layer-list"></ul>
+      <p id="preview-layer-message" class="message"></p>
+    </details>
     </div>
     <div id="workspace-divider" role="separator" aria-label="Resize input and preview panes" aria-orientation="vertical" tabindex="0"></div>
     <aside id="preview-pane">
@@ -391,8 +400,14 @@
     </aside>
   </main>
 
+  <footer>
+    <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
+    <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
+    <div>This app does not collect or transmit data.</div>
+  </footer>
+
   <script id="core-logic">
-    var APP_VERSION = "1.6.1";
+    var APP_VERSION = "1.7.1";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -1206,17 +1221,6 @@
       return coordinates;
     }
 
-    function previewCoastBounds(projection) {
-      const topLeft = projection.unproject({ x: -300, y: -150 });
-      const bottomRight = projection.unproject({ x: 900, y: 450 });
-      return {
-        minLon: Math.min(topLeft.lon, bottomRight.lon),
-        maxLon: Math.max(topLeft.lon, bottomRight.lon),
-        minLat: Math.min(topLeft.lat, bottomRight.lat),
-        maxLat: Math.max(topLeft.lat, bottomRight.lat)
-      };
-    }
-
     function projectPreviewCoordinates(coordinates, width, height, padding) {
       const projection = createPreviewProjection(coordinates, width, height, padding);
       return projection.project ? coordinates.map(projection.project) : [];
@@ -1504,6 +1508,51 @@
       return output.filter(object => object.coordinates.length && (object.type === "Imported Point" || object.coordinates.length >= 2));
     }
 
+    function htmlColorFromKml(value, fallback = null) {
+      const color = String(value || "").trim();
+      if (!/^[0-9a-fA-F]{8}$/.test(color)) return fallback;
+      return `#${color.slice(6, 8)}${color.slice(4, 6)}${color.slice(2, 4)}`;
+    }
+
+    function parseKmlObjects(text) {
+      const xml = new DOMParser().parseFromString(text, "application/xml");
+      if (xml.querySelector("parsererror")) throw new Error("Invalid KML file.");
+      const styles = new Map();
+      xml.querySelectorAll("Style[id]").forEach(style => {
+        const lineColor = htmlColorFromKml(style.querySelector("LineStyle > color")?.textContent, null);
+        const iconColor = htmlColorFromKml(style.querySelector("IconStyle > color")?.textContent, null);
+        const fillColor = htmlColorFromKml(style.querySelector("PolyStyle > color")?.textContent, null);
+        styles.set(`#${style.id}`, { color: lineColor || iconColor || "#455a64", fillColor });
+      });
+      const imported = [];
+      xml.querySelectorAll("Placemark").forEach((placemark, index) => {
+        const name = placemark.querySelector(":scope > name")?.textContent.trim() || `Imported ${index + 1}`;
+        const style = styles.get(placemark.querySelector(":scope > styleUrl")?.textContent.trim()) || {};
+        placemark.querySelectorAll("Point").forEach(point => {
+          const coordinateNode = point.querySelector("coordinates");
+          if (!coordinateNode) return;
+          const coordinates = parseKmlCoordinateText(coordinateNode.textContent);
+          if (coordinates.length) imported.push({ name, type: "Imported Point", color: style.color || "#455a64", coordinates: [coordinates[0]] });
+        });
+        const lineStrings = [...placemark.querySelectorAll("LineString")].map(lineString => {
+          const coordinateNode = lineString.querySelector("coordinates");
+          return coordinateNode ? parseKmlCoordinateText(coordinateNode.textContent) : [];
+        }).filter(coordinates => coordinates.length >= 2);
+        if (lineStrings.length === 1) {
+          imported.push({ name, type: "Imported Line", color: style.color || "#455a64", coordinates: lineStrings[0] });
+        } else if (lineStrings.length > 1) {
+          imported.push({ name, type: "Imported MultiLine", color: style.color || "#455a64", coordinates: lineStrings.flat(), segments: lineStrings });
+        }
+        placemark.querySelectorAll("Polygon").forEach(polygon => {
+          const coordinateNode = polygon.querySelector("outerBoundaryIs LinearRing coordinates");
+          if (!coordinateNode) return;
+          const coordinates = parseKmlCoordinateText(coordinateNode.textContent);
+          if (coordinates.length >= 3) imported.push({ name, type: "Imported Polygon", color: style.color || "#455a64", fillColor: style.fillColor || null, coordinates });
+        });
+      });
+      return imported;
+    }
+
     function htmlColorFromRgba(value, fallback = "#455a64") {
       const match = String(value || "").match(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
       if (!match) return fallback;
@@ -1574,11 +1623,13 @@
   <script>
     (() => {
       const objects = [];
+      const previewLayers = [];
       const customPoints = [];
       let pendingCustomCenter = null;
       let pendingCustomCreatedBullseye = null;
       let pendingCustomCenterVariation = null;
       let nextId = 1;
+      let nextPreviewLayerId = 1;
       let nextCustomPointId = 1;
       let coordinateFormat = "ddm";
       let previewZoom = 1;
@@ -1704,6 +1755,45 @@
         renderObjects();
       }
 
+      function visiblePreviewLayerObjects() {
+        return previewLayers.filter(layer => layer.visible).flatMap(layer => layer.objects);
+      }
+
+      function currentPreviewGeoBounds() {
+        if (!lastPreviewProjection) return null;
+        const values = $("kml-preview").getAttribute("viewBox").split(/\s+/).map(Number);
+        if (values.length !== 4 || values.some(value => !Number.isFinite(value))) return null;
+        const [x, y, width, height] = values;
+        const corners = [
+          lastPreviewProjection.unproject({ x, y }),
+          lastPreviewProjection.unproject({ x: x + width, y }),
+          lastPreviewProjection.unproject({ x, y: y + height }),
+          lastPreviewProjection.unproject({ x: x + width, y: y + height })
+        ];
+        return {
+          minLon: Math.min(...corners.map(point => point.lon)),
+          maxLon: Math.max(...corners.map(point => point.lon)),
+          minLat: Math.min(...corners.map(point => point.lat)),
+          maxLat: Math.max(...corners.map(point => point.lat))
+        };
+      }
+
+      function refreshPreviewCoastline() {
+        const group = $("preview-coastline-layer");
+        if (!group || !lastPreviewProjection) return;
+        group.replaceChildren();
+        const coastBounds = currentPreviewGeoBounds();
+        if (!coastBounds) return;
+        for (const coastline of COASTLINE_SVG_PATHS) {
+          if (!bboxIntersects(coastline.bbox, coastBounds)) continue;
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("class", "coastline-preview");
+          path.setAttribute("opacity", "0.9");
+          path.setAttribute("d", coastlinePathToPreview(coastline.d, lastPreviewProjection.project));
+          group.append(path);
+        }
+      }
+
       function moveArrayItem(array, fromIndex, toIndex) {
         if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
         const [item] = array.splice(fromIndex, 1);
@@ -1770,6 +1860,7 @@
         $("kml-preview").setAttribute("viewBox", viewBox);
         $("preview-ruler-layer").setAttribute("viewBox", viewBox);
         updatePreviewRulerScale();
+        refreshPreviewCoastline();
       }
 
       function updatePreviewRulerScale() {
@@ -1937,10 +2028,15 @@
       function renderPreview() {
         const svg = $("kml-preview");
         svg.replaceChildren();
+        const coastGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        coastGroup.id = "preview-coastline-layer";
+        svg.append(coastGroup);
+        const layerObjects = visiblePreviewLayerObjects();
         const pendingObjects = buildPendingPreviewObjects();
         const pendingCoordinates = customPoints.map(({ lat, lon }) => ({ lat, lon }));
         const pendingGridCoordinates = (customPoints.gridSegments || []).flat();
         const geometryCoordinates = [
+          ...layerObjects.flatMap(object => object.coordinates),
           ...objects.flatMap(object => object.coordinates),
           ...pendingObjects.flatMap(object => object.coordinates),
           ...pendingCoordinates,
@@ -1951,15 +2047,6 @@
         const projected = geometryCoordinates.map(projection.project);
         let offset = 0;
         const previewWidth = Math.max(1, Number($("kml-line-width").value) || 4);
-        const coastBounds = previewCoastBounds(projection);
-        for (const coastline of COASTLINE_SVG_PATHS) {
-          if (!bboxIntersects(coastline.bbox, coastBounds)) continue;
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          path.setAttribute("class", "coastline-preview");
-          path.setAttribute("opacity", "0.9");
-          path.setAttribute("d", coastlinePathToPreview(coastline.d, projection.project));
-          svg.append(path);
-        }
         const drawSegments = (segments, points, color, fillColor, strokeWidth, strokeOpacity = 1, className = "") => {
           let segmentOffset = 0;
           for (const segment of segments) {
@@ -1977,6 +2064,28 @@
             svg.append(polyline);
           }
         };
+        const drawObject = (object, points, strokeOpacity = 1, className = "") => {
+          if (objectGeometryKind(object) === "Point") {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", points[0].x);
+            circle.setAttribute("cy", points[0].y);
+            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("fill", object.color);
+            circle.setAttribute("fill-opacity", String(strokeOpacity));
+            if (className) circle.setAttribute("class", className);
+            svg.append(circle);
+            return;
+          }
+          drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, previewWidth, strokeOpacity, className);
+          if (object.gridSegments?.length) {
+            drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, previewWidth * 0.75, strokeOpacity * 0.8, className);
+          }
+        };
+        for (const object of layerObjects) {
+          const points = projected.slice(offset, offset + object.coordinates.length);
+          offset += object.coordinates.length;
+          drawObject(object, points, 0.7, "preview-layer-geometry");
+        }
         for (const object of objects) {
           const points = projected.slice(offset, offset + object.coordinates.length);
           offset += object.coordinates.length;
@@ -2917,6 +3026,96 @@
       $("coordinate-format").addEventListener("click", handleCoordinateFormatClick);
       $("settings-coordinate-format").addEventListener("click", handleCoordinateFormatClick);
 
+      function renderPreviewLayers() {
+        const list = $("preview-layer-list");
+        list.replaceChildren();
+        if (!previewLayers.length) {
+          const empty = document.createElement("li");
+          empty.className = "empty";
+          empty.textContent = "No map layers.";
+          list.append(empty);
+          return;
+        }
+        for (const layer of previewLayers) {
+          const item = document.createElement("li");
+          const visible = document.createElement("input");
+          visible.type = "checkbox";
+          visible.checked = layer.visible;
+          visible.setAttribute("aria-label", `Show ${layer.name}`);
+          visible.addEventListener("change", () => {
+            layer.visible = visible.checked;
+            renderPreview();
+          });
+          const text = document.createElement("span");
+          text.className = "object-text";
+          const name = document.createElement("strong");
+          name.textContent = layer.name;
+          const detail = document.createElement("span");
+          detail.textContent = `${layer.objects.length} map objects`;
+          text.append(name, detail);
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "danger small";
+          remove.textContent = "Delete";
+          remove.addEventListener("click", () => {
+            previewLayers.splice(previewLayers.findIndex(candidate => candidate.id === layer.id), 1);
+            renderPreviewLayers();
+            renderPreview();
+          });
+          item.append(visible, text, remove);
+          list.append(item);
+        }
+      }
+
+      function parsePreviewLayerObjects(fileName, text) {
+        const looksJson = /\.geojson$/i.test(fileName) || /\.json$/i.test(fileName) || /^\s*[{[]/.test(text);
+        if (looksJson) {
+          const root = JSON.parse(text);
+          if (!root || !["FeatureCollection", "Feature", "Point", "LineString", "Polygon", "MultiLineString", "MultiPolygon", "GeometryCollection"].includes(root.type)) {
+            throw new Error("Map layers accept GeoJSON or KML files.");
+          }
+          return parseGeoJsonObjects(root);
+        }
+        if (!/\.kml$/i.test(fileName) && !/^\s*</.test(text)) {
+          throw new Error("Map layers accept GeoJSON or KML files.");
+        }
+        return parseKmlObjects(text);
+      }
+
+      function addPreviewLayer(file, text) {
+        const layerObjects = parsePreviewLayerObjects(file.name, text);
+        if (!layerObjects.length) throw new Error("No supported preview geometry found.");
+        previewLayers.push({
+          id: nextPreviewLayerId++,
+          name: file.name,
+          visible: true,
+          objects: layerObjects
+        });
+        renderPreviewLayers();
+        renderPreview();
+      }
+
+      $("add-preview-layer").addEventListener("click", () => $("preview-layer-file").click());
+      $("preview-layer-file").addEventListener("change", async event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const message = $("preview-layer-message");
+        message.textContent = "";
+        try {
+          const text = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error("Could not read preview layer file."));
+            reader.readAsText(file);
+          });
+          addPreviewLayer(file, text);
+        } catch (error) {
+          message.textContent = `Map layer failed: ${error.message}`;
+        } finally {
+          event.target.value = "";
+        }
+      });
+
       $("import-geometry").addEventListener("click", () => $("import-geometry-file").click());
       $("import-geometry-file").addEventListener("change", async event => {
         const file = event.target.files[0];
@@ -2934,35 +3133,9 @@
             importedObjects.forEach(addObject);
             return;
           }
-          const xml = new DOMParser().parseFromString(text, "application/xml");
-          if (xml.querySelector("parsererror")) throw new Error("Invalid KML file.");
-          const styles = new Map();
-          xml.querySelectorAll("Style[id]").forEach(style => {
-            const kmlColor = style.querySelector("LineStyle > color")?.textContent.trim();
-            const iconColor = style.querySelector("IconStyle > color")?.textContent.trim();
-            const fillColor = style.querySelector("PolyStyle > color")?.textContent.trim();
-            const toHtml = value => value && /^[0-9a-fA-F]{8}$/.test(value) ? `#${value.slice(6, 8)}${value.slice(4, 6)}${value.slice(2, 4)}` : null;
-            styles.set(`#${style.id}`, { color: toHtml(kmlColor) || toHtml(iconColor) || "#455a64", fillColor: toHtml(fillColor) });
-          });
-          let imported = 0;
-          xml.querySelectorAll("Placemark").forEach((placemark, index) => {
-            const coordinateNode = placemark.querySelector("Point coordinates, LineString coordinates, Polygon outerBoundaryIs LinearRing coordinates");
-            if (!coordinateNode) return;
-            const coordinates = parseKmlCoordinateText(coordinateNode.textContent);
-            const isPoint = Boolean(placemark.querySelector("Point"));
-            if (!coordinates.length || (!isPoint && coordinates.length < 2)) return;
-            const isPolygon = Boolean(placemark.querySelector("Polygon"));
-            const style = styles.get(placemark.querySelector(":scope > styleUrl")?.textContent.trim()) || {};
-            addObject({
-              name: placemark.querySelector(":scope > name")?.textContent.trim() || `Imported ${index + 1}`,
-              type: isPoint ? "Imported Point" : isPolygon ? "Imported Polygon" : "Imported Line",
-              color: style.color || "#455a64",
-              fillColor: isPolygon ? style.fillColor || null : null,
-              coordinates
-            });
-            imported += 1;
-          });
-          if (!imported) throw new Error("No supported Point, LineString, or Polygon geometry found.");
+          const importedObjects = parseKmlObjects(text);
+          if (!importedObjects.length) throw new Error("No supported Point, LineString, or Polygon geometry found.");
+          importedObjects.forEach(addObject);
         } catch (error) {
           alert(`Import failed: ${error.message}`);
         } finally {
@@ -3310,8 +3483,36 @@
         field.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();field.blur();}});
         field.addEventListener("input",()=>{if(/[\r\n]/.test(field.value))field.value=field.value.replace(/[\r\n]+/g," ");});
       }
+
+      function updateCoordinateInputMode() {
+        const narrow = matchMedia("(max-width: 680px)").matches;
+        document.querySelectorAll(".coordinate-field").forEach(field => {
+          field.inputMode = narrow ? "text" : "decimal";
+        });
+      }
+
+      function configureInputAssistance() {
+        document.querySelectorAll("input, textarea").forEach(field => {
+          field.setAttribute("autocomplete", "off");
+          field.setAttribute("autocorrect", "off");
+          if (field.classList.contains("name-field")) {
+            field.setAttribute("autocapitalize", "sentences");
+            field.setAttribute("spellcheck", "true");
+          } else {
+            field.setAttribute("autocapitalize", field.classList.contains("coordinate-field") ? "characters" : "off");
+            field.setAttribute("spellcheck", "false");
+          }
+          if (field.classList.contains("coordinate-field")) field.removeAttribute("name");
+        });
+        updateCoordinateInputMode();
+        const media = matchMedia("(max-width: 680px)");
+        if (media.addEventListener) media.addEventListener("change", updateCoordinateInputMode);
+        else if (media.addListener) media.addListener(updateCoordinateInputMode);
+      }
+
       document.querySelectorAll(".name-field").forEach(preventFieldNewline);
       document.querySelectorAll(".coordinate-field").forEach(preventFieldNewline);
+      configureInputAssistance();
       enhanceColorInputs();
       updateSpiderSettingsVisibility();
 
@@ -3332,6 +3533,7 @@
       }
       $("update-app").addEventListener("click",refreshAppCache);
 
+      renderPreviewLayers();
       renderObjects();
       renderCustomPoints();
       updateBullSummary();
