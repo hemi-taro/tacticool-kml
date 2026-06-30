@@ -72,11 +72,16 @@
     .pending-custom-preview, .pending-preview { pointer-events: none; }
     #preview-coordinate-popup { position: absolute; z-index: 4; max-width: 280px; padding: 8px 10px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; cursor: copy; font-size: .82rem; }
     #preview-coordinate-popup[hidden] { display: none; }
-    #preview-ruler-layer { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; }
+    #preview-ruler-layer { pointer-events: none; }
     .preview-ruler-line { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
     .preview-ruler-end { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
     .preview-ruler-label { fill: #fff; stroke: #152536; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; }
     .preview-ruler-start { fill: #d32f2f; stroke: #fff; vector-effect: non-scaling-stroke; }
+    .preview-grid-line { stroke: #8ea1b2; stroke-width: 0.6; stroke-opacity: 0.28; vector-effect: non-scaling-stroke; }
+    .preview-grid-label { fill: #52616f; stroke: #fff; paint-order: stroke; font-family: system-ui, sans-serif; font-weight: 700; pointer-events: none; }
+    .preview-gsi-range { fill: none; stroke: #d32f2f; stroke-width: 1.2; stroke-opacity: 0.45; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+    #preview-scale-bar { position: absolute; left: 12px; bottom: 10px; z-index: 2; display: grid; gap: 3px; color: #152536; font-size: .72rem; font-weight: 700; pointer-events: none; text-shadow: 0 1px 2px #fff; }
+    #preview-scale-bar .scale-line { height: 5px; border-left: 2px solid #152536; border-right: 2px solid #152536; border-bottom: 2px solid #152536; background: #ffffff99; }
     .coastline-preview { fill: none; stroke: #aeb8c2; stroke-width: 0.7; vector-effect: non-scaling-stroke; }
     .section-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
     .section-toolbar h2 { margin: 0; }
@@ -120,7 +125,7 @@
     #custom-point-list { list-style: none; padding: 0; display: grid; gap: 7px; }
     #custom-point-list li { display: flex; align-items: center; gap: 8px; border: 1px solid #d8dee4; border-radius: 6px; padding: 7px; }
     #custom-point-list .coordinate-entry { flex: 1; overflow-wrap: anywhere; }
-    footer { padding: 18px; color: #52616f; font-size: .78rem; line-height: 1.5; }
+    footer { padding: 10px 4px 4px; color: #52616f; font-size: .78rem; line-height: 1.5; }
     .coordinate-list { margin: 8px 0 0 27px; padding: 8px; background: #f7f9fb; border-radius: 5px; font: .75rem ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
     .coordinate-entry { display: grid; grid-template-columns: 3ch 1fr; gap: .7ch; font-variant-numeric: tabular-nums; }
     .coordinate-index { text-align: right; }
@@ -128,7 +133,7 @@
     .field-medium { width: min(75%, 42rem); }
     .method-field { width: min(60%, 32rem); }
     @media (min-width: 1101px) {
-      body { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+      body { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); }
       #workspace-layout {
         --input-pane-width: 33.333%;
         height: auto;
@@ -142,7 +147,7 @@
       #preview-pane { padding-left: 12px; min-height: 0; }
       .preview-panel { height: 100%; }
       .preview { height: 100%; min-height: 0; }
-      footer { padding: 8px 18px; }
+      footer { padding: 10px 4px 4px; }
     }
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
@@ -186,7 +191,7 @@
     <section>
       <h2>Bullseye</h2>
       <div class="grid">
-        <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+        <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         <div class="spider-toggle-row">
           <label class="check"><input id="bull-spider-enabled" type="checkbox"> Add Spider</label>
           <label id="bull-spider-full-row" class="check" hidden><input id="bull-spider-full" type="checkbox" checked> Full circle</label>
@@ -265,7 +270,7 @@
           <label class="short-field">Range (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="sam-direct-center" class="grid">
-          <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div class="compact-grid">
           <label class="short-field">Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
@@ -286,7 +291,7 @@
           <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">Arc</option><option value="box">Box</option></select></label>
         </div>
         <div id="custom-direct-point" class="grid">
-          <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div id="custom-bullseye-point" class="compact-grid" hidden>
           <label class="short-field">Bearing<input id="custom-bearing" type="text" inputmode="decimal"></label>
@@ -298,7 +303,7 @@
             <label class="check"><input id="custom-arc-at-bullseye" type="checkbox"> At B/E</label>
           </div>
           <div id="custom-arc-direct-center" class="grid">
-            <label>Center coordinates (Lat / Lon)<textarea id="custom-arc-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+            <label>Center coordinates (Lat / Lon)<textarea id="custom-arc-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div class="compact-grid">
           <label class="short-field">Start radial<input id="custom-arc-start" type="text" inputmode="decimal"></label>
@@ -316,7 +321,7 @@
             <label class="check"><input id="custom-box-at-bullseye" type="checkbox"> At B/E</label>
           </div>
           <div id="custom-box-direct-center" class="grid">
-            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="Enter coordinates" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div id="custom-box-bullseye-center" class="compact-grid" hidden>
             <label class="short-field">Bearing<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
@@ -379,6 +384,11 @@
       <ul id="preview-layer-list" class="preview-layer-list"></ul>
       <p id="preview-layer-message" class="message"></p>
     </details>
+    <footer>
+      <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
+      <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
+      <div>This app does not collect or transmit data.</div>
+    </footer>
     </div>
     <div id="workspace-divider" role="separator" aria-label="Resize input and preview panes" aria-orientation="vertical" tabindex="0"></div>
     <aside id="preview-pane">
@@ -392,22 +402,16 @@
           </div>
         </div>
         <div id="preview-stage" class="preview-stage">
-          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"></svg>
-          <svg id="preview-ruler-layer" viewBox="0 0 600 300" aria-hidden="true"></svg>
+          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
+          <div id="preview-scale-bar" aria-hidden="true"><div class="scale-line"></div><div class="scale-label"></div></div>
           <button id="preview-coordinate-popup" type="button" hidden aria-label="Copy preview coordinate"></button>
         </div>
       </section>
     </aside>
   </main>
 
-  <footer>
-    <div>Copyright © 2026 hemi-taro. All rights reserved.</div>
-    <div>Do not use this tool as the sole source for navigation, flight safety, or real mission decisions. Verify coordinates, magnetic variation, and generated KML independently. Accuracy and completeness are not guaranteed.</div>
-    <div>This app does not collect or transmit data.</div>
-  </footer>
-
   <script id="core-logic">
-    var APP_VERSION = "1.7.1";
+    var APP_VERSION = "1.7.3";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -538,6 +542,9 @@
     }
 
     function detectCoordinatePairFormat(value) {
+      const raw = String(value ?? "").trim();
+      const georefCandidate = raw.toUpperCase().replace(/\s+/g, "");
+      if (!raw.includes("/") && !raw.includes(",") && /^[A-Z]{4}\d{0,10}$/.test(georefCandidate)) return "ddm";
       const parts = splitCoordinatePair(value);
       if (parts.length !== 2) throw new Error("Coordinate pair must contain latitude and longitude.");
       const formats = [detectCoordinateComponentFormat(parts[0], true), detectCoordinateComponentFormat(parts[1], false)];
@@ -1794,6 +1801,121 @@
         }
       }
 
+      const GSI_2020_RANGE = { minLat: 20, maxLat: 50, minLon: 120, maxLon: 154 };
+
+      function niceGridStep(spanDegrees) {
+        const target = spanDegrees / 6;
+        for (const step of [0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30, 45]) {
+          if (target <= step) return step;
+        }
+        return 90;
+      }
+
+      function formatGridDegreeLabel(value, isLatitude, step) {
+        const decimals = step < 1 ? 2 : 0;
+        const abs = Math.abs(value);
+        const degrees = Number.isInteger(abs) || decimals === 0 ? String(Math.round(abs)) : abs.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+        const hemisphere = isLatitude ? (value < 0 ? "S" : "N") : (value < 0 ? "W" : "E");
+        return `${degrees}°${hemisphere}`;
+      }
+
+      function drawPreviewGrid() {
+        const group = $("preview-grid-layer");
+        if (!group || !lastPreviewProjection) return;
+        group.replaceChildren();
+        const bounds = currentPreviewGeoBounds();
+        if (!bounds) return;
+        const values = $("kml-preview").getAttribute("viewBox").split(/\s+/).map(Number);
+        if (values.length !== 4 || values.some(value => !Number.isFinite(value))) return;
+        const [viewX, viewY, viewWidth, viewHeight] = values;
+        const ns = "http://www.w3.org/2000/svg";
+        const lonStep = niceGridStep(bounds.maxLon - bounds.minLon);
+        const latStep = niceGridStep(bounds.maxLat - bounds.minLat);
+        const fontSize = 10 / previewZoom;
+        const strokeWidth = 3 / previewZoom;
+        const inset = 6 / previewZoom;
+        const addLine = (start, end) => {
+          const a = lastPreviewProjection.project(start);
+          const b = lastPreviewProjection.project(end);
+          const line = document.createElementNS(ns, "line");
+          line.setAttribute("class", "preview-grid-line");
+          line.setAttribute("x1", a.x);
+          line.setAttribute("y1", a.y);
+          line.setAttribute("x2", b.x);
+          line.setAttribute("y2", b.y);
+          group.append(line);
+        };
+        const addLabel = (textValue, x, y, anchor = "middle") => {
+          const text = document.createElementNS(ns, "text");
+          text.setAttribute("class", "preview-grid-label");
+          text.setAttribute("x", x);
+          text.setAttribute("y", y);
+          text.setAttribute("font-size", fontSize);
+          text.setAttribute("stroke-width", strokeWidth);
+          text.setAttribute("text-anchor", anchor);
+          text.textContent = textValue;
+          group.append(text);
+        };
+        for (let lon = Math.ceil(bounds.minLon / lonStep) * lonStep; lon <= bounds.maxLon + 1e-9; lon += lonStep) {
+          addLine({ lat: bounds.minLat, lon }, { lat: bounds.maxLat, lon });
+          const point = lastPreviewProjection.project({ lat: bounds.minLat, lon });
+          addLabel(formatGridDegreeLabel(lon, false, lonStep), point.x, viewY + viewHeight - inset);
+        }
+        for (let lat = Math.ceil(bounds.minLat / latStep) * latStep; lat <= bounds.maxLat + 1e-9; lat += latStep) {
+          addLine({ lat, lon: bounds.minLon }, { lat, lon: bounds.maxLon });
+          const point = lastPreviewProjection.project({ lat, lon: bounds.minLon });
+          const label = document.createElementNS(ns, "text");
+          label.setAttribute("class", "preview-grid-label");
+          label.setAttribute("x", viewX + inset);
+          label.setAttribute("y", point.y);
+          label.setAttribute("font-size", fontSize);
+          label.setAttribute("stroke-width", strokeWidth);
+          label.setAttribute("text-anchor", "start");
+          label.setAttribute("dominant-baseline", "middle");
+          label.textContent = formatGridDegreeLabel(lat, true, latStep);
+          group.append(label);
+        }
+      }
+
+      function drawPreviewGsiRange() {
+        const group = $("preview-gsi-range-layer");
+        if (!group || !lastPreviewProjection) return;
+        group.replaceChildren();
+        if ($("bull-magvar-mode").value !== "gsi2020") return;
+        const ns = "http://www.w3.org/2000/svg";
+        const bounds = GSI_2020_RANGE;
+        const corners = [
+          { lat: bounds.minLat, lon: bounds.minLon },
+          { lat: bounds.maxLat, lon: bounds.minLon },
+          { lat: bounds.maxLat, lon: bounds.maxLon },
+          { lat: bounds.minLat, lon: bounds.maxLon }
+        ].map(lastPreviewProjection.project);
+        const polygon = document.createElementNS(ns, "polygon");
+        polygon.setAttribute("class", "preview-gsi-range");
+        polygon.setAttribute("points", corners.map(point => `${point.x},${point.y}`).join(" "));
+        group.append(polygon);
+      }
+
+      function updatePreviewScaleBar() {
+        const bar = $("preview-scale-bar");
+        if (!bar || !lastPreviewProjection) return;
+        const values = $("kml-preview").getAttribute("viewBox").split(/\s+/).map(Number);
+        if (values.length !== 4 || values.some(value => !Number.isFinite(value))) {
+          bar.hidden = true;
+          return;
+        }
+        const [x, y, width, height] = values;
+        const left = lastPreviewProjection.unproject({ x: x + width * 0.08, y: y + height * 0.9 });
+        const right = lastPreviewProjection.unproject({ x: x + width * 0.28, y: y + height * 0.9 });
+        const visibleDistanceNm = calculateRangeBearing(left, right).distanceNm;
+        const niceDistances = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+        const distanceNm = niceDistances.find(value => value >= visibleDistanceNm * 0.6) || niceDistances.at(-1);
+        const pixelWidth = Math.max(40, Math.min(180, 0.2 * previewRenderedViewBoxRect().width * distanceNm / Math.max(1e-9, visibleDistanceNm)));
+        bar.querySelector(".scale-line").style.width = `${pixelWidth}px`;
+        bar.querySelector(".scale-label").textContent = `${distanceNm} NM`;
+        bar.hidden = false;
+      }
+
       function moveArrayItem(array, fromIndex, toIndex) {
         if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
         const [item] = array.splice(fromIndex, 1);
@@ -1858,8 +1980,10 @@
         const height = 300 / previewZoom;
         const viewBox = `${(600 - width) / 2 + previewPanX} ${(300 - height) / 2 + previewPanY} ${width} ${height}`;
         $("kml-preview").setAttribute("viewBox", viewBox);
-        $("preview-ruler-layer").setAttribute("viewBox", viewBox);
         updatePreviewRulerScale();
+        drawPreviewGrid();
+        drawPreviewGsiRange();
+        updatePreviewScaleBar();
         refreshPreviewCoastline();
       }
 
@@ -1868,7 +1992,9 @@
         if (label) {
           label.setAttribute("font-size", String(12 / previewZoom));
           label.setAttribute("stroke-width", String(4 / previewZoom));
-          if (label.dataset.midY) label.setAttribute("y", String(Number(label.dataset.midY) - 12 / previewZoom));
+          if (label.dataset.midY && label.dataset.offsetDirection) {
+            label.setAttribute("y", String(Number(label.dataset.midY) + Number(label.dataset.offsetDirection) * 12 / previewZoom));
+          }
         }
         const startMarker = $("preview-ruler-layer").querySelector(".preview-ruler-start");
         if (startMarker) {
@@ -2028,6 +2154,12 @@
       function renderPreview() {
         const svg = $("kml-preview");
         svg.replaceChildren();
+        const gridGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        gridGroup.id = "preview-grid-layer";
+        svg.append(gridGroup);
+        const gsiRangeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        gsiRangeGroup.id = "preview-gsi-range-layer";
+        svg.append(gsiRangeGroup);
         const coastGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         coastGroup.id = "preview-coastline-layer";
         svg.append(coastGroup);
@@ -2168,6 +2300,10 @@
             );
           }
         }
+        const rulerGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        rulerGroup.id = "preview-ruler-layer";
+        rulerGroup.setAttribute("aria-hidden", "true");
+        svg.append(rulerGroup);
         applyPreviewZoom();
       }
 
@@ -3071,10 +3207,9 @@
         const looksJson = /\.geojson$/i.test(fileName) || /\.json$/i.test(fileName) || /^\s*[{[]/.test(text);
         if (looksJson) {
           const root = JSON.parse(text);
-          if (!root || !["FeatureCollection", "Feature", "Point", "LineString", "Polygon", "MultiLineString", "MultiPolygon", "GeometryCollection"].includes(root.type)) {
-            throw new Error("Map layers accept GeoJSON or KML files.");
-          }
-          return parseGeoJsonObjects(root);
+          const parsed = parseGeometryJsonObjects(root);
+          if (!parsed.length) throw new Error("No supported JSON map layer geometry found.");
+          return parsed;
         }
         if (!/\.kml$/i.test(fileName) && !/^\s*</.test(text)) {
           throw new Error("Map layers accept GeoJSON or KML files.");
@@ -3221,12 +3356,37 @@
       });
       $("preview-zoom-in").addEventListener("click", () => setPreviewZoom(previewZoom * 1.25));
 
-      function previewEventPoint(event) {
+      function previewRenderedViewBoxRect() {
         const rect = $("kml-preview").getBoundingClientRect();
         const viewBox = $("kml-preview").viewBox.baseVal;
+        const scale = Math.min(rect.width / viewBox.width, rect.height / viewBox.height);
+        const width = viewBox.width * scale;
+        const height = viewBox.height * scale;
         return {
-          x: viewBox.x + (event.clientX - rect.left) / rect.width * viewBox.width,
-          y: viewBox.y + (event.clientY - rect.top) / rect.height * viewBox.height
+          rect,
+          viewBox,
+          left: rect.left + (rect.width - width) / 2,
+          top: rect.top + (rect.height - height) / 2,
+          width,
+          height
+        };
+      }
+
+      function previewCssDeltaToViewBoxDelta(deltaX, deltaY) {
+        const rendered = previewRenderedViewBoxRect();
+        return {
+          x: deltaX / rendered.width * rendered.viewBox.width,
+          y: deltaY / rendered.height * rendered.viewBox.height
+        };
+      }
+
+      function previewEventPoint(event) {
+        const rendered = previewRenderedViewBoxRect();
+        const ratioX = (event.clientX - rendered.left) / rendered.width;
+        const ratioY = (event.clientY - rendered.top) / rendered.height;
+        return {
+          x: rendered.viewBox.x + ratioX * rendered.viewBox.width,
+          y: rendered.viewBox.y + ratioY * rendered.viewBox.height
         };
       }
 
@@ -3244,6 +3404,12 @@
         const startVar = centerVariationFromContext(bearingContextForPoint(source, start), start).magVar;
         const endVar = centerVariationFromContext(bearingContextForPoint(source, end), end).magVar;
         return `${formatHeadingValue(trueToMag(measurement.forwardTrue, startVar))}°M → ${measurement.distanceNm.toFixed(1)} NM ← ${formatHeadingValue(trueToMag(measurement.reverseTrue, endVar))}°M`;
+      }
+
+      function previewRulerLabelOffset(midY) {
+        const viewBox = $("kml-preview").viewBox.baseVal;
+        const topClearance = 18 / previewZoom;
+        return midY - viewBox.y < topClearance ? 1 : -1;
       }
 
       function drawPreviewRuler(startPoint, endPoint, startCoordinate, endCoordinate) {
@@ -3272,8 +3438,10 @@
         const text = document.createElementNS(ns, "text");
         text.setAttribute("class", "preview-ruler-label");
         text.setAttribute("x", (startPoint.x + endPoint.x) / 2);
-        text.dataset.midY = String((startPoint.y + endPoint.y) / 2);
-        text.setAttribute("y", Number(text.dataset.midY) - 12 / previewZoom);
+        const midY = (startPoint.y + endPoint.y) / 2;
+        text.dataset.midY = String(midY);
+        text.dataset.offsetDirection = String(previewRulerLabelOffset(midY));
+        text.setAttribute("y", midY + Number(text.dataset.offsetDirection) * 12 / previewZoom);
         text.setAttribute("font-size", String(12 / previewZoom));
         text.setAttribute("stroke-width", String(4 / previewZoom));
         text.textContent = measurementLabel(startCoordinate, endCoordinate);
@@ -3339,6 +3507,9 @@
         svg.addEventListener("contextmenu", event => {
           event.preventDefault();
           showPreviewCoordinate(event);
+        });
+        svg.addEventListener("auxclick", event => {
+          if (event.button === 1) event.preventDefault();
         });
         svg.addEventListener("wheel", event => {
           event.preventDefault();
@@ -3417,10 +3588,9 @@
             return;
           }
           if (panPointer === event.pointerId && panLast) {
-            const rect = svg.getBoundingClientRect();
-            const viewBox = svg.viewBox.baseVal;
-            previewPanX -= (event.clientX - panLast.x) / rect.width * viewBox.width;
-            previewPanY -= (event.clientY - panLast.y) / rect.height * viewBox.height;
+            const delta = previewCssDeltaToViewBoxDelta(event.clientX - panLast.x, event.clientY - panLast.y);
+            previewPanX -= delta.x;
+            previewPanY -= delta.y;
             panLast = { x: event.clientX, y: event.clientY };
             applyPreviewZoom();
           }

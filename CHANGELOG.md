@@ -2,6 +2,30 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.7.3] - 2026-06-30
+
+### Added
+
+- Japan GSI 2020.0選択時、PreviewにGSI近似式の適用範囲を薄い赤枠で表示
+
+## [1.7.2] - 2026-06-30
+
+### Added
+
+- Previewに緯度経度グリッドとScale barを追加
+
+### Changed
+
+- Map LayersのJSON読み込みをImport Geometryと同じ共有パーサーへ変更し、WebGIS-style JSONも参照レイヤーとして表示可能に変更
+- Footerを常時表示の下段から左側入力ペイン末尾へ移動
+- 座標入力欄のplaceholderと補足説明でGEOREF対応範囲を明示
+- PWAキャッシュをv1.7.2へ更新
+
+### Fixed
+
+- GEOREFで入力したB/Eを使うB/E基準geometryの名前生成が失敗する問題を修正
+- Previewのミドルクリックルーラーを同一SVG座標系へ寄せ、始点表示のズレを抑制
+
 ## [1.7.1] - 2026-06-26
 
 ### Changed
