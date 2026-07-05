@@ -2,6 +2,18 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [1.8.0] - 2026-07-06
+
+### Added
+
+- Preview coordinate popupからPreview-only measure pointを追加できるように変更
+- Preview measure pointsをドラッグ可能にし、連続ポイント間のbearing/range leg表示とClear操作を追加
+- Preview measure pointsを赤いクロス表示に変更し、ポイント単位のDelete操作を追加
+- Preview ruler / measure routeのラベルを線分に沿って回転表示し、読みやすい向きへ自動反転するように変更
+- Previewが広域表示のとき、ruler / measure routeのラベルを少し小さく表示するように変更
+- Preview measure routeをCustom Point / Line / Areaの下書きへコピーするTo Customを追加
+- Preview measure point追加・ドラッグ時にDisplay format基準で丸めるSnapを追加
+
 ## [1.7.3] - 2026-06-30
 
 ### Added

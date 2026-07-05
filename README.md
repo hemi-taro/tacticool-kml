@@ -1,4 +1,4 @@
-# Tacticool KML v1.7.3
+# Tacticool KML v1.8.0
 
 Stable release.
 
@@ -28,6 +28,8 @@ Bullseye基準のAxis、Mission Line、SAM Ring、Custom Point / Line / Areaを�
 Object Listの並び順はプレビュー、KML出力、GeoJSON出力の順序へ反映されます。Import GeometryはKML、GeoJSON、WebGIS-style JSONを読み込みます。
 
 Map LayersはKML / GeoJSON / supported WebGIS-style JSONをプレビューに重ねるだけの参考レイヤーです。Object Listには追加されず、編集・出力対象にもなりません。レイヤーごとに表示/非表示と削除ができます。iOSでも選択できるようにファイル選択は全ファイルを許可し、読み込み時に非対応ファイルを拒否します。
+
+Previewでは右クリックまたは長押しした座標からmeasure pointを作成できます。measure pointはドラッグで移動でき、連続ポイント間の方位・距離を表示します。`Snap`を有効にすると現在のDisplay formatに合わせて座標を丸め、`To Custom`でCustom Point / Line / Areaの下書きへコピーできます。
 
 Custom Point / Line / Areaでは、直接座標、B/E Bearing / Range、Arc、Boxからポイントを生成できます。1点はPoint、2点以上はLine、Close shape有効時はAreaとして追加されます。Arcは中心を直接座標またはAt B/Eで指定でき、ポイント数をAutoまたは3–181点のManualで設定できます。BoxはWidth/Depthの等分割または比率分割による内部線を追加できます。Box内部線の座標はObject List詳細で確認できます。
 

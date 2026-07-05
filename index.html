@@ -27,7 +27,7 @@
     .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #d7dde3; }
     .preview-toolbar h2 { margin: 0; }
     .preview-zoom-controls { display: flex; gap: 6px; }
-    .preview-zoom-controls button { width: 40px; min-height: 40px; padding: 0; background: #52616f; }
+    .preview-zoom-controls button { min-width: 40px; min-height: 40px; padding: 0 10px; background: #52616f; }
     #workspace-divider { display: none; }
     section { background: white; border: 1px solid #d7dde3; border-radius: 9px; padding: 14px; }
     h2 { margin: 0 0 12px; font-size: 1rem; }
@@ -71,11 +71,20 @@
     .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
     .pending-custom-preview, .pending-preview { pointer-events: none; }
     #preview-coordinate-popup { position: absolute; z-index: 4; max-width: 280px; padding: 8px 10px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; cursor: copy; font-size: .82rem; }
+    #preview-coordinate-popup button { margin: 2px; }
     #preview-coordinate-popup[hidden] { display: none; }
+    #preview-context-cross-layer { pointer-events: none; }
+    .preview-context-cross { stroke: #d32f2f; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+    #preview-measure-layer { pointer-events: none; }
+    .preview-measure-line { stroke: #6a1b9a; stroke-width: 2; vector-effect: non-scaling-stroke; fill: none; }
+    .preview-measure-cross { stroke: #d32f2f; stroke-width: 1.8; vector-effect: non-scaling-stroke; pointer-events: none; }
+    .preview-measure-hit { fill: transparent; stroke: transparent; pointer-events: all; cursor: grab; }
+    .preview-measure-hit:active { cursor: grabbing; }
+    .preview-measure-label { fill: #fff; stroke: #152536; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; pointer-events: none; }
     #preview-ruler-layer { pointer-events: none; }
     .preview-ruler-line { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
     .preview-ruler-end { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
-    .preview-ruler-label { fill: #fff; stroke: #152536; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; }
+    .preview-ruler-label { fill: #fff; stroke: #152536; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; }
     .preview-ruler-start { fill: #d32f2f; stroke: #fff; vector-effect: non-scaling-stroke; }
     .preview-grid-line { stroke: #8ea1b2; stroke-width: 0.6; stroke-opacity: 0.28; vector-effect: non-scaling-stroke; }
     .preview-grid-label { fill: #52616f; stroke: #fff; paint-order: stroke; font-family: system-ui, sans-serif; font-weight: 700; pointer-events: none; }
@@ -396,22 +405,25 @@
         <div class="preview-toolbar">
           <h2>Preview</h2>
           <div class="preview-zoom-controls">
+            <label class="check"><input id="preview-snap" type="checkbox"> Snap</label>
+            <button id="preview-to-custom" type="button" class="secondary" aria-label="Copy preview measure route to Custom">To Custom</button>
+            <button id="preview-clear-measure" type="button" aria-label="Clear preview measure route">Clear</button>
             <button id="preview-zoom-out" type="button" aria-label="Zoom preview out">−</button>
             <button id="preview-zoom-reset" type="button" aria-label="Reset preview zoom">⌂</button>
             <button id="preview-zoom-in" type="button" aria-label="Zoom preview in">＋</button>
           </div>
         </div>
         <div id="preview-stage" class="preview-stage">
-          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
+          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-context-cross-layer" aria-hidden="true"></g><g id="preview-measure-layer" aria-label="Preview measure route"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
           <div id="preview-scale-bar" aria-hidden="true"><div class="scale-line"></div><div class="scale-label"></div></div>
-          <button id="preview-coordinate-popup" type="button" hidden aria-label="Copy preview coordinate"></button>
+          <div id="preview-coordinate-popup" hidden aria-label="Preview coordinate"></div>
         </div>
       </section>
     </aside>
   </main>
 
   <script id="core-logic">
-    var APP_VERSION = "1.7.3";
+    var APP_VERSION = "1.8.0";
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -1643,6 +1655,8 @@
       let previewPanX = 0;
       let previewPanY = 0;
       let lastPreviewProjection = null;
+      const previewMeasurePoints = [];
+      let nextPreviewMeasureId = 1;
       const expandedObjectIds = new Set();
       const LINE_PRESET_COLORS = ["#1565C0","#D32F2F","#455A64","#2E7D32","#EF6C00","#FBC02D","#6A1B9A","#00838F","#111827"];
       const FILL_PRESET_COLORS = ["#F6D6D6","#D7E8F5","#DCEEDC","#F7E4CC","#FFF3C4"];
@@ -1990,7 +2004,16 @@
       function updatePreviewRulerScale() {
         const label = $("preview-ruler-layer").querySelector(".preview-ruler-label");
         if (label) {
-          label.setAttribute("font-size", String(12 / previewZoom));
+          if (label.dataset.startX) {
+            const labelTransform = previewLegLabelTransform(
+              { x: Number(label.dataset.startX), y: Number(label.dataset.startY) },
+              { x: Number(label.dataset.endX), y: Number(label.dataset.endY) }
+            );
+            label.setAttribute("x", String(labelTransform.x));
+            label.setAttribute("y", String(labelTransform.y));
+            label.setAttribute("transform", labelTransform.transform);
+          }
+          label.setAttribute("font-size", String(previewLegLabelFontSize(12)));
           label.setAttribute("stroke-width", String(4 / previewZoom));
           if (label.dataset.midY && label.dataset.offsetDirection) {
             label.setAttribute("y", String(Number(label.dataset.midY) + Number(label.dataset.offsetDirection) * 12 / previewZoom));
@@ -2001,6 +2024,19 @@
           startMarker.setAttribute("r", String(4 / previewZoom));
           startMarker.setAttribute("stroke-width", String(1.5 / previewZoom));
         }
+        const crossLayer = $("preview-context-cross-layer");
+        if (!crossLayer) return;
+        const crossLines = crossLayer.querySelectorAll(".preview-context-cross");
+        if (crossLines.length === 2) {
+          const x = (Number(crossLines[0].getAttribute("x1")) + Number(crossLines[0].getAttribute("x2"))) / 2;
+          const y = (Number(crossLines[1].getAttribute("y1")) + Number(crossLines[1].getAttribute("y2"))) / 2;
+          const size = 5 / previewZoom;
+          crossLines[0].setAttribute("x1", String(x - size));
+          crossLines[0].setAttribute("x2", String(x + size));
+          crossLines[1].setAttribute("y1", String(y - size));
+          crossLines[1].setAttribute("y2", String(y + size));
+        }
+        renderPreviewMeasureRoute();
       }
 
       function setPreviewZoom(value, anchor = null) {
@@ -2179,6 +2215,7 @@
         const projected = geometryCoordinates.map(projection.project);
         let offset = 0;
         const previewWidth = Math.max(1, Number($("kml-line-width").value) || 4);
+        const pointRadius = Math.max(2 / previewZoom, Math.min(4 / previewZoom, previewWidth * 0.9));
         const drawSegments = (segments, points, color, fillColor, strokeWidth, strokeOpacity = 1, className = "") => {
           let segmentOffset = 0;
           for (const segment of segments) {
@@ -2201,7 +2238,7 @@
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", points[0].x);
             circle.setAttribute("cy", points[0].y);
-            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("r", String(pointRadius));
             circle.setAttribute("fill", object.color);
             circle.setAttribute("fill-opacity", String(strokeOpacity));
             if (className) circle.setAttribute("class", className);
@@ -2225,7 +2262,7 @@
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", points[0].x);
             circle.setAttribute("cy", points[0].y);
-            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("r", String(pointRadius));
             circle.setAttribute("fill", object.color);
             svg.append(circle);
             continue;
@@ -2255,7 +2292,7 @@
             circle.setAttribute("class", "pending-preview");
             circle.setAttribute("cx", point.x);
             circle.setAttribute("cy", point.y);
-            circle.setAttribute("r", String(Math.max(5, previewWidth * 1.5)));
+            circle.setAttribute("r", String(pointRadius));
             circle.setAttribute("fill", object.color);
             circle.setAttribute("fill-opacity", String(opacity));
             svg.append(circle);
@@ -2300,6 +2337,14 @@
             );
           }
         }
+        const contextCrossGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        contextCrossGroup.id = "preview-context-cross-layer";
+        contextCrossGroup.setAttribute("aria-hidden", "true");
+        svg.append(contextCrossGroup);
+        const measureGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        measureGroup.id = "preview-measure-layer";
+        measureGroup.setAttribute("aria-label", "Preview measure route");
+        svg.append(measureGroup);
         const rulerGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         rulerGroup.id = "preview-ruler-layer";
         rulerGroup.setAttribute("aria-hidden", "true");
@@ -3406,10 +3451,54 @@
         return `${formatHeadingValue(trueToMag(measurement.forwardTrue, startVar))}°M → ${measurement.distanceNm.toFixed(1)} NM ← ${formatHeadingValue(trueToMag(measurement.reverseTrue, endVar))}°M`;
       }
 
+      function measureRouteLegLabel(start, end) {
+        return measurementLabel(start, end);
+      }
+
       function previewRulerLabelOffset(midY) {
         const viewBox = $("kml-preview").viewBox.baseVal;
         const topClearance = 18 / previewZoom;
         return midY - viewBox.y < topClearance ? 1 : -1;
+      }
+
+      function previewLegLabelFontSize(baseSize) {
+        if (!lastPreviewProjection) return baseSize / previewZoom;
+        const values = $("kml-preview").getAttribute("viewBox").split(/\s+/).map(Number);
+        if (values.length !== 4 || values.some(value => !Number.isFinite(value))) return baseSize / previewZoom;
+        const [x, y, width, height] = values;
+        const left = lastPreviewProjection.unproject({ x: x + width * 0.08, y: y + height * 0.9 });
+        const right = lastPreviewProjection.unproject({ x: x + width * 0.28, y: y + height * 0.9 });
+        const visibleDistanceNm = calculateRangeBearing(left, right).distanceNm;
+        const scale = visibleDistanceNm > 450 ? 0.72 : visibleDistanceNm > 250 ? 0.82 : visibleDistanceNm > 120 ? 0.92 : 1;
+        return Math.max(8 / previewZoom, baseSize * scale / previewZoom);
+      }
+
+      function previewLegLabelTransform(startPoint, endPoint) {
+        const midX = (startPoint.x + endPoint.x) / 2;
+        const midY = (startPoint.y + endPoint.y) / 2;
+        const dx = endPoint.x - startPoint.x;
+        const dy = endPoint.y - startPoint.y;
+        const length = Math.hypot(dx, dy);
+        const offsetDirection = previewRulerLabelOffset(midY);
+        if (length < 45 / previewZoom) {
+          return {
+            x: midX,
+            y: midY + offsetDirection * 12 / previewZoom,
+            transform: ""
+          };
+        }
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        if (angle > 90 || angle < -90) angle += 180;
+        const normalX = -dy / length;
+        const normalY = dx / length;
+        const offset = offsetDirection * 11 / previewZoom;
+        const x = midX + normalX * offset;
+        const y = midY + normalY * offset;
+        return {
+          x,
+          y,
+          transform: `rotate(${angle} ${x} ${y})`
+        };
       }
 
       function drawPreviewRuler(startPoint, endPoint, startCoordinate, endCoordinate) {
@@ -3437,12 +3526,15 @@
         };
         const text = document.createElementNS(ns, "text");
         text.setAttribute("class", "preview-ruler-label");
-        text.setAttribute("x", (startPoint.x + endPoint.x) / 2);
-        const midY = (startPoint.y + endPoint.y) / 2;
-        text.dataset.midY = String(midY);
-        text.dataset.offsetDirection = String(previewRulerLabelOffset(midY));
-        text.setAttribute("y", midY + Number(text.dataset.offsetDirection) * 12 / previewZoom);
-        text.setAttribute("font-size", String(12 / previewZoom));
+        const labelTransform = previewLegLabelTransform(startPoint, endPoint);
+        text.dataset.startX = String(startPoint.x);
+        text.dataset.startY = String(startPoint.y);
+        text.dataset.endX = String(endPoint.x);
+        text.dataset.endY = String(endPoint.y);
+        text.setAttribute("x", labelTransform.x);
+        text.setAttribute("y", labelTransform.y);
+        text.setAttribute("transform", labelTransform.transform);
+        text.setAttribute("font-size", String(previewLegLabelFontSize(12)));
         text.setAttribute("stroke-width", String(4 / previewZoom));
         text.textContent = measurementLabel(startCoordinate, endCoordinate);
         const startMarker = document.createElementNS(ns, "circle");
@@ -3458,12 +3550,202 @@
         $("preview-ruler-layer").replaceChildren();
       }
 
+      function renderPreviewMeasureRoute() {
+        const layer = $("preview-measure-layer");
+        if (!layer || !lastPreviewProjection) return;
+        layer.replaceChildren();
+        if (!previewMeasurePoints.length) return;
+        const ns = "http://www.w3.org/2000/svg";
+        const projected = previewMeasurePoints.map(point => ({
+          ...point,
+          projected: lastPreviewProjection.project(point.coordinate)
+        }));
+        for (let index = 1; index < projected.length; index += 1) {
+          const start = projected[index - 1];
+          const end = projected[index];
+          const line = document.createElementNS(ns, "line");
+          line.setAttribute("class", "preview-measure-line");
+          line.setAttribute("x1", start.projected.x);
+          line.setAttribute("y1", start.projected.y);
+          line.setAttribute("x2", end.projected.x);
+          line.setAttribute("y2", end.projected.y);
+          const label = document.createElementNS(ns, "text");
+          label.setAttribute("class", "preview-measure-label");
+          const labelTransform = previewLegLabelTransform(start.projected, end.projected);
+          label.setAttribute("x", labelTransform.x);
+          label.setAttribute("y", labelTransform.y);
+          label.setAttribute("transform", labelTransform.transform);
+          label.setAttribute("font-size", String(previewLegLabelFontSize(11)));
+          label.setAttribute("stroke-width", String(3.5 / previewZoom));
+          label.textContent = measureRouteLegLabel(start.coordinate, end.coordinate);
+          layer.append(line, label);
+        }
+        for (const point of projected) {
+          const size = 5 / previewZoom;
+          const hitRadius = 12 / previewZoom;
+          const horizontal = document.createElementNS(ns, "line");
+          horizontal.setAttribute("class", "preview-measure-cross");
+          horizontal.setAttribute("x1", point.projected.x - size);
+          horizontal.setAttribute("y1", point.projected.y);
+          horizontal.setAttribute("x2", point.projected.x + size);
+          horizontal.setAttribute("y2", point.projected.y);
+          const vertical = document.createElementNS(ns, "line");
+          vertical.setAttribute("class", "preview-measure-cross");
+          vertical.setAttribute("x1", point.projected.x);
+          vertical.setAttribute("y1", point.projected.y - size);
+          vertical.setAttribute("x2", point.projected.x);
+          vertical.setAttribute("y2", point.projected.y + size);
+          const hit = document.createElementNS(ns, "circle");
+          hit.setAttribute("class", "preview-measure-hit");
+          hit.dataset.measurePointId = String(point.id);
+          hit.setAttribute("cx", point.projected.x);
+          hit.setAttribute("cy", point.projected.y);
+          hit.setAttribute("r", String(hitRadius));
+          layer.append(horizontal, vertical, hit);
+        }
+      }
+
+      function previewMeasureSnapEnabled() {
+        return Boolean($("preview-snap")?.checked);
+      }
+
+      function snapCoordinateValue(value, format) {
+        const step = format === "dd" ? 0.000001 : format === "dms" ? 1 / 3600 : 0.0001 / 60;
+        const rounded = Math.round(value / step) * step;
+        return Object.is(rounded, -0) ? 0 : Number(rounded.toFixed(10));
+      }
+
+      function snapPreviewCoordinate(coordinate) {
+        if (!previewMeasureSnapEnabled() || !coordinate) return coordinate;
+        return validateLatLon(
+          snapCoordinateValue(coordinate.lat, coordinateFormat),
+          snapCoordinateValue(coordinate.lon, coordinateFormat)
+        );
+      }
+
+      function addPreviewMeasurePoint(coordinate) {
+        if (!coordinate) return;
+        const snapped = snapPreviewCoordinate(coordinate);
+        previewMeasurePoints.push({ id: nextPreviewMeasureId++, coordinate: { lat: snapped.lat, lon: snapped.lon } });
+        renderPreviewMeasureRoute();
+        hidePreviewCoordinate();
+      }
+
+      function deletePreviewMeasurePoint(pointId) {
+        const index = previewMeasurePoints.findIndex(point => point.id === pointId);
+        if (index >= 0) {
+          previewMeasurePoints.splice(index, 1);
+          renderPreviewMeasureRoute();
+        }
+        hidePreviewCoordinate();
+      }
+
+      function clearPreviewMeasureRoute() {
+        previewMeasurePoints.length = 0;
+        renderPreviewMeasureRoute();
+      }
+
+      function copyPreviewMeasureToCustom() {
+        $("custom-panel").open = true;
+        $("custom-point-mode").value = "direct";
+        $("custom-point-mode").dispatchEvent(new Event("change"));
+        if (!previewMeasurePoints.length) {
+          setMessage($("custom-form"), "Add measure points first.");
+          $("custom-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        customPoints.length = 0;
+        previewMeasurePoints.forEach(point => {
+          const coordinate = snapPreviewCoordinate(point.coordinate);
+          customPoints.push({ id: nextCustomPointId++, lat: coordinate.lat, lon: coordinate.lon });
+        });
+        customPoints.gridSegments = null;
+        pendingCustomCenter = null;
+        pendingCustomCreatedBullseye = null;
+        pendingCustomCenterVariation = null;
+        $("custom-close-shape").checked = false;
+        renderCustomPoints();
+        setMessage($("custom-form"), `Copied ${previewMeasurePoints.length} measure point${previewMeasurePoints.length === 1 ? "" : "s"} to Custom draft.`);
+        $("custom-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function clearPreviewContextCross() {
+        $("preview-context-cross-layer").replaceChildren();
+      }
+
+      function drawPreviewContextCross(point) {
+        const layer = $("preview-context-cross-layer");
+        layer.replaceChildren();
+        if (!point) return;
+        const ns = "http://www.w3.org/2000/svg";
+        const size = 5 / previewZoom;
+        const makeLine = (x1, y1, x2, y2) => {
+          const line = document.createElementNS(ns, "line");
+          line.setAttribute("class", "preview-context-cross");
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+          return line;
+        };
+        layer.append(
+          makeLine(point.x - size, point.y, point.x + size, point.y),
+          makeLine(point.x, point.y - size, point.x, point.y + size)
+        );
+      }
+
+      function hidePreviewCoordinate() {
+        $("preview-coordinate-popup").hidden = true;
+        clearPreviewContextCross();
+      }
+
       function showPreviewCoordinate(event) {
         const coordinate = previewCoordinateAtEvent(event);
         if (!coordinate) return;
+        drawPreviewContextCross(previewEventPoint(event));
         const popup = $("preview-coordinate-popup");
-        popup.textContent = formatCoordinatePairCompact(coordinate, coordinateFormat);
-        popup.dataset.coordinate = popup.textContent;
+        const displayCoordinate = snapPreviewCoordinate(coordinate);
+        const text = formatCoordinatePairCompact(displayCoordinate, coordinateFormat);
+        popup.dataset.coordinate = text;
+        popup.dataset.lat = String(displayCoordinate.lat);
+        popup.dataset.lon = String(displayCoordinate.lon);
+        popup.replaceChildren();
+        const coordinateButton = document.createElement("button");
+        coordinateButton.type = "button";
+        coordinateButton.className = "small";
+        coordinateButton.dataset.action = "copy-coordinate";
+        coordinateButton.textContent = text;
+        const addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.className = "small secondary";
+        addButton.dataset.action = "add-measure-point";
+        addButton.textContent = "Add point";
+        popup.append(coordinateButton, addButton);
+        const stageRect = $("preview-stage").getBoundingClientRect();
+        popup.style.left = `${Math.max(4, event.clientX - stageRect.left + 8)}px`;
+        popup.style.top = `${Math.max(4, event.clientY - stageRect.top + 8)}px`;
+        popup.hidden = false;
+      }
+
+      function showPreviewMeasurePointMenu(event, pointId) {
+        const point = previewMeasurePoints.find(candidate => candidate.id === pointId);
+        if (!point) return;
+        const popup = $("preview-coordinate-popup");
+        const text = formatCoordinatePairCompact(point.coordinate, coordinateFormat);
+        popup.dataset.coordinate = text;
+        popup.dataset.measurePointId = String(pointId);
+        popup.replaceChildren();
+        const coordinateButton = document.createElement("button");
+        coordinateButton.type = "button";
+        coordinateButton.className = "small";
+        coordinateButton.dataset.action = "copy-coordinate";
+        coordinateButton.textContent = text;
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "small danger";
+        deleteButton.dataset.action = "delete-measure-point";
+        deleteButton.textContent = "Delete point";
+        popup.append(coordinateButton, deleteButton);
         const stageRect = $("preview-stage").getBoundingClientRect();
         popup.style.left = `${Math.max(4, event.clientX - stageRect.left + 8)}px`;
         popup.style.top = `${Math.max(4, event.clientY - stageRect.top + 8)}px`;
@@ -3478,6 +3760,7 @@
         let panLast = null;
         let ruler = null;
         let pinch = null;
+        let measurePointDrag = null;
         let longPressTimer = null;
         let touchRulerTimer = null;
         const cancelTimers = () => {
@@ -3486,8 +3769,24 @@
           longPressTimer = null;
           touchRulerTimer = null;
         };
-        popup.addEventListener("click", async () => {
-          const text = popup.dataset.coordinate || popup.textContent;
+        const clearPreviewOverlays = () => {
+          clearPreviewRuler();
+          hidePreviewCoordinate();
+        };
+        $("preview-clear-measure").addEventListener("click", clearPreviewMeasureRoute);
+        $("preview-to-custom").addEventListener("click", copyPreviewMeasureToCustom);
+        popup.addEventListener("click", async event => {
+          const action = event.target?.dataset?.action;
+          if (action === "add-measure-point") {
+            addPreviewMeasurePoint({ lat: Number(popup.dataset.lat), lon: Number(popup.dataset.lon) });
+            return;
+          }
+          if (action === "delete-measure-point") {
+            deletePreviewMeasurePoint(Number(popup.dataset.measurePointId));
+            return;
+          }
+          if (action !== "copy-coordinate") return;
+          const text = popup.dataset.coordinate || "";
           let copied = false;
           try {
             await navigator.clipboard.writeText(text);
@@ -3502,10 +3801,15 @@
             try { copied = document.execCommand("copy"); } catch {}
             helper.remove();
           }
-          popup.textContent = `${text} · ${copied ? "Copied" : "Copy failed"}`;
+          event.target.textContent = `${text} · ${copied ? "Copied" : "Copy failed"}`;
         });
         svg.addEventListener("contextmenu", event => {
           event.preventDefault();
+          const measureTarget = event.target?.closest?.(".preview-measure-hit");
+          if (measureTarget) {
+            showPreviewMeasurePointMenu(event, Number(measureTarget.dataset.measurePointId));
+            return;
+          }
           showPreviewCoordinate(event);
         });
         svg.addEventListener("auxclick", event => {
@@ -3517,11 +3821,26 @@
         }, { passive: false });
         svg.addEventListener("pointerdown", event => {
           svg.setPointerCapture?.(event.pointerId);
+          const measureTarget = event.target?.closest?.(".preview-measure-hit");
+          if (event.button === 0 && measureTarget) {
+            event.preventDefault();
+            clearPreviewOverlays();
+            measurePointDrag = { pointerId: event.pointerId, pointId: Number(measureTarget.dataset.measurePointId) };
+            return;
+          }
           if (event.pointerType === "touch") {
+            if (activeTouches.size === 0) clearPreviewOverlays();
             activeTouches.set(event.pointerId, { event, startX: event.clientX, startY: event.clientY });
             cancelTimers();
             if (activeTouches.size === 1) {
-              longPressTimer = setTimeout(() => showPreviewCoordinate(event), 550);
+              const longPressTarget = measureTarget;
+              longPressTimer = setTimeout(() => {
+                if (longPressTarget) {
+                  showPreviewMeasurePointMenu(event, Number(longPressTarget.dataset.measurePointId));
+                } else {
+                  showPreviewCoordinate(event);
+                }
+              }, 550);
               panPointer = event.pointerId;
               panLast = { x: event.clientX, y: event.clientY };
             } else if (activeTouches.size === 2) {
@@ -3550,8 +3869,7 @@
             return;
           }
           if (event.button === 0) {
-            if ($("preview-ruler-layer").childElementCount) clearPreviewRuler();
-            popup.hidden = true;
+            clearPreviewOverlays();
             panPointer = event.pointerId;
             panLast = { x: event.clientX, y: event.clientY };
           }
@@ -3583,6 +3901,14 @@
               return;
             }
           }
+          if (measurePointDrag?.pointerId === event.pointerId) {
+            const point = previewMeasurePoints.find(candidate => candidate.id === measurePointDrag.pointId);
+            if (point && lastPreviewProjection?.unproject) {
+              point.coordinate = snapPreviewCoordinate(lastPreviewProjection.unproject(previewEventPoint(event)));
+              renderPreviewMeasureRoute();
+            }
+            return;
+          }
           if (ruler?.pointerId === event.pointerId) {
             drawPreviewRuler(ruler.startPoint, previewEventPoint(event), ruler.startCoordinate, previewCoordinateAtEvent(event));
             return;
@@ -3601,6 +3927,7 @@
           if (activeTouches.size < 2) pinch = null;
           if (ruler?.pointerId === event.pointerId) ruler = null;
           if (ruler?.touch && activeTouches.size < 2) ruler = null;
+          if (measurePointDrag?.pointerId === event.pointerId) measurePointDrag = null;
           if (panPointer === event.pointerId) {
             panPointer = null;
             panLast = null;
