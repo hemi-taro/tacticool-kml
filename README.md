@@ -1,4 +1,4 @@
-# Tacticool KML v1.8.0
+# Tacticool KML v2.0.0
 
 Stable release.
 
@@ -29,11 +29,11 @@ Object Listの並び順はプレビュー、KML出力、GeoJSON出力の順序�
 
 Map LayersはKML / GeoJSON / supported WebGIS-style JSONをプレビューに重ねるだけの参考レイヤーです。Object Listには追加されず、編集・出力対象にもなりません。レイヤーごとに表示/非表示と削除ができます。iOSでも選択できるようにファイル選択は全ファイルを許可し、読み込み時に非対応ファイルを拒否します。
 
-Previewでは右クリックまたは長押しした座標からmeasure pointを作成できます。measure pointはドラッグで移動でき、連続ポイント間の方位・距離を表示します。`Snap`を有効にすると現在のDisplay formatに合わせて座標を丸め、`To Custom`でCustom Point / Line / Areaの下書きへコピーできます。
+Previewでは右クリックまたは長押しした座標からcoordinate popupやmeasure pointを作成できます。measure pointはドラッグで移動でき、連続ポイント間の方位・距離を表示します。`Snap`を有効にすると現在のDisplay formatに合わせて座標を丸め、`To Custom`でCustom Point / Line / Areaの下書きへコピーできます。Previewは回転、拡大縮小、2倍解像度のPNG copy/saveにも対応します。
 
-Custom Point / Line / Areaでは、直接座標、B/E Bearing / Range、Arc、Boxからポイントを生成できます。1点はPoint、2点以上はLine、Close shape有効時はAreaとして追加されます。Arcは中心を直接座標またはAt B/Eで指定でき、ポイント数をAutoまたは3–181点のManualで設定できます。BoxはWidth/Depthの等分割または比率分割による内部線を追加できます。Box内部線の座標はObject List詳細で確認できます。
+Custom Point / Line / Areaでは、直接座標、B/E Bearing / Range、Arc、Boxからポイントを生成できます。1点はPoint、2点以上はLine、Close shape有効時はAreaとして追加されます。Line/Area作成時に各頂点を個別Pointとして同時生成できます。Arcは中心を直接座標またはAt B/Eで指定でき、ポイント数をAutoまたは3–181点のManualで設定できます。BoxはWidth/Depthの等分割または比率分割による内部線を追加できます。Box内部線の座標はObject List詳細とTable PNGで確認できます。
 
-Color欄は小さいネイティブカラーピッカーとプリセット色から選択できます。Object Listの一覧行では小さいLine color pickerのみを表示し、項目を展開すると名前、Line color preset、Fill colorを編集できます。詳細内で色を変更すると、一覧行とプレビューへ即時反映されます。
+Color欄は小さいネイティブカラーピッカーとプリセット色から選択できます。Object Listの一覧行では小さいLine color pickerのみを表示し、項目を展開すると名前、Line color preset、Fill color、Custom Line / AreaのOffset生成を操作できます。Object ListのTable操作では、選択したObjectのNameと座標だけをPNG表としてcopy/saveできます。詳細内で色を変更すると、一覧行とプレビューへ即時反映されます。
 
 Axis、Mission Line、SAM Ring、Custom Point / Line / Areaは折りたたみ式です。各Addボタン横の下矢印でObject Listへ移動できます。Object Listで詳細が開いている時は右下の上矢印ですべて閉じられます。SAM RingとCustom Areaのpolygon fillは初期状態では無効です。ONにするとFill colorが表示されます。
 
@@ -54,7 +54,7 @@ AxisのTickmarkはMain/Subを設定できます。既定値はMain 50NM / Width 
 
 B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまとめて作成します。Add SpiderをONにするとSpider設定だけを展開でき、B/E座標入力は常に表示されます。Full circleが既定で、Sector指定時はStart/End radialを手入力します。Major radial intervalの既定値は30度、Minor radial intervalの既定値は10度です。000/090/180/270はCardinal、Majorは通常表示、Minorはより薄く細い線として出力されます。MajorまたはCardinalと重なるMinorは省略されます。Minor radial intervalに0を入力するとMinorは描画されません。Object List上では1つのB/E Spiderとして管理されます。
 
-Previewには軽量化したworld coastline、緯度経度グリッド、Scale barを背景表示します。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
+Previewには軽量化したworld coastline、緯度経度グリッド、Scale barを背景表示します。起動時にはAIP High MOA、AIP Low MOA、AIP Range、AIP Temp AreaがMap Layersへ参照レイヤーとして追加されます。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
 
 WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 

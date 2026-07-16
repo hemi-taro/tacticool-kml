@@ -2,6 +2,56 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [2.0.0] - 2026-07-17
+
+### Added
+
+- Previewのコンパスドラッグ、North Up、方位入力によるマップ回転
+- 複数の座標ポップアップを保持し、コピー・測距ポイント追加・個別削除できる操作
+- 表示中のPreviewを2倍解像度でCopy PNGまたはSave PNGするカメラメニュー
+- Mission Line、Box、通常Customの生成座標をDisplay format単位へ丸める`Less digits`設定
+- 起動時にMap LayersへAIP High MOA、AIP Low MOA、AIP Range、AIP Temp AreaのKML参照レイヤーを自動追加
+- AIP Low MOAのデフォルト表示をOFFに変更
+- Map LayersごとにPreview表示の線色と線幅を変更できる操作を追加
+- Map Layersのデフォルト線幅を1に設定
+- Custom Line / Areaの既存オブジェクトから指定距離のOffset Line / Areaを新規生成する操作を追加
+- Custom Line / Area追加時に各頂点を別のCustom Pointとして同時生成できる`Add individual points`を追加
+- Object Listで一時的に複数Objectを選択し、Name / Lat / Lonだけの座標表PNGをCopyまたはSaveできる`Table`操作を追加
+
+### Changed
+
+- Customの`Add individual points`、`Close shape as area`、`Enable polygon fill`を、現在の点数とArc選択状態に応じてグレーアウトするように変更
+- Object ListのTable PNGを、Name / Lat / Lonの3列から名前行＋座標2列のブロック表示へ変更し、Axis / Tickmarkの表用名から基準B/E座標を省略
+- Box由来Custom AreaのTable PNGに内部線用の`BOX Grid`ブロックを追加し、内部線ペア間を点線で区切るように変更
+- Map LayersのON/OFFでPreviewの表示範囲が再フィットされないように変更
+- Preview縮尺バーを右下へ移動し、回転・ズーム後の画面上距離に基づく表示へ修正
+- 左右ペインやウィンドウのサイズ変更時、Preview範囲・海岸線・グリッド・注記を実際の縦横比へ追従
+- 回転中のパン、ホイール／ピンチズーム、座標取得、測距ポイント操作を回転座標へ対応
+- Previewのズームイン／ズームアウト可能範囲を大幅に拡大
+- Preview Clearでルーラー、測距ルート、座標ポップアップをまとめて削除
+- Previewの`N`をNorth Upリセット専用、`↑`を回転操作および方位適用ボタンに分離
+- Previewの`↑`ドラッグを、ボタン中心ではなくマップ中心を基準にした回転操作へ変更
+- Previewのズームイン／ズームアウトボタンを廃止し、Resetのみを残すように変更
+- Preview回転中にPNG出力へ含まれるドラッグ移動可能な背景透過の方位コンパスを表示
+- Preview回転コンパスを縮小時にも読める大きな`N`付きの北矢印表示へ変更
+- Preview回転コンパスにカーソルを乗せた状態のホイール操作でコンパスサイズを変更可能に変更
+- Preview rulerを静止クリック／タップで消去し、パン操作では保持する挙動を復元
+- Preview rulerの端マークを、ズームイン時も画面上で長くなりすぎない表示へ変更
+- Preview measure pointのドラッグ中、紐づく座標ポップアップの位置と座標をリアルタイム更新
+- 座標ポップアップをルーラー／測距ラベル、他ポップアップ、画面端との重なりが少ない位置へ自動配置
+- Preview SnapをデフォルトONへ変更
+- PreviewのCameraボタン表記をPNGへ変更
+- Preview投影をWeb Mercatorへ変更し、AxisとTickmarkなどの局所的な角度・直交関係が崩れて見える問題を修正
+- 右クリックで作成した仮座標ポイントを、Measure Pointへ追加する前でもドラッグして座標調整できるように変更
+
+## [1.8.1] - 2026-07-15
+
+### Fixed
+
+- Preview Snapを視認できる座標単位へ修正し、追加・ドラッグ・To Customへ一貫して適用
+- iPhone幅でPreviewのズームボタンが収まらない問題を修正
+- 狭幅画面でCopyrightと免責事項がPreviewより上に表示される問題を修正
+
 ## [1.8.0] - 2026-07-06
 
 ### Added
