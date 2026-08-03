@@ -2,6 +2,39 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [2.1.0] - 2026-08-04
+
+### Added
+
+- Add AxisでB/E起点、Axis radial方向、Axis length分のGrid Groupを生成できる`Add Grid`を追加
+- Custom Area / Imported Polygonの概算中心をCustom BoxのDirect centerへ読み込む`Center to Box`を追加
+- Imported PointをCustom Point下書きとして再編集できる`Edit Custom`を追加
+- Object ListのTable PNG生成時に1/2/3列の配列を選べるColumns設定を追加
+- ObjectごとのKML線幅と個別線幅クリアを追加し、Exportの±で各Objectの現在幅を相対的に1ずつ変更できるように追加
+- ObjectのLockを追加し、Lock中は直接Deleteを非表示にするように追加
+- Preview Snapで近くの既存Object頂点へexact吸着する処理を追加
+- Preview SnapでGrid交点とB/E Spiderのラジアル・レンジリング交点へexact吸着する処理を追加
+
+### Changed
+
+- タッチスクリーンでPreview回転コンパス上の二本指ピンチによりコンパスサイズを変更できるように変更
+- PreviewとPreview PNGの背景を完全な白へ変更
+- トップバーを薄型化し、アプリ名とサブテキストを1行表示へ変更
+- 狭い入力欄でplaceholderが見切れにくいようにplaceholder表示だけを縮小
+- 左ペイン最小幅でもObject詳細のName、Rename、Line color、KML width、長いsummaryが横スクロールを起こしにくく、縦幅を取りすぎない配置へ変更
+- Object詳細のLockをName/Rename直下の短い行へ移動し、広い幅ではLine colorを1行に収めるcompactな配置へ変更
+- Object詳細カードが左ペイン幅いっぱいに伸びて大きな余白を作らないよう、内容幅ベースへ変更
+- PreviewのSnapチェックを回転リセットNから離し、文字が潰れない独立した表示へ変更
+- 新規Grid Groupの既定スタイルを薄灰色・KML width 3へ変更
+
+### Fixed
+
+- Preview回転時に緯度経度グリッドラベルが未回転の左端・下端へ固定される表示と、回転ドラッグ中にラベル位置が追従しない問題を修正
+- Preview SnapのGrid / Spider交点が描画線との交差位置からずれる問題を修正
+- Spider設定のAdd Spider / Full circleチェックが狭い左ペインで重なる問題を修正
+- B/Eから離れるほどAxis Gridの縦横線が分離する問題を修正
+- Object ListのTable modeでColumns選択がDoneボタンと重なる問題を修正
+
 ## [2.0.0] - 2026-07-17
 
 ### Added

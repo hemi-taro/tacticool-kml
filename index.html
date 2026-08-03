@@ -14,11 +14,11 @@
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     body { margin: 0; background: #eef1f4; color: #17202a; }
-    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #152536; color: white; padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left)); }
-    .header-title { min-width: 0; }
-    header h1 { font-size: 1.25rem; margin: 0; }
-    header p { margin: 5px 0 0; color: #cbd5df; font-size: .85rem; }
-    #update-app { flex: 0 0 auto; width: 42px; min-height: 42px; padding: 0; border: 1px solid #ffffff55; border-radius: 50%; background: #ffffff18; font-size: 1.55rem; line-height: 1; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #152536; color: white; padding: calc(8px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
+    .header-title { min-width: 0; display: flex; align-items: baseline; gap: 9px; white-space: nowrap; overflow: hidden; }
+    header h1 { flex: 0 0 auto; font-size: 1.1rem; margin: 0; }
+    header p { min-width: 0; margin: 0; color: #cbd5df; font-size: .72rem; overflow: hidden; text-overflow: ellipsis; }
+    #update-app { flex: 0 0 auto; width: 34px; min-height: 34px; padding: 0; border: 1px solid #ffffff55; border-radius: 50%; background: #ffffff18; font-size: 1.25rem; line-height: 1; }
     main { padding: 14px; }
     #workspace-layout { display: grid; gap: 14px; }
     #input-pane { display: grid; gap: 14px; min-width: 0; }
@@ -26,9 +26,10 @@
     .preview-panel { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; padding: 0; overflow: hidden; }
     .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #d7dde3; }
     .preview-toolbar h2 { margin: 0; }
-    .preview-zoom-controls { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+    .preview-zoom-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
     .preview-zoom-controls button { min-width: 40px; min-height: 40px; padding: 0 10px; background: #52616f; }
     .preview-rotation-controls { display: flex; align-items: center; gap: 5px; }
+    .preview-snap-control { flex: 0 0 auto; min-width: 82px; padding: 0 8px; border: 1px solid #aeb9c4; border-radius: 6px; background: #fff; color: #3d4b59; white-space: nowrap; }
     #preview-compass { width: 42px; min-width: 42px; padding: 0; border-radius: 50%; }
     #preview-bearing { width: 6.5ch; min-height: 40px; padding: 6px; }
     #preview-bearing-apply { min-width: 40px; padding: 0 8px; touch-action: none; }
@@ -47,15 +48,17 @@
     h2 { margin: 0 0 12px; font-size: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .ddm { display: grid; grid-template-columns: 1fr 1fr 70px; gap: 7px; }
-    label { display: grid; gap: 4px; font-size: .78rem; font-weight: 650; color: #3d4b59; }
+    label { display: grid; gap: 4px; font-size: .78rem; font-weight: 650; color: #3d4b59; container-type: inline-size; }
     input, select, textarea, button { font: inherit; min-height: 42px; border-radius: 6px; border: 1px solid #aeb9c4; }
     input, select, textarea { padding: 8px; width: 100%; background: white; font-size: 16px; }
+    input::placeholder, textarea::placeholder { font-size: clamp(11px, 3.1cqw, 16px); }
     .name-field, .coordinate-field { height: 42px; resize: none; overflow: hidden; white-space: nowrap; }
     input[type="color"] { width: 48px; min-height: 40px; padding: 3px; }
     input[type="checkbox"] { width: 22px; min-height: 22px; }
     .check { display: flex; align-items: center; gap: 7px; align-self: end; min-height: 42px; }
     .check:has(input:disabled) { color: #8a96a3; opacity: .55; }
-    .spider-toggle-row { display: flex; align-items: end; gap: 18px; flex-wrap: wrap; }
+    .spider-toggle-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .spider-toggle-row .check { container-type: normal; flex: 0 0 auto; }
     .disabled-field { color: #8a96a3; opacity: .55; }
     button { border: 0; padding: 9px 14px; background: #1769aa; color: white; font-weight: 700; cursor: pointer; }
     button.secondary { background: #52616f; }
@@ -68,10 +71,10 @@
     .add-with-name button { flex: 0 0 auto; }
     .object-list-jump { flex: 0 0 auto; min-width: 42px; padding: 9px 12px; }
     .message { min-height: 1.3em; margin: 9px 0 0; font-size: .85rem; color: #a12828; }
-    .summary { margin: 10px 0 0; font-size: .86rem; color: #425466; }
+    .summary { min-width: 0; margin: 10px 0 0; font-size: .86rem; color: #425466; overflow-wrap: anywhere; }
     #object-list-section { position: relative; padding-bottom: 62px; }
     #object-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-    #object-list li { display: flex; align-items: center; gap: 9px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; }
+    #object-list li { min-width: 0; display: flex; align-items: center; gap: 9px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; overflow: hidden; }
     .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #888; flex: 0 0 auto; }
     .object-text { flex: 1; min-width: 0; }
     .object-text strong, .object-text span { display: block; overflow-wrap: anywhere; }
@@ -84,8 +87,8 @@
     .map-layer-style input[type="color"] { width: 42px; min-height: 32px; padding: 2px; }
     .map-layer-style input[type="text"] { min-height: 32px; padding: 5px; }
     .preview-layer-geometry { pointer-events: none; }
-    .preview { width: 100%; height: auto; background: #f7f9fb; border: 0; border-radius: 0; }
-    .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #f7f9fb; }
+    .preview { width: 100%; height: auto; background: #ffffff; border: 0; border-radius: 0; }
+    .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #ffffff; }
     .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
     .pending-custom-preview, .pending-preview { pointer-events: none; }
     #preview-coordinate-popups { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
@@ -133,21 +136,38 @@
     .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
     .compact-grid .color-control { grid-column: span 3; min-width: min(100%, 360px); }
     .color-control input[type="color"] { width: 48px; }
-    .color-picker-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .color-presets { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-    .color-preset { width: 28px; min-height: 28px; border-radius: 5px; border: 1px solid #8b98a5; padding: 0; background: var(--preset-color); }
-    .object-row { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
+    .color-picker-row { min-width: 0; display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; }
+    .color-presets { min-width: 0; display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+    .color-preset { width: 24px; min-height: 24px; border-radius: 5px; border: 1px solid #8b98a5; padding: 0; background: var(--preset-color); }
+    .object-row { min-width: 0; display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
     #object-list button, #object-list .object-row { touch-action: manipulation; }
     .object-table-select { flex: 0 0 auto; width: 22px; min-height: 22px; }
     .object-table-control { position: relative; }
+    .object-table-columns { container-type: normal; flex: 0 0 126px; align-items: center; grid-template-columns: auto minmax(46px, 64px); gap: 5px; min-height: 40px; }
+    .object-table-columns select { width: 100%; min-height: 34px; padding: 4px 24px 4px 7px; }
     .object-table-menu { position: absolute; z-index: 8; top: calc(100% + 6px); right: 0; display: grid; gap: 5px; min-width: 124px; padding: 6px; border: 1px solid #aeb9c4; border-radius: 7px; background: white; box-shadow: 0 4px 14px #0003; }
     .object-table-menu button { white-space: nowrap; }
-    .swatch-button { width: 42px; min-height: 42px; padding: 4px; background: white; }
-    .swatch-button input { width: 100%; height: 30px; min-height: 30px; padding: 0; border: 0; }
-    .object-details { margin: 8px 0 0 51px; padding: 9px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 9px; }
-    .object-detail-grid { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
-    .object-name-edit { display: flex; align-items: end; gap: 7px; }
-    .object-name-edit label { flex: 0 0 300px; width: 300px; max-width: 300px; }
+    .swatch-button { width: 34px; min-height: 34px; padding: 3px; background: white; }
+    .swatch-button input { width: 100%; height: 26px; min-height: 26px; padding: 0; border: 0; }
+    .object-details { box-sizing: border-box; width: min(540px, calc(100% - 39px)); min-width: 0; margin: 8px 0 0 39px; padding: 6px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 5px; overflow: hidden; container-type: inline-size; }
+    .object-detail-grid { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: 1fr; gap: 5px; align-items: start; }
+    .object-detail-grid > button { flex: 0 0 auto; width: auto; }
+    .object-name-edit { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: minmax(220px, 1fr) auto; align-items: end; gap: 6px; }
+    .object-name-edit label { width: auto; min-width: 0; max-width: none; }
+    .object-name-edit button { flex: 0 0 auto; width: auto; }
+    .object-lock-control { min-height: 24px; justify-self: start; align-self: start; padding: 0 2px; white-space: nowrap; }
+    .object-style-row { min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .object-style-row strong { color: #3d4b59; font-size: .78rem; font-weight: 650; white-space: nowrap; }
+    .object-line-width-edit { min-width: 0; display: grid; grid-template-columns: auto 4.5ch auto; align-items: end; justify-content: start; gap: 5px; }
+    .object-line-width-edit label { width: 4.5ch; min-width: 0; }
+    .object-line-width-edit input { text-align: center; }
+    .object-actions-row { min-width: 0; display: grid; grid-template-columns: max-content max-content; align-items: end; justify-content: start; gap: 6px; }
+    .object-details .summary { margin-top: 5px; }
+    .export-width-row { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 5px; }
+    .export-width-row label { min-width: 0; }
+    .export-width-row input { text-align: center; }
+    .export-width-actions { align-items: end; }
+    .preview-snap-marker { fill: none; stroke: #ff9800; stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; }
     .custom-offset-tool { flex: 1 1 100%; display: grid; gap: 7px; padding-top: 8px; border-top: 1px solid #d8dee4; }
     .custom-offset-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
     .custom-offset-hint { font-size: .78rem; font-weight: 650; color: #6a7680; }
@@ -166,7 +186,7 @@
     #custom-point-list li { display: flex; align-items: center; gap: 8px; border: 1px solid #d8dee4; border-radius: 6px; padding: 7px; }
     #custom-point-list .coordinate-entry { flex: 1; overflow-wrap: anywhere; }
     footer { padding: 10px 4px 4px; color: #52616f; font-size: .78rem; line-height: 1.5; }
-    .coordinate-list { margin: 8px 0 0 27px; padding: 8px; background: #f7f9fb; border-radius: 5px; font: .75rem ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
+    .coordinate-list { margin: 6px 0 0 18px; padding: 6px; background: #f7f9fb; border-radius: 5px; font: .75rem ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
     .coordinate-entry { display: grid; grid-template-columns: 3ch 1fr; gap: .7ch; font-variant-numeric: tabular-nums; }
     .coordinate-index { text-align: right; }
     .coordinate-value { min-width: 0; }
@@ -199,14 +219,24 @@
       .compact-grid .color-control, .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
       .ddm { grid-template-columns: 1fr 1fr 64px; }
       .object-detail-grid { display: grid; grid-template-columns: 1fr; }
-      .object-name-edit { display: grid; }
-      .object-name-edit label { flex: 1 1 auto; width: auto; max-width: none; }
+      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+      .object-name-edit label { width: auto; max-width: none; }
       .custom-offset-controls { display: grid; grid-template-columns: 1fr; }
       .custom-offset-controls label { width: auto; max-width: none; }
       .field-medium, .method-field, .ratio-field, .select-field { width: 100%; }
+      .header-title { display: block; }
+      header p { margin-top: 1px; }
     }
     @media (max-width: 420px) {
       .compact-grid { grid-template-columns: 1fr; }
+    }
+    @container (max-width: 380px) {
+      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+      .object-name-edit label { flex-basis: auto; max-width: none; }
+      .object-line-width-edit { display: grid; grid-template-columns: auto 4.5ch auto; justify-content: start; }
+      .object-detail-grid > button { justify-self: start; }
+      .object-style-row { display: grid; grid-template-columns: 1fr; align-items: start; gap: 3px; }
+      .color-picker-row { align-items: flex-start; }
     }
   </style>
 </head>
@@ -275,7 +305,12 @@
           <label class="short-field">Radial<input id="axis-heading" type="text" inputmode="decimal"></label>
           <label class="short-field">Length (NM)<input id="axis-length" type="text" inputmode="decimal"></label>
           <label class="color-control">Color<input id="axis-color" type="color" value="#1565c0"></label>
+          <label class="check"><input id="axis-grid-enabled" type="checkbox"> Add Grid</label>
           <label class="check"><input id="axis-tick-enabled" type="checkbox"> Add Tickmarks</label>
+        </div>
+        <div id="axis-grid-settings" class="compact-grid" hidden>
+          <label class="short-field">Grid width (NM)<input id="axis-grid-width" type="text" inputmode="decimal"></label>
+          <label class="short-field">Grid interval (NM)<input id="axis-grid-interval" type="text" inputmode="decimal" placeholder="10"></label>
         </div>
         <div id="axis-tick-settings" class="compact-grid" hidden>
           <label class="short-field">Start distance (NM)<input id="tick-start" type="text" inputmode="decimal" placeholder="0"></label>
@@ -415,6 +450,7 @@
               <button id="object-table-save-png" type="button" class="secondary">Save PNG</button>
             </div>
           </div>
+          <label id="object-table-columns-row" class="object-table-columns" hidden>Columns<select id="object-table-columns"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
           <button id="object-table-cancel" type="button" class="secondary" hidden>Done</button>
           <button id="clear-all" class="danger" type="button">Clear All</button>
         </div>
@@ -428,9 +464,9 @@
       <h2>Export</h2>
       <div class="grid">
         <label>Document name<textarea id="document-name" class="name-field" rows="1" placeholder="YYYY-MM-DD-HHMM" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true"></textarea></label>
-        <label>KML line width<input id="kml-line-width" type="text" inputmode="decimal" placeholder="4"></label>
+        <div class="export-width-row"><button id="kml-line-width-minus" type="button" class="secondary small" aria-label="Decrease KML line width">−</button><label>KML line width<input id="kml-line-width" type="text" inputmode="decimal" placeholder="4"></label><button id="kml-line-width-plus" type="button" class="secondary small" aria-label="Increase KML line width">＋</button></div>
       </div>
-      <div class="actions"><button id="export-kml" type="button">Export KML</button><button id="export-json" type="button" class="secondary">GeoJSON</button><button id="export-flightnav" type="button" class="secondary">CSV</button></div>
+      <div class="actions export-width-actions"><button id="export-kml" type="button">Export KML</button><button id="export-json" type="button" class="secondary">GeoJSON</button><button id="export-flightnav" type="button" class="secondary">CSV</button><button id="kml-line-width-clear-all" type="button" class="secondary">Clear object widths</button></div>
       <p id="export-message" class="message"></p>
     </section>
 
@@ -450,12 +486,12 @@
         <div class="preview-toolbar">
           <h2>Preview</h2>
           <div class="preview-zoom-controls">
-            <label class="check"><input id="preview-snap" type="checkbox" checked> Snap</label>
             <div class="preview-rotation-controls">
               <button id="preview-compass" type="button" class="secondary" aria-label="Reset Preview to North Up">N</button>
               <input id="preview-bearing" type="text" inputmode="decimal" placeholder="BRG" aria-label="Preview top bearing">
               <button id="preview-bearing-apply" type="button" class="secondary" aria-label="Rotate Preview or apply entered bearing"><span id="preview-bearing-arrow" aria-hidden="true">↑</span></button>
             </div>
+            <label class="check preview-snap-control"><input id="preview-snap" type="checkbox" checked> Snap</label>
              <button id="preview-to-custom" type="button" class="secondary" aria-label="Copy preview measure route to Custom">To Custom</button>
              <button id="preview-clear-measure" type="button" aria-label="Clear preview measure route">Clear</button>
              <div class="preview-camera-control">
@@ -470,7 +506,7 @@
           <span id="preview-message" class="message" role="status"></span>
         </div>
         <div id="preview-stage" class="preview-stage">
-          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-context-cross-layer" aria-hidden="true"></g><g id="preview-measure-layer" aria-label="Preview measure route"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
+          <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-snap-layer" aria-hidden="true"></g><g id="preview-context-cross-layer" aria-hidden="true"></g><g id="preview-measure-layer" aria-label="Preview measure route"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
           <div id="preview-scale-bar" aria-hidden="true"><div class="scale-line"></div><div class="scale-label"></div></div>
           <div id="preview-rotation-indicator" hidden aria-label="Preview rotation compass"><svg id="preview-rotation-rose" class="preview-rose" viewBox="0 0 120 140" aria-hidden="true"><path class="preview-rose-line" d="M60 38 V132 M18 86 H102 M18 86 L60 38"></path><text class="preview-rose-label" x="60" y="16">N</text></svg></div>
           <div id="preview-coordinate-popups" aria-label="Preview coordinates"></div>
@@ -485,7 +521,9 @@
   </main>
 
   <script id="core-logic">
-    var APP_VERSION = "2.0.0";
+    var APP_VERSION = "2.1.0";
+    var AXIS_GRID_DEFAULT_COLOR = "#b8c0c7";
+    var AXIS_GRID_DEFAULT_KML_WIDTH = 3;
     var EARTH_RADIUS_NM = 3440.065;
     var WMM2025_G = [0,-29351.8,-1410.8,-2556.6,2951.1,1649.3,1361,-2404.1,1243.8,453.6,895,799.5,55.7,-281.1,12.1,-233.2,368.9,187.2,-138.7,-142,20.9,64.4,63.8,76.9,-115.7,-40.9,14.9,-60.7,79.5,-77,-8.8,59.3,15.8,2.5,-11.1,14.2,23.2,10.8,-17.5,2,-21.7,16.9,15,-16.8,0.9,4.6,7.8,3,-0.2,-2.5,-13.1,2.4,8.6,-8.7,-12.9,-1.3,-6.4,0.2,2,-1,-0.6,-0.9,1.5,0.9,-2.7,-3.9,2.9,-1.5,-2.5,2.4,-0.6,-0.1,-0.6,-0.1,1.1,-1,-0.2,2.6,-2,-0.2,0.3,1.2,-1.3,0.6,0.6,0.5,-0.1,-0.4,-0.2,-1.3,-0.7];
     var WMM2025_H = [0,0,4545.4,0,-3133.6,-815.1,0,-56.6,237.5,-549.5,0,278.6,-133.9,212,-375.6,0,45.4,220.2,-122.9,43,106.1,0,-18.4,16.8,48.8,-59.8,10.9,72.7,0,-48.9,-14.4,-1,23.4,-7.4,-25.1,-2.3,0,7.1,-12.6,11.4,-9.7,12.7,0.7,-5.2,3.9,0,-24.8,12.2,8.3,-3.3,-5.2,7.2,-0.6,0.8,10,0,3.3,0,2.4,5.3,-9.1,0.4,-4.2,-3.8,0.9,-9.1,0,0,2.9,-0.6,0.2,0.5,-0.3,-1.2,-1.7,-2.9,-1.8,-2.3,0,-1.3,0.7,1,-1.4,0,0.6,-0.1,0.8,0.1,-1,0.1,0.2];
@@ -1070,6 +1108,38 @@
       ];
     }
 
+    function axisGridOffsets(halfWidthNm, intervalNm) {
+      const offsets = new Set([Number((-halfWidthNm).toFixed(6)), 0, Number(halfWidthNm.toFixed(6))]);
+      for (let value = intervalNm; value < halfWidthNm - 1e-9; value += intervalNm) {
+        offsets.add(Number(value.toFixed(6)));
+        offsets.add(Number((-value).toFixed(6)));
+      }
+      return [...offsets].sort((a, b) => a - b);
+    }
+
+    function axisGridDistances(depthNm, intervalNm) {
+      const distances = new Set([0, Number(depthNm.toFixed(6))]);
+      for (let value = intervalNm; value < depthNm - 1e-9; value += intervalNm) {
+        distances.add(Number(value.toFixed(6)));
+      }
+      return [...distances].sort((a, b) => a - b);
+    }
+
+    function generateAxisGrid(origin, axisBearingTrue, depthNm, widthNm, intervalNm) {
+      const offsets = axisGridOffsets(widthNm / 2, intervalNm);
+      const distances = axisGridDistances(depthNm, intervalNm);
+      const rows = distances.map(distance => {
+        const center = distance === 0
+          ? origin
+          : destinationPoint(origin.lat, origin.lon, axisBearingTrue, distance);
+        return offsets.map(offset => offset === 0
+          ? center
+          : destinationPoint(center.lat, center.lon, axisBearingTrue + (offset > 0 ? 90 : -90), Math.abs(offset)));
+      });
+      const columns = offsets.map((_, index) => rows.map(row => row[index]));
+      return [...columns, ...rows];
+    }
+
     function generateTickmarks(origin, axisBearingTrue, startNm, endNm, intervalNm, widthNm) {
       const firstIndex = Math.ceil((startNm - 1e-9) / intervalNm);
       const lastIndex = Math.floor((endNm + 1e-9) / intervalNm);
@@ -1092,6 +1162,22 @@
         .filter(mark => !occupied.has(mark.distanceNm.toFixed(6)))
         .map(mark => ({ ...mark, kind: "Sub" }));
       return [...main, ...sub].sort((a, b) => a.distanceNm - b.distanceNm || (a.kind === "Main" ? -1 : 1));
+    }
+
+    function createAxisGridObject({ axisName, color = AXIS_GRID_DEFAULT_COLOR, createdBullseye, origin, trueBearing, settings, segments }) {
+      return {
+        name: `${axisName} Grid ${Number(settings.widthNm.toFixed(6))}x${Number(settings.depthNm.toFixed(6))}NM`,
+        type: "Grid Group",
+        color,
+        lineWidth: AXIS_GRID_DEFAULT_KML_WIDTH,
+        createdBullseye,
+        origin: { ...origin },
+        trueBearing,
+        gridSettings: { ...settings },
+        gridCount: segments.length,
+        segments,
+        coordinates: segments.flat()
+      };
     }
 
     function createTickmarkGroupObject({ axisName, color, createdBullseye, settings, tickmarks }) {
@@ -1261,6 +1347,21 @@
       };
     }
 
+    function lineSegmentIntersection(a, b, c, d) {
+      const abX = b.x - a.x;
+      const abY = b.y - a.y;
+      const cdX = d.x - c.x;
+      const cdY = d.y - c.y;
+      const denominator = abX * cdY - abY * cdX;
+      if (Math.abs(denominator) < 1e-9) return null;
+      const acX = c.x - a.x;
+      const acY = c.y - a.y;
+      const t = (acX * cdY - acY * cdX) / denominator;
+      const u = (acX * abY - acY * abX) / denominator;
+      if (t < -1e-9 || t > 1 + 1e-9 || u < -1e-9 || u > 1 + 1e-9) return null;
+      return { x: a.x + abX * t, y: a.y + abY * t };
+    }
+
     function escapeXml(value) {
       return String(value).replace(/[&<>"']/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"
@@ -1320,6 +1421,18 @@
       const first = coordinates[0];
       const last = coordinates.at(-1);
       return first.lat === last.lat && first.lon === last.lon ? coordinates.slice(0, -1) : coordinates.slice();
+    }
+
+    function polygonApproxCenter(coordinates) {
+      const open = withoutClosingCoordinate(coordinates);
+      if (open.length < 3) throw new Error("Polygon needs at least three points.");
+      const origin = localOriginForCoordinates(open);
+      const local = open.map(point => coordinateToLocalPoint(point, origin));
+      const minX = Math.min(...local.map(point => point.x));
+      const maxX = Math.max(...local.map(point => point.x));
+      const minY = Math.min(...local.map(point => point.y));
+      const maxY = Math.max(...local.map(point => point.y));
+      return localPointToCoordinate({ x: (minX + maxX) / 2, y: (minY + maxY) / 2 }, origin);
     }
 
     function polygonSignedArea(points) {
@@ -1470,30 +1583,36 @@
       });
     }
 
+    function objectKmlWidth(object, fallbackWidth) {
+      const width = Number(object?.lineWidth);
+      return Number.isFinite(width) && width > 0 ? width : fallbackWidth;
+    }
+
     function buildKml(documentName, objects, lineWidth) {
       const width = Number.isFinite(Number(lineWidth)) ? Number(lineWidth) : 2;
       const placemarks = objects.flatMap((object, index) => {
+        const objectWidth = objectKmlWidth(object, width);
         if (object.type === "B/E Spider") {
           const items = [];
           if (object.segments?.length) {
             const id = `style-${index}-major`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width * (object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Major`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.segments)}</Placemark>`);
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(objectWidth * (object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Major`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.segments)}</Placemark>`);
           }
           if (object.minorSegments?.length) {
             const id = `style-${index}-minor`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, object.minorLineAlpha || "99")}</color><width>${formatKmlWidth(width * (object.minorLineWidthFactor || 0.35))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Minor`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.minorSegments)}</Placemark>`);
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, object.minorLineAlpha || "99")}</color><width>${formatKmlWidth(objectWidth * (object.minorLineWidthFactor || 0.35))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Minor`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.minorSegments)}</Placemark>`);
           }
           if (object.cardinalSegments?.length) {
             const id = `style-${index}-cardinal`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.cardinalColor || object.color)}</color><width>${formatKmlWidth(width * (object.cardinalLineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Cardinal`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.cardinalSegments)}</Placemark>`);
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.cardinalColor || object.color)}</color><width>${formatKmlWidth(objectWidth * (object.cardinalLineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Cardinal`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.cardinalSegments)}</Placemark>`);
           }
           if (object.rangeRingSegments?.length) {
             const id = `style-${index}-rings`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, "aa")}</color><width>${formatKmlWidth(width * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.rangeRingSegments)}</Placemark>`);
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.color, "aa")}</color><width>${formatKmlWidth(objectWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.rangeRingSegments)}</Placemark>`);
           }
           if (object.cardinalRangeRingSegments?.length) {
             const id = `style-${index}-cardinal-rings`;
-            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.cardinalColor || object.color)}</color><width>${formatKmlWidth(width * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Cardinal Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.cardinalRangeRingSegments)}</Placemark>`);
+            items.push(`<Style id="${id}"><LineStyle><color>${toKmlColor(object.cardinalColor || object.color)}</color><width>${formatKmlWidth(objectWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1))}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Cardinal Rings`)}</name><styleUrl>#${id}</styleUrl>${multiLineGeometryToKml(object.cardinalRangeRingSegments)}</Placemark>`);
           }
           return items;
         }
@@ -1502,8 +1621,8 @@
         const style = kind === "Point"
           ? `<Style id="${id}"><IconStyle><color>${toKmlColor(object.color)}</color></IconStyle></Style>`
           : kind === "Polygon"
-            ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width)}</width></LineStyle><PolyStyle>${object.fillColor ? `<color>${toKmlColor(object.fillColor, "33")}</color>` : "<fill>0</fill>"}</PolyStyle></Style>`
-            : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(width)}</width></LineStyle></Style>`;
+            ? `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(objectWidth)}</width></LineStyle><PolyStyle>${object.fillColor ? `<color>${toKmlColor(object.fillColor, "33")}</color>` : "<fill>0</fill>"}</PolyStyle></Style>`
+            : `<Style id="${id}"><LineStyle><color>${toKmlColor(object.color)}</color><width>${formatKmlWidth(objectWidth)}</width></LineStyle></Style>`;
         const geometry = kind === "Point"
           ? `<Point><coordinates>${coordinatesToKml(object.coordinates)}</coordinates></Point>`
           : kind === "Polygon"
@@ -1514,7 +1633,7 @@
         const placemark = `${style}<Placemark><name>${escapeXml(object.name)}</name><styleUrl>#${id}</styleUrl>${geometry}</Placemark>`;
         if (object.gridSegments?.length) {
           const gridId = `style-${index}-grid`;
-          return `${placemark}<Style id="${gridId}"><LineStyle><color>${toKmlColor(object.color, "cc")}</color><width>${formatKmlWidth(width * 0.75)}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Grid`)}</name><styleUrl>#${gridId}</styleUrl>${multiLineGeometryToKml(object.gridSegments)}</Placemark>`;
+          return `${placemark}<Style id="${gridId}"><LineStyle><color>${toKmlColor(object.color, "cc")}</color><width>${formatKmlWidth(objectWidth * 0.75)}</width></LineStyle></Style><Placemark><name>${escapeXml(`${object.name} Grid`)}</name><styleUrl>#${gridId}</styleUrl>${multiLineGeometryToKml(object.gridSegments)}</Placemark>`;
         }
         return placemark;
       }).join("");
@@ -1906,6 +2025,7 @@
       let coordinateFormat = "ddm";
       let objectTableMode = false;
       let objectTableBlob = null;
+      let objectTableColumns = 1;
       const objectTableSelectedIds = new Set();
       let previewZoom = 1;
       let previewPanX = 0;
@@ -2101,6 +2221,33 @@
         return `${degrees}°${hemisphere}`;
       }
 
+      function previewGridLabelPoint(start, end, edge, viewBox, inset) {
+        const samples = [];
+        for (let index = 0; index <= 40; index += 1) {
+          const fraction = index / 40;
+          const projected = lastPreviewProjection.project({
+            lat: start.lat + (end.lat - start.lat) * fraction,
+            lon: start.lon + (end.lon - start.lon) * fraction
+          });
+          const displayed = previewDisplayPoint(projected);
+          if (
+            displayed.x >= viewBox.x - 1e-9 &&
+            displayed.x <= viewBox.x + viewBox.width + 1e-9 &&
+            displayed.y >= viewBox.y - 1e-9 &&
+            displayed.y <= viewBox.y + viewBox.height + 1e-9
+          ) samples.push(displayed);
+        }
+        if (!samples.length) samples.push(previewDisplayPoint(lastPreviewProjection.project(start)));
+        const chosen = samples.reduce((best, point) => {
+          if (edge === "bottom") return point.y > best.y ? point : best;
+          return point.x < best.x ? point : best;
+        }, samples[0]);
+        return {
+          x: Math.min(Math.max(viewBox.x + inset, chosen.x), viewBox.x + viewBox.width - inset),
+          y: Math.min(Math.max(viewBox.y + inset, chosen.y), viewBox.y + viewBox.height - inset)
+        };
+      }
+
       function drawPreviewGrid() {
         const group = $("preview-grid-layer");
         const labelGroup = $("preview-grid-label-layer");
@@ -2112,6 +2259,7 @@
         const values = $("kml-preview").getAttribute("viewBox").split(/\s+/).map(Number);
         if (values.length !== 4 || values.some(value => !Number.isFinite(value))) return;
         const [viewX, viewY, viewWidth, viewHeight] = values;
+        const viewBox = { x: viewX, y: viewY, width: viewWidth, height: viewHeight };
         const ns = "http://www.w3.org/2000/svg";
         const lonStep = niceGridStep(bounds.maxLon - bounds.minLon);
         const latStep = niceGridStep(bounds.maxLat - bounds.minLat);
@@ -2141,16 +2289,20 @@
           labelGroup.append(text);
         };
         for (let lon = Math.ceil(bounds.minLon / lonStep) * lonStep; lon <= bounds.maxLon + 1e-9; lon += lonStep) {
-          addLine({ lat: bounds.minLat, lon }, { lat: bounds.maxLat, lon });
-          const point = previewDisplayPoint(lastPreviewProjection.project({ lat: bounds.minLat, lon }));
-          addLabel(formatGridDegreeLabel(lon, false, lonStep), point.x, viewY + viewHeight - inset);
+          const start = { lat: bounds.minLat, lon };
+          const end = { lat: bounds.maxLat, lon };
+          addLine(start, end);
+          const point = previewGridLabelPoint(start, end, "bottom", viewBox, inset);
+          addLabel(formatGridDegreeLabel(lon, false, lonStep), point.x, point.y);
         }
         for (let lat = Math.ceil(bounds.minLat / latStep) * latStep; lat <= bounds.maxLat + 1e-9; lat += latStep) {
-          addLine({ lat, lon: bounds.minLon }, { lat, lon: bounds.maxLon });
-          const point = previewDisplayPoint(lastPreviewProjection.project({ lat, lon: bounds.minLon }));
+          const start = { lat, lon: bounds.minLon };
+          const end = { lat, lon: bounds.maxLon };
+          addLine(start, end);
+          const point = previewGridLabelPoint(start, end, "left", viewBox, inset);
           const label = document.createElementNS(ns, "text");
           label.setAttribute("class", "preview-grid-label");
-          label.setAttribute("x", viewX + inset);
+          label.setAttribute("x", point.x);
           label.setAttribute("y", point.y);
           label.setAttribute("font-size", fontSize);
           label.setAttribute("stroke-width", strokeWidth);
@@ -2194,6 +2346,26 @@
         indicator.style.left = `${previewRotationIndicatorPosition.x}px`;
         indicator.style.top = `${previewRotationIndicatorPosition.y}px`;
         rose.style.transform = `rotate(${previewRotationDeg}deg)`;
+      }
+
+      function setPreviewRotationIndicatorSize(size, anchorEvent) {
+        const indicator = $("preview-rotation-indicator");
+        const stage = $("preview-stage");
+        if (!indicator || !stage) return;
+        const nextSize = Math.min(180, Math.max(64, size));
+        if (!Number.isFinite(nextSize) || Math.abs(nextSize - previewRotationIndicatorSize) < 0.1) return;
+        if (anchorEvent) {
+          const stageRect = stage.getBoundingClientRect();
+          const anchorX = anchorEvent.clientX - stageRect.left;
+          const anchorY = anchorEvent.clientY - stageRect.top;
+          const scale = nextSize / previewRotationIndicatorSize;
+          previewRotationIndicatorPosition = {
+            x: anchorX - (anchorX - previewRotationIndicatorPosition.x) * scale,
+            y: anchorY - (anchorY - previewRotationIndicatorPosition.y) * scale
+          };
+        }
+        previewRotationIndicatorSize = nextSize;
+        renderPreviewRotationIndicator();
       }
 
       function previewDisplayPoint(point) {
@@ -2421,6 +2593,25 @@
             coordinates: [{ lat: bull.lat, lon: bull.lon }, destinationPoint(bull.lat, bull.lon, trueBearing, length)]
           };
           const drafts = [axis];
+          if ($("axis-grid-enabled").checked) {
+            if (!$("axis-grid-width").value.trim()) return drafts;
+            const gridSettings = {
+              depthNm: length,
+              widthNm: requiredNumber("axis-grid-width", "Grid width"),
+              intervalNm: parseOptionalNumber($("axis-grid-interval").value, 10, "Grid interval")
+            };
+            requireFinitePositive(gridSettings.widthNm, "Grid width", false);
+            requireFinitePositive(gridSettings.intervalNm, "Grid interval", false);
+            const segments = generateAxisGrid(axis.origin, trueBearing, gridSettings.depthNm, gridSettings.widthNm, gridSettings.intervalNm);
+            if (segments.length && segments.length <= 500) drafts.unshift(createAxisGridObject({
+              axisName: "Pending Axis",
+              createdBullseye: createdBullseyeSnapshot(bull),
+              origin: axis.origin,
+              trueBearing,
+              settings: gridSettings,
+              segments
+            }));
+          }
           if ($("axis-tick-enabled").checked) {
             const settings = {
               startNm: parseOptionalNumber($("tick-start").value, 0, "Tickmark start distance"),
@@ -2555,6 +2746,9 @@
         const gridLabelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         gridLabelGroup.id = "preview-grid-label-layer";
         svg.append(gridLabelGroup);
+        const snapGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        snapGroup.id = "preview-snap-layer";
+        svg.append(snapGroup);
         const layerObjects = visiblePreviewLayerObjects();
         const pendingObjects = buildPendingPreviewObjects();
         const pendingCoordinates = customPoints.map(({ lat, lon }) => ({ lat, lon }));
@@ -2604,7 +2798,7 @@
             geographicGroup.append(circle);
             return;
           }
-          const strokeWidth = object.lineWidth || previewWidth;
+          const strokeWidth = objectKmlWidth(object, previewWidth);
           drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, strokeWidth, strokeOpacity, className);
           if (object.gridSegments?.length) {
             drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, strokeWidth * 0.75, strokeOpacity * 0.8, className);
@@ -2628,19 +2822,21 @@
             continue;
           }
           if (object.type === "B/E Spider") {
+            const objectWidth = objectKmlWidth(object, previewWidth);
             const majorLength = (object.segments || []).flat().length;
             const minorLength = (object.minorSegments || []).flat().length;
             const cardinalLength = (object.cardinalSegments || []).flat().length;
             const ringLength = (object.rangeRingSegments || []).flat().length;
-            drawSegments(object.segments || [], points.slice(0, majorLength), object.color, null, previewWidth * (object.lineWidthFactor || 1));
-            drawSegments(object.minorSegments || [], points.slice(majorLength, majorLength + minorLength), object.color, null, previewWidth * (object.minorLineWidthFactor || 0.35), 0.6);
-            drawSegments(object.cardinalSegments || [], points.slice(majorLength + minorLength, majorLength + minorLength + cardinalLength), object.cardinalColor || object.color, null, previewWidth * (object.cardinalLineWidthFactor || 1));
-            drawSegments(object.rangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength, majorLength + minorLength + cardinalLength + ringLength), object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
-            drawSegments(object.cardinalRangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength + ringLength), object.cardinalColor || object.color, null, previewWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
+            drawSegments(object.segments || [], points.slice(0, majorLength), object.color, null, objectWidth * (object.lineWidthFactor || 1));
+            drawSegments(object.minorSegments || [], points.slice(majorLength, majorLength + minorLength), object.color, null, objectWidth * (object.minorLineWidthFactor || 0.35), 0.6);
+            drawSegments(object.cardinalSegments || [], points.slice(majorLength + minorLength, majorLength + minorLength + cardinalLength), object.cardinalColor || object.color, null, objectWidth * (object.cardinalLineWidthFactor || 1));
+            drawSegments(object.rangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength, majorLength + minorLength + cardinalLength + ringLength), object.color, null, objectWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
+            drawSegments(object.cardinalRangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength + ringLength), object.cardinalColor || object.color, null, objectWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
           } else {
-            drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, previewWidth);
+            const objectWidth = objectKmlWidth(object, previewWidth);
+            drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, objectWidth);
             if (object.gridSegments?.length) {
-              drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, previewWidth * 0.75, 0.8);
+              drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, objectWidth * 0.75, 0.8);
             }
           }
         }
@@ -2768,6 +2964,7 @@
             closeObjectTableMenu();
             renderObjects();
           });
+          remove.hidden = Boolean(object.locked);
           row.addEventListener("click", () => {
             if (objectTableMode) {
               tableSelect.checked = !tableSelect.checked;
@@ -2801,6 +2998,7 @@
       function updateObjectTableControls() {
         $("object-table-toggle").textContent = objectTableMode ? "Generate" : "Table";
         $("object-table-cancel").hidden = !objectTableMode;
+        $("object-table-columns-row").hidden = !objectTableMode;
         if (!objectTableMode) closeObjectTableMenu();
       }
 
@@ -2913,7 +3111,7 @@
         return lines.length ? lines : [""];
       }
 
-      function buildObjectTableBlob(selectedObjects, format) {
+      function buildObjectTableBlob(selectedObjects, format, columnCount = 1) {
         const groups = objectTableGroups(selectedObjects, format).filter(group => group.coordinates.length);
         if (!groups.length) return Promise.reject(new Error("Selected objects have no coordinates."));
         const canvas = document.createElement("canvas");
@@ -2924,6 +3122,7 @@
         const paddingY = 16;
         const rowHeight = 32;
         const blockGap = 9;
+        const columnGap = 14;
         const font = "18px system-ui, sans-serif";
         const headerFont = "700 18px system-ui, sans-serif";
         context.font = font;
@@ -2933,11 +3132,20 @@
         const lonWidth = measureColumn(allCoordinates.map(row => row.lon), 120, 190);
         const tableWidth = Math.max(220, latWidth + lonWidth);
         const nameLinesByGroup = groups.map(group => wrapCanvasText(context, group.name, tableWidth - 20));
-        const contentHeight = groups.reduce((sum, group, index) => {
+        const groupHeights = groups.map((group, index) => {
           const nameHeight = Math.max(rowHeight, nameLinesByGroup[index].length * 24 + 12);
-          return sum + nameHeight + group.coordinates.length * rowHeight + (index === groups.length - 1 ? 0 : blockGap);
-        }, 0);
-        const width = Math.ceil((tableWidth + paddingX * 2) * scale);
+          return nameHeight + group.coordinates.length * rowHeight;
+        });
+        const columns = Math.min(Math.max(1, Number(columnCount) || 1), Math.max(1, groups.length), 3);
+        const columnHeights = Array.from({ length: columns }, () => 0);
+        const placements = groups.map((_, index) => {
+          const column = index % columns;
+          const y = columnHeights[column];
+          columnHeights[column] += groupHeights[index] + blockGap;
+          return { column, y };
+        });
+        const contentHeight = Math.max(...columnHeights.map(height => Math.max(0, height - blockGap)));
+        const width = Math.ceil((tableWidth * columns + columnGap * (columns - 1) + paddingX * 2) * scale);
         const height = Math.ceil((contentHeight + paddingY * 2) * scale);
         canvas.width = width;
         canvas.height = height;
@@ -2948,8 +3156,10 @@
         context.strokeStyle = "#9aa6b2";
         context.lineWidth = 1;
         context.textBaseline = "middle";
-        let y = paddingY;
         groups.forEach((group, groupIndex) => {
+          const placement = placements[groupIndex];
+          const left = paddingX + placement.column * (tableWidth + columnGap);
+          let y = paddingY + placement.y;
           const nameLines = nameLinesByGroup[groupIndex];
           const nameHeight = Math.max(rowHeight, nameLines.length * 24 + 12);
           context.fillStyle = "#eef3f7";
@@ -2982,7 +3192,6 @@
             }
             y += rowHeight;
           });
-          y += groupIndex === groups.length - 1 ? 0 : blockGap;
         });
         return new Promise((resolve, reject) => {
           canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("PNG creation failed.")), "image/png");
@@ -2997,10 +3206,11 @@
       async function generateObjectTablePng() {
         const selectedObjects = objects.filter(object => objectTableSelectedIds.has(object.id));
         if (!selectedObjects.length) throw new Error("Select at least one object.");
-        objectTableBlob = await buildObjectTableBlob(selectedObjects, coordinateFormat);
+        objectTableColumns = Math.min(3, Math.max(1, Number($("object-table-columns").value) || 1));
+        objectTableBlob = await buildObjectTableBlob(selectedObjects, coordinateFormat, objectTableColumns);
         $("object-table-menu").hidden = false;
         $("object-table-toggle").setAttribute("aria-expanded", "true");
-        $("object-table-message").textContent = `Generated ${objectTableRows(selectedObjects, coordinateFormat).length} table row(s).`;
+        $("object-table-message").textContent = `Generated ${objectTableRows(selectedObjects, coordinateFormat).length} table row(s) in ${objectTableColumns} column(s).`;
       }
 
       function scrollToObjectList() {
@@ -3174,22 +3384,83 @@
           object.name = name;
           renderObjects();
         });
+        const lockToggle = document.createElement("label");
+        lockToggle.className = "check object-lock-control";
+        const lockInput = document.createElement("input");
+        lockInput.type = "checkbox";
+        lockInput.checked = Boolean(object.locked);
+        lockInput.addEventListener("change", () => {
+          object.locked = lockInput.checked;
+          renderObjects();
+        });
         label.append(input);
         nameEdit.append(label, save);
         detailGrid.append(nameEdit);
+        lockToggle.append(lockInput, document.createTextNode(" Lock"));
+        detailGrid.append(lockToggle);
         const lineColorRow = document.createElement("div");
-        lineColorRow.className = "object-name-edit";
+        lineColorRow.className = "object-style-row";
         const lineColorLabel = document.createElement("strong");
         lineColorLabel.textContent = "Line color";
         lineColorRow.append(lineColorLabel, createPresetColorEditor(object, "color", `Line color for ${object.name}`));
         detailGrid.append(lineColorRow);
-        if (/^Custom (?:Point|Line|Area)$/.test(object.type)) {
+        const widthRow = document.createElement("div");
+        widthRow.className = "object-line-width-edit";
+        const widthMinus = document.createElement("button");
+        widthMinus.type = "button";
+        widthMinus.className = "secondary small";
+        widthMinus.textContent = "−";
+        widthMinus.setAttribute("aria-label", `Decrease KML width for ${object.name}`);
+        const widthLabel = document.createElement("label");
+        widthLabel.textContent = "KML width";
+        const widthInput = document.createElement("input");
+        widthInput.type = "text";
+        widthInput.inputMode = "decimal";
+        widthInput.placeholder = String(defaultKmlLineWidth());
+        widthInput.value = object.lineWidth ? String(object.lineWidth) : "";
+        const setObjectWidth = value => {
+          if (value === "") delete object.lineWidth;
+          else object.lineWidth = value;
+          renderPreview();
+          objectTableBlob = null;
+          closeObjectTableMenu();
+        };
+        const adjustObjectWidth = delta => {
+          const base = Number(widthInput.value) || objectKmlWidth(object, defaultKmlLineWidth());
+          const next = Math.max(1, Math.round(base + delta));
+          widthInput.value = String(next);
+          setObjectWidth(next);
+        };
+        widthInput.addEventListener("input", () => {
+          const value = Number(widthInput.value);
+          if (widthInput.value.trim() === "") {
+            setObjectWidth("");
+          } else if (Number.isFinite(value) && value > 0) {
+            setObjectWidth(value);
+          }
+        });
+        widthMinus.addEventListener("click", () => adjustObjectWidth(-1));
+        const widthPlus = document.createElement("button");
+        widthPlus.type = "button";
+        widthPlus.className = "secondary small";
+        widthPlus.textContent = "＋";
+        widthPlus.setAttribute("aria-label", `Increase KML width for ${object.name}`);
+        widthPlus.addEventListener("click", () => adjustObjectWidth(1));
+        widthLabel.append(widthInput);
+        widthRow.append(widthMinus, widthLabel, widthPlus);
+        const actionRow = document.createElement("div");
+        actionRow.className = "object-actions-row";
+        const deferredDetailRows = [];
+        let widthInActionRow = false;
+        if (/^Custom (?:Point|Line|Area)$/.test(object.type) || object.type === "Imported Point") {
           const edit = document.createElement("button");
           edit.type = "button";
           edit.className = "secondary small";
           edit.textContent = "Edit Custom";
           edit.addEventListener("click", () => loadCustomObjectForEditing(object));
-          detailGrid.append(edit);
+          actionRow.append(edit);
+          actionRow.append(widthRow);
+          widthInActionRow = true;
           if (object.type === "Custom Line" || object.type === "Custom Area") {
             const offsetPanel = createCustomOffsetControls(object);
             const offsetToggle = document.createElement("button");
@@ -3201,10 +3472,22 @@
               offsetPanel.hidden = !offsetPanel.hidden;
               offsetToggle.setAttribute("aria-expanded", String(!offsetPanel.hidden));
             });
-            detailGrid.append(offsetToggle, offsetPanel);
+            actionRow.append(offsetToggle);
+            deferredDetailRows.push(offsetPanel);
           }
         }
+        if ((object.type === "Custom Area" || object.type === "Imported Polygon") && withoutClosingCoordinate(object.coordinates).length >= 3) {
+          const centerToBox = document.createElement("button");
+          centerToBox.type = "button";
+          centerToBox.className = "secondary small";
+          centerToBox.textContent = "Center to Box";
+          centerToBox.addEventListener("click", () => loadPolygonCenterToCustomBox(object));
+          actionRow.append(centerToBox);
+        }
+        if (!widthInActionRow) actionRow.prepend(widthRow);
+        if (actionRow.childElementCount) detailGrid.append(actionRow);
         details.append(detailGrid);
+        deferredDetailRows.forEach(row => details.append(row));
         if (object.center) {
           const center = document.createElement("div");
           center.className = "summary";
@@ -3249,7 +3532,7 @@
         }
         if (object.fillColor) {
           const fillRow = document.createElement("div");
-          fillRow.className = "object-name-edit";
+          fillRow.className = "object-style-row";
           const fillLabel = document.createElement("strong");
           fillLabel.textContent = "Fill color";
           fillRow.append(fillLabel, createPresetColorEditor(object, "fillColor", `Fill color for ${object.name}`));
@@ -3271,6 +3554,13 @@
           details.append(tickmarkCoordinates);
           return details;
         }
+        if (object.type === "Grid Group" && object.gridSettings) {
+          const settings = object.gridSettings;
+          const gridSummary = document.createElement("div");
+          gridSummary.className = "summary";
+          gridSummary.textContent = `Grid: ${object.gridCount || objectCoordinateSegments(object).length} lines, Width ${Number(settings.widthNm.toFixed(6))}NM, Depth ${Number(settings.depthNm.toFixed(6))}NM, Interval ${Number(settings.intervalNm.toFixed(6))}NM`;
+          details.append(gridSummary);
+        }
         if (object.type === "B/E Spider" && object.spiderSettings) {
           const settings = object.spiderSettings;
           const spiderSummary = document.createElement("div");
@@ -3280,7 +3570,7 @@
           spiderSummary.textContent = `Spider: ${radialText}, Major ${settings.majorIntervalDeg}° (${settings.majorCount})${minorText}, Cardinal ${settings.cardinalCount}, rings ${settings.ringCount}, range ${Number(settings.startRangeNm.toFixed(6))}-${Number(settings.endRangeNm.toFixed(6))}NM`;
           details.append(spiderSummary);
           const cardinalRow = document.createElement("div");
-          cardinalRow.className = "object-name-edit";
+          cardinalRow.className = "object-style-row";
           const cardinalLabel = document.createElement("strong");
           cardinalLabel.textContent = "Cardinal color";
           cardinalRow.append(cardinalLabel, createPresetColorEditor(object, "cardinalColor", `Cardinal color for ${object.name}`));
@@ -3347,6 +3637,33 @@
         renderCustomPoints();
         setMessage($("custom-form"), "Loaded as a new Custom draft. Original object is unchanged.");
         $("custom-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function loadPolygonCenterToCustomBox(object) {
+        try {
+          const center = polygonApproxCenter(object.coordinates);
+          $("custom-panel").open = true;
+          $("custom-point-mode").value = "box";
+          $("custom-point-mode").dispatchEvent(new Event("change"));
+          $("custom-box-at-bullseye").checked = false;
+          $("custom-box-center-mode").disabled = false;
+          $("custom-box-center-mode").value = "direct";
+          $("custom-box-center-mode").dispatchEvent(new Event("change"));
+          $("custom-box-coordinates").value = formatCoordinatePair(center, coordinateFormat);
+          $("custom-name").value = object.name ? `${object.name} Box` : "";
+          $("custom-line-color").value = object.color || "#455a64";
+          customPoints.length = 0;
+          customPoints.gridSegments = null;
+          pendingCustomCenter = { ...center };
+          pendingCustomCreatedBullseye = null;
+          pendingCustomCenterVariation = centerVariationFromContext(bearingContextForPoint(globalBearingModeSource(), center), center);
+          renderCustomPoints();
+          renderPreview();
+          setMessage($("custom-form"), "Loaded polygon center into Custom Box. Enter Width, Depth, and Depth bearing.");
+          $("custom-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (error) {
+          setMessage($("custom-form"), error.message);
+        }
       }
 
       function renderCustomPoints() {
@@ -3673,6 +3990,26 @@
             createdBullseye: createdBullseyeSnapshot(bull),
             coordinates: [{ lat: bull.lat, lon: bull.lon }, destinationPoint(bull.lat, bull.lon, trueBearing, length)]
           };
+          let axisGrid = null;
+          if ($("axis-grid-enabled").checked) {
+            const gridSettings = {
+              depthNm: length,
+              widthNm: requiredNumber("axis-grid-width", "Grid width"),
+              intervalNm: parseOptionalNumber($("axis-grid-interval").value, 10, "Grid interval")
+            };
+            requireFinitePositive(gridSettings.widthNm, "Grid width", false);
+            requireFinitePositive(gridSettings.intervalNm, "Grid interval", false);
+            const segments = generateAxisGrid(axis.origin, trueBearing, gridSettings.depthNm, gridSettings.widthNm, gridSettings.intervalNm);
+            if (segments.length > 500) throw new Error("Grid line count exceeds the limit of 500.");
+            axisGrid = createAxisGridObject({
+              axisName,
+              createdBullseye: createdBullseyeSnapshot(bull),
+              origin: axis.origin,
+              trueBearing,
+              settings: gridSettings,
+              segments
+            });
+          }
           let tickmarks = [];
           let tickmarkSettings = null;
           if ($("axis-tick-enabled").checked) {
@@ -3703,6 +4040,7 @@
             tickmarks = generateCombinedTickmarks(axis.origin, trueBearing, tickmarkSettings);
             if (tickmarks.length > 500) throw new Error("Tickmark count exceeds the limit of 500.");
           }
+          if (axisGrid) addObject(axisGrid);
           addObject(axis);
           if (tickmarks.length && tickmarkSettings) addObject(createTickmarkGroupObject({
             axisName,
@@ -3711,7 +4049,7 @@
             settings: tickmarkSettings,
             tickmarks
           }));
-          clearFields(["axis-heading","axis-name","axis-length","tick-start","tick-end","tick-main-interval","tick-main-width","tick-sub-interval","tick-sub-width"]);
+          clearFields(["axis-heading","axis-name","axis-length","axis-grid-width","axis-grid-interval","tick-start","tick-end","tick-main-interval","tick-main-width","tick-sub-interval","tick-sub-width"]);
           setMessage(event.currentTarget, "");
         } catch (error) { setMessage(event.currentTarget, error.message); }
       });
@@ -3808,6 +4146,9 @@
       $("axis-tick-enabled").addEventListener("change", () => {
         $("axis-tick-settings").hidden = !$("axis-tick-enabled").checked;
       });
+      $("axis-grid-enabled").addEventListener("change", () => {
+        $("axis-grid-settings").hidden = !$("axis-grid-enabled").checked;
+      });
 
       $("sam-center-mode").addEventListener("change", () => {
         const direct = $("sam-center-mode").value === "direct";
@@ -3880,7 +4221,7 @@
       document.querySelectorAll([
         "#bull-coordinates", "#bull-magvar-mode", "#bull-magvar",
         "#bull-spider-enabled", "#bull-spider-full", "#bull-spider-ring-interval", "#bull-spider-start-radial", "#bull-spider-end-radial", "#bull-spider-major-interval", "#bull-spider-minor-interval", "#bull-spider-start-range", "#bull-spider-end-range", "#bull-spider-color", "#bull-spider-cardinal-color",
-        "#axis-heading", "#axis-length", "#axis-color", "#axis-tick-enabled", "#tick-start", "#tick-end", "#tick-main-interval", "#tick-main-width", "#tick-sub-interval", "#tick-sub-width", "#tick-color",
+        "#axis-heading", "#axis-length", "#axis-color", "#axis-grid-enabled", "#axis-grid-width", "#axis-grid-interval", "#axis-tick-enabled", "#tick-start", "#tick-end", "#tick-main-interval", "#tick-main-width", "#tick-sub-interval", "#tick-sub-width", "#tick-color",
         "#mission-axis", "#mission-distance", "#mission-width", "#mission-color", "#less-digits",
         "#sam-center-mode", "#sam-at-bullseye", "#sam-coordinates", "#sam-bearing", "#sam-range", "#sam-radius", "#sam-color", "#sam-fill-enabled", "#sam-fill-color"
       ].join(",")).forEach(field => {
@@ -3889,8 +4230,11 @@
       });
 
       $("clear-all").addEventListener("click", () => {
+        const locked = objects.filter(object => object.locked);
         objects.length = 0;
+        objects.push(...locked);
         expandedObjectIds.clear();
+        locked.forEach(object => expandedObjectIds.add(object.id));
         objectTableSelectedIds.clear();
         objectTableMode = false;
         objectTableBlob = null;
@@ -3936,6 +4280,11 @@
         }
       });
       $("object-table-cancel").addEventListener("click", () => setObjectTableMode(false));
+      $("object-table-columns").addEventListener("change", () => {
+        objectTableColumns = Math.min(3, Math.max(1, Number($("object-table-columns").value) || 1));
+        objectTableBlob = null;
+        closeObjectTableMenu();
+      });
       $("object-table-copy-png").addEventListener("click", async () => {
         closeObjectTableMenu();
         try {
@@ -4124,6 +4473,25 @@
         link.remove();
         setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
+      function defaultKmlLineWidth() {
+        const value = Number($("kml-line-width").value);
+        return Number.isFinite(value) && value > 0 ? value : 4;
+      }
+      function setKmlLineWidth(value) {
+        const next = Math.max(1, Math.round(value));
+        $("kml-line-width").value = String(next);
+        renderPreview();
+      }
+      function adjustKmlLineWidth(delta) {
+        const previousDefault = defaultKmlLineWidth();
+        const nextDefault = Math.max(1, Math.round(previousDefault + delta));
+        $("kml-line-width").value = String(nextDefault);
+        objects.forEach(object => {
+          object.lineWidth = Math.max(1, Math.round(objectKmlWidth(object, previousDefault) + delta));
+        });
+        renderObjects();
+        showTemporaryExportMessage(`Adjusted all object KML widths ${delta > 0 ? "+" : ""}${delta}.`);
+      }
       function createKmlFile() {
         if (!objects.length) {
           $("export-message").textContent = "Add at least one geometry object before export.";
@@ -4145,6 +4513,13 @@
         showTemporaryExportMessage("KML download started.");
       }
       $("export-kml").addEventListener("click", exportKml);
+      $("kml-line-width-minus").addEventListener("click", () => adjustKmlLineWidth(-1));
+      $("kml-line-width-plus").addEventListener("click", () => adjustKmlLineWidth(1));
+      $("kml-line-width-clear-all").addEventListener("click", () => {
+        objects.forEach(object => { delete object.lineWidth; });
+        renderObjects();
+        showTemporaryExportMessage("Cleared object KML widths.");
+      });
       $("export-json").addEventListener("click", () => {
         if (!objects.length) {
           $("export-message").textContent = "Add at least one geometry object before export.";
@@ -4410,6 +4785,125 @@
         return Boolean($("preview-snap")?.checked);
       }
 
+      function previewPointToSegmentDistance(point, start, end) {
+        const deltaX = end.x - start.x;
+        const deltaY = end.y - start.y;
+        const lengthSquared = deltaX ** 2 + deltaY ** 2;
+        const ratio = lengthSquared < 1e-9 ? 0 : Math.max(0, Math.min(1, ((point.x - start.x) * deltaX + (point.y - start.y) * deltaY) / lengthSquared));
+        return Math.hypot(point.x - (start.x + deltaX * ratio), point.y - (start.y + deltaY * ratio));
+      }
+
+      function closestPreviewSegment(point, segments) {
+        let closest = null;
+        for (const polyline of segments || []) {
+          if (polyline?.length < 2) continue;
+          for (let index = 1; index < polyline.length; index += 1) {
+            const start = lastPreviewProjection.project(polyline[index - 1]);
+            const end = lastPreviewProjection.project(polyline[index]);
+            const distance = previewPointToSegmentDistance(point, start, end);
+            if (!closest || distance < closest.distance) closest = { start, end, distance };
+          }
+        }
+        return closest;
+      }
+
+      function closestPreviewPolyline(point, polylines) {
+        let closest = null;
+        for (const polyline of polylines || []) {
+          if (polyline?.length < 2) continue;
+          for (let index = 1; index < polyline.length; index += 1) {
+            const start = lastPreviewProjection.project(polyline[index - 1]);
+            const end = lastPreviewProjection.project(polyline[index]);
+            const distance = previewPointToSegmentDistance(point, start, end);
+            if (!closest || distance < closest.distance) closest = { polyline, distance };
+          }
+        }
+        return closest;
+      }
+
+      function previewGridIntersection(object, coordinate) {
+        const settings = object?.gridSettings;
+        if (object?.type !== "Grid Group" || !settings || !lastPreviewProjection) return null;
+        const lineCount = axisGridOffsets(settings.widthNm / 2, settings.intervalNm).length;
+        const source = lastPreviewProjection.project(coordinate);
+        const segments = object.segments || [];
+        const along = closestPreviewSegment(source, segments.slice(0, lineCount));
+        const across = closestPreviewSegment(source, segments.slice(lineCount));
+        if (!along || !across) return null;
+        const intersection = lineSegmentIntersection(along.start, along.end, across.start, across.end);
+        return intersection ? lastPreviewProjection.unproject(intersection) : null;
+      }
+
+      function previewSpiderIntersection(object, coordinate) {
+        if (object?.type !== "B/E Spider" || !lastPreviewProjection) return null;
+        const source = lastPreviewProjection.project(coordinate);
+        const radial = closestPreviewSegment(source, [...(object.segments || []), ...(object.minorSegments || []), ...(object.cardinalSegments || [])]);
+        const ring = closestPreviewPolyline(source, [...(object.rangeRingSegments || []), ...(object.cardinalRangeRingSegments || [])]);
+        if (!radial || !ring) return null;
+        let best = null;
+        for (let index = 1; index < ring.polyline.length; index += 1) {
+          const start = lastPreviewProjection.project(ring.polyline[index - 1]);
+          const end = lastPreviewProjection.project(ring.polyline[index]);
+          const intersection = lineSegmentIntersection(radial.start, radial.end, start, end);
+          if (!intersection) continue;
+          const distance = Math.hypot(intersection.x - source.x, intersection.y - source.y);
+          if (!best || distance < best.distance) best = { point: intersection, distance };
+        }
+        return best ? lastPreviewProjection.unproject(best.point) : null;
+      }
+
+      function previewSnapTargets(coordinate) {
+        const intersections = objects.flatMap(object => {
+          const gridIntersection = previewGridIntersection(object, coordinate);
+          const spiderIntersection = previewSpiderIntersection(object, coordinate);
+          return [gridIntersection, spiderIntersection]
+            .filter(Boolean)
+            .map(target => ({ coordinate: target, priority: 0 }));
+        });
+        const vertices = objects.flatMap(object => [
+          ...object.coordinates,
+          ...(object.gridSegments || []).flat()
+        ]).map(target => ({ coordinate: target, priority: 1 }));
+        return [...intersections, ...vertices];
+      }
+
+      function previewViewBoxDistanceToPixels(a, b) {
+        const rendered = previewRenderedViewBoxRect();
+        return Math.hypot(
+          (a.x - b.x) / rendered.viewBox.width * rendered.width,
+          (a.y - b.y) / rendered.viewBox.height * rendered.height
+        );
+      }
+
+      function findPreviewSnapTarget(coordinate, maxPixels = 12) {
+        if (!previewMeasureSnapEnabled() || !coordinate || !lastPreviewProjection?.project) return null;
+        const sourcePoint = previewDisplayPoint(lastPreviewProjection.project(coordinate));
+        let best = null;
+        for (const candidate of previewSnapTargets(coordinate)) {
+          const candidatePoint = previewDisplayPoint(lastPreviewProjection.project(candidate.coordinate));
+          const distance = previewViewBoxDistanceToPixels(sourcePoint, candidatePoint);
+          if (distance <= maxPixels && (!best || candidate.priority < best.priority || (candidate.priority === best.priority && distance < best.distance))) {
+            best = { coordinate: candidate.coordinate, point: candidatePoint, distance, priority: candidate.priority };
+          }
+        }
+        return best;
+      }
+
+      function renderPreviewSnapMarker(target) {
+        const layer = $("preview-snap-layer");
+        if (!layer) return;
+        layer.replaceChildren();
+        if (!target?.point) return;
+        const ns = "http://www.w3.org/2000/svg";
+        const radius = 8 / previewZoom;
+        const circle = document.createElementNS(ns, "circle");
+        circle.setAttribute("class", "preview-snap-marker");
+        circle.setAttribute("cx", target.point.x);
+        circle.setAttribute("cy", target.point.y);
+        circle.setAttribute("r", String(radius));
+        layer.append(circle);
+      }
+
       function snapCoordinateValue(value, format) {
         const step = format === "dd" ? 0.001 : format === "dms" ? 1 / 3600 : 1 / 60;
         const rounded = Math.round(value / step) * step;
@@ -4437,6 +4931,12 @@
 
       function snapPreviewCoordinate(coordinate) {
         if (!previewMeasureSnapEnabled() || !coordinate) return coordinate;
+        const target = findPreviewSnapTarget(coordinate);
+        if (target) {
+          renderPreviewSnapMarker(target);
+          return { lat: target.coordinate.lat, lon: target.coordinate.lon };
+        }
+        renderPreviewSnapMarker(null);
         return validateLatLon(
           snapCoordinateValue(coordinate.lat, coordinateFormat),
           snapCoordinateValue(coordinate.lon, coordinateFormat)
@@ -4782,6 +5282,9 @@
               return;
             }
           }
+          if (!measurePointDrag && !temporaryPopupDrag && !ruler && !panPointer && event.pointerType !== "touch") {
+            renderPreviewSnapMarker(findPreviewSnapTarget(previewCoordinateAtEvent(event)));
+          }
           if (measurePointDrag?.pointerId === event.pointerId) {
             const point = previewMeasurePoints.find(candidate => candidate.id === measurePointDrag.pointId);
             if (point && lastPreviewProjection?.unproject) {
@@ -4961,7 +5464,7 @@
           const image = new Image();
           image.onload = () => {
             try {
-              context.fillStyle = getComputedStyle(stage).backgroundColor || "#f7f9fb";
+              context.fillStyle = getComputedStyle(stage).backgroundColor || "#ffffff";
               context.fillRect(0, 0, dimensions.width, dimensions.height);
               context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
               const scaleX = dimensions.width / Math.max(1, stageRect.width);
@@ -5028,6 +5531,8 @@
         const message = $("preview-message");
         let drag = null;
         let indicatorDrag = null;
+        const indicatorPointers = new Map();
+        let indicatorPinch = null;
         let suppressApplyClick = false;
         const pointerAngle = event => {
           const rect = $("kml-preview").getBoundingClientRect();
@@ -5048,6 +5553,8 @@
           }
           previewRotationDeg = drag.startRotation + delta;
           applyPreviewRotation();
+          drawPreviewGrid();
+          refreshPreviewCoastline();
         });
         const finish = event => {
           if (!drag || drag.pointerId !== event.pointerId) return;
@@ -5061,15 +5568,39 @@
         });
         rotationIndicator.addEventListener("pointerdown", event => {
           event.preventDefault();
+          indicatorPointers.set(event.pointerId, event);
           const stageRect = $("preview-stage").getBoundingClientRect();
-          indicatorDrag = {
-            pointerId: event.pointerId,
-            offsetX: event.clientX - stageRect.left - previewRotationIndicatorPosition.x,
-            offsetY: event.clientY - stageRect.top - previewRotationIndicatorPosition.y
-          };
+          if (event.pointerType === "touch" && indicatorPointers.size >= 2) {
+            const touches = [...indicatorPointers.values()].slice(0, 2);
+            indicatorPinch = {
+              pointerIds: touches.map(touch => touch.pointerId),
+              startDistance: Math.max(1, Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY)),
+              startSize: previewRotationIndicatorSize
+            };
+            indicatorDrag = null;
+          } else {
+            indicatorPinch = null;
+            indicatorDrag = {
+              pointerId: event.pointerId,
+              offsetX: event.clientX - stageRect.left - previewRotationIndicatorPosition.x,
+              offsetY: event.clientY - stageRect.top - previewRotationIndicatorPosition.y
+            };
+          }
           rotationIndicator.setPointerCapture?.(event.pointerId);
         });
         rotationIndicator.addEventListener("pointermove", event => {
+          if (indicatorPointers.has(event.pointerId)) indicatorPointers.set(event.pointerId, event);
+          if (indicatorPinch && indicatorPinch.pointerIds.includes(event.pointerId)) {
+            const touches = indicatorPinch.pointerIds.map(pointerId => indicatorPointers.get(pointerId)).filter(Boolean);
+            if (touches.length === 2) {
+              const distance = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+              setPreviewRotationIndicatorSize(indicatorPinch.startSize * distance / indicatorPinch.startDistance, {
+                clientX: (touches[0].clientX + touches[1].clientX) / 2,
+                clientY: (touches[0].clientY + touches[1].clientY) / 2
+              });
+            }
+            return;
+          }
           if (!indicatorDrag || indicatorDrag.pointerId !== event.pointerId) return;
           const stageRect = $("preview-stage").getBoundingClientRect();
           previewRotationIndicatorPosition = {
@@ -5079,9 +5610,10 @@
           renderPreviewRotationIndicator();
         });
         const finishIndicatorDrag = event => {
-          if (!indicatorDrag || indicatorDrag.pointerId !== event.pointerId) return;
-          rotationIndicator.releasePointerCapture?.(event.pointerId);
-          indicatorDrag = null;
+          indicatorPointers.delete(event.pointerId);
+          if (indicatorDrag?.pointerId === event.pointerId) indicatorDrag = null;
+          if (indicatorPinch?.pointerIds.includes(event.pointerId)) indicatorPinch = null;
+          if (rotationIndicator.hasPointerCapture?.(event.pointerId)) rotationIndicator.releasePointerCapture?.(event.pointerId);
         };
         rotationIndicator.addEventListener("pointerup", finishIndicatorDrag);
         rotationIndicator.addEventListener("pointercancel", finishIndicatorDrag);
@@ -5089,8 +5621,7 @@
           event.preventDefault();
           event.stopPropagation();
           const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1;
-          previewRotationIndicatorSize = Math.min(180, Math.max(64, previewRotationIndicatorSize * factor));
-          renderPreviewRotationIndicator();
+          setPreviewRotationIndicatorSize(previewRotationIndicatorSize * factor, event);
         }, { passive: false });
         const applyBearing = () => {
           try {
