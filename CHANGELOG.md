@@ -2,6 +2,13 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [2.1.1] - 2026-08-04
+
+### Fixed
+
+- Spider設定が狭い入力ペインで横にはみ出す問題を修正
+- Start rangeやRange ring intervalに関わらず、範囲内の50NMごとのSpider range ringをCardinal colorで強調するように修正
+
 ## [2.1.0] - 2026-08-04
 
 ### Added

@@ -127,6 +127,8 @@
     .setting-label { font-size: .78rem; font-weight: 650; color: #6a7680; }
     .compact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: 10px 12px; justify-content: start; align-items: end; }
     .short-field { justify-self: start; width: min(100%, 14ch); }
+    #bull-spider-settings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #bull-spider-settings .short-field { width: 100%; min-width: 0; }
     .select-field { justify-self: start; width: min(100%, 28ch); }
     .ratio-field { justify-self: start; width: min(100%, 22ch); }
     .mission-grid { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: end; }
@@ -215,6 +217,7 @@
       .preview-zoom-controls { width: 100%; justify-content: flex-start; }
       .grid { grid-template-columns: 1fr; }
       .compact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #bull-spider-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .short-field { width: 100%; }
       .compact-grid .color-control, .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
       .ddm { grid-template-columns: 1fr 1fr 64px; }
@@ -229,6 +232,7 @@
     }
     @media (max-width: 420px) {
       .compact-grid { grid-template-columns: 1fr; }
+      #bull-spider-settings { grid-template-columns: 1fr; }
     }
     @container (max-width: 380px) {
       .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
@@ -521,7 +525,7 @@
   </main>
 
   <script id="core-logic">
-    var APP_VERSION = "2.1.0";
+    var APP_VERSION = "2.1.1";
     var AXIS_GRID_DEFAULT_COLOR = "#b8c0c7";
     var AXIS_GRID_DEFAULT_KML_WIDTH = 3;
     var EARTH_RADIUS_NM = 3440.065;
@@ -1288,8 +1292,11 @@
       for (let range = settings.startRangeNm + settings.ringIntervalNm; range < settings.endRangeNm - 1e-9; range += settings.ringIntervalNm) {
         addRange(range);
       }
+      for (let range = 50; range < settings.endRangeNm - 1e-9; range += 50) {
+        if (range > settings.startRangeNm + 1e-9) addRange(range);
+      }
       addRange(settings.endRangeNm);
-      return ranges;
+      return ranges.sort((a, b) => a - b);
     }
 
     function generateSpiderRangeRing(origin, bearingContext, settings, rangeNm) {
@@ -1314,8 +1321,8 @@
       const { cardinalRadials, majorRadials, minorRadials } = classifySpiderRadials(settings);
       const ringRangesNm = generateSpiderRingRanges(settings);
       const cardinalRingRangesNm = ringRangesNm.filter(rangeNm => {
-        const multiple = rangeNm / settings.ringIntervalNm;
-        return Math.abs(multiple - Math.round(multiple)) < 1e-9 && Math.round(multiple) % 5 === 0;
+        const multiple = rangeNm / 50;
+        return Math.abs(multiple - Math.round(multiple)) < 1e-9;
       });
       const normalRingRangesNm = ringRangesNm.filter(rangeNm => !cardinalRingRangesNm.some(value => Math.abs(value - rangeNm) < 1e-9));
       const majorSegments = [];
