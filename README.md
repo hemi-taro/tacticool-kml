@@ -1,4 +1,4 @@
-# Tacticool KML v2.1.1
+# Tacticool KML v2.2.0
 
 Stable release.
 
@@ -25,9 +25,9 @@ Bullseye基準のAxis、Mission Line、SAM Ring、Custom Point / Line / Areaを�
 5. 必要ならMap LayersへKML / GeoJSONを参考表示として追加します。
 6. プレビューを確認して`Export KML`、`GeoJSON`、または`CSV`を押します。
 
-Object Listの並び順はプレビュー、KML出力、GeoJSON出力の順序へ反映されます。Import GeometryはKML、GeoJSON、WebGIS-style JSONを読み込みます。
+Object Listの並び順はプレビュー、KML出力、GeoJSON出力の順序へ反映されます。Import GeometryはKML、GeoJSONを読み込みます。
 
-Map LayersはKML / GeoJSON / supported WebGIS-style JSONをプレビューに重ねるだけの参考レイヤーです。Object Listには追加されず、編集・出力対象にもなりません。レイヤーごとに表示/非表示と削除ができます。iOSでも選択できるようにファイル選択は全ファイルを許可し、読み込み時に非対応ファイルを拒否します。
+Map LayersはKML / GeoJSONをプレビューに重ねるだけの参考レイヤーです。Object Listには追加されず、編集・出力対象にもなりません。レイヤーごとに表示/非表示と削除ができます。iOSでも選択できるようにファイル選択は全ファイルを許可し、読み込み時に非対応ファイルを拒否します。
 
 Previewでは右クリックまたは長押しした座標からcoordinate popupやmeasure pointを作成できます。measure pointはドラッグで移動でき、連続ポイント間の方位・距離を表示します。`Snap`を有効にすると現在のDisplay formatに合わせて座標を丸め、`To Custom`でCustom Point / Line / Areaの下書きへコピーできます。Previewは回転、拡大縮小、2倍解像度のPNG copy/saveにも対応します。
 
@@ -56,7 +56,6 @@ B/E SpiderはBullseyeから指定範囲のラジアル線とrange ringsをまと
 
 Previewには軽量化したworld coastline、緯度経度グリッド、Scale barを背景表示します。起動時にはAIP High MOA、AIP Low MOA、AIP Range、AIP Temp AreaがMap Layersへ参照レイヤーとして追加されます。これは位置関係の目安であり、KML/GeoJSON exportには含まれません。
 
-WebGIS-style JSON importは`polyline`、`polygon`、`circle`、`symbol`を読み込みます。`lineType`、`lineWidth`、`arrow`、高度、balloon、tooltipなどのメタ情報は読み捨てます。WebGIS-style JSON exportは未対応です。
 
 CSV exportは、対応アプリで読み込める座標CSVを出力します。円やArcも点列として出力します。独立した線、ring、arc、polygon、Box内部線は空行で区切ります。LAT1/LON1は分が0の場合も`3500`、`12900`のように度+2桁分で出力します。
 

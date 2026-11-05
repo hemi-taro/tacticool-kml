@@ -2,6 +2,25 @@
 
 このプロジェクトはSemantic Versioning形式でバージョンを管理します。
 
+## [2.2.0] - 2026-11-06
+
+### Added
+
+- 地図上の座標表示、選択した図形の頂点番号、操作パネルの表示切り替えを追加
+- 座標ボックスと距離目盛りの位置調整、方位表示の位置・サイズのリセットを追加
+
+### Changed
+
+- 名前変更の確定操作とObject Listの配置を調整
+- 緯度経度の格子表示を調整し、Display Formatに対応
+- 10 NMのSpiderの距離リングを調整し、追加後の仮表示を消去
+- JSON読み込みをGeoJSONに限定
+
+### Fixed
+
+- 座標ボックスのPNG出力時の余白と見た目を修正
+- ズーム時に点が過大表示される問題を修正
+
 ## [2.1.1] - 2026-08-04
 
 ### Fixed
@@ -118,7 +137,7 @@
 
 ### Changed
 
-- Map LayersのJSON読み込みをImport Geometryと同じ共有パーサーへ変更し、WebGIS-style JSONも参照レイヤーとして表示可能に変更
+- Map LayersのJSON読み込みをImport Geometryと同じ共有パーサーへ変更
 - Footerを常時表示の下段から左側入力ペイン末尾へ移動
 - 座標入力欄のplaceholderと補足説明でGEOREF対応範囲を明示
 - PWAキャッシュをv1.7.2へ更新
@@ -367,12 +386,10 @@
 
 - Axis TickmarkにMain/Sub Tickmark設定を追加
 - GEOREF座標の入力対応を追加
-- WebGIS-style JSON importを追加
 
 ### Changed
 
 - TickmarkはMainとSubが同距離の場合、Mainを優先してSubを省略
-- Import GeometryでGeoJSONとして読めないJSONをWebGIS-style JSONとして判定
 - PWAキャッシュをv1.2.6へ更新
 
 ## [1.2.5] - 2026-06-19

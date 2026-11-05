@@ -22,6 +22,8 @@
     main { padding: 14px; }
     #workspace-layout { display: grid; gap: 14px; }
     #input-pane { display: grid; gap: 14px; min-width: 0; }
+    #workspace-layout.input-hidden { grid-template-columns: minmax(0, 1fr); }
+    #workspace-layout.input-hidden #input-pane, #workspace-layout.input-hidden #workspace-divider { display: none; }
     #preview-pane { min-width: 0; }
     .preview-panel { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; padding: 0; overflow: hidden; }
     .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #d7dde3; }
@@ -89,10 +91,12 @@
     .preview-layer-geometry { pointer-events: none; }
     .preview { width: 100%; height: auto; background: #ffffff; border: 0; border-radius: 0; }
     .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #ffffff; }
+    .preview-position-readout { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 5; padding: 4px 8px; background: #152536; color: white; border-radius: 4px; font-size: .8rem; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+    .preview-center-crosshair { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; color: #a12828; font-size: 26px; line-height: 1; text-shadow: 0 0 2px white; pointer-events: none; }
     .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
     .pending-custom-preview, .pending-preview { pointer-events: none; }
     #preview-coordinate-popups { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-    .preview-coordinate-popup { position: absolute; display: flex; gap: 4px; max-width: 320px; padding: 6px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; font-size: .82rem; pointer-events: auto; }
+    .preview-coordinate-popup { position: absolute; display: flex; gap: 4px; max-width: 320px; padding: 6px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; font-size: .82rem; pointer-events: auto; touch-action: none; cursor: grab; }
     .preview-coordinate-popup button { margin: 0; }
     #preview-context-cross-layer { pointer-events: none; }
     .preview-context-cross { stroke: #d32f2f; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
@@ -112,7 +116,7 @@
     .preview-grid-line { stroke: #8ea1b2; stroke-width: 0.6; stroke-opacity: 0.28; vector-effect: non-scaling-stroke; }
     .preview-grid-label { fill: #52616f; stroke: #fff; paint-order: stroke; font-family: system-ui, sans-serif; font-weight: 700; pointer-events: none; }
     .preview-gsi-range { fill: none; stroke: #d32f2f; stroke-width: 1.2; stroke-opacity: 0.45; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; pointer-events: none; }
-    #preview-scale-bar { position: absolute; right: 14px; bottom: 24px; z-index: 2; display: grid; gap: 3px; justify-items: start; padding: 4px 6px; border-radius: 5px; background: #ffffffcc; color: #152536; font-size: .72rem; font-weight: 700; pointer-events: none; text-shadow: 0 1px 2px #fff; }
+    #preview-scale-bar { position: absolute; right: 14px; bottom: 24px; z-index: 2; display: grid; gap: 3px; justify-items: start; padding: 4px 6px; border-radius: 5px; background: #ffffffcc; color: #152536; font-size: .72rem; font-weight: 700; pointer-events: auto; touch-action: none; cursor: grab; user-select: none; text-shadow: 0 1px 2px #fff; }
     #preview-scale-bar .scale-line { height: 5px; border-left: 2px solid #152536; border-right: 2px solid #152536; border-bottom: 2px solid #152536; background: #ffffff99; }
     .coastline-preview { fill: none; stroke: #aeb8c2; stroke-width: 0.7; vector-effect: non-scaling-stroke; }
     .section-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -154,7 +158,7 @@
     .object-details { box-sizing: border-box; width: min(540px, calc(100% - 39px)); min-width: 0; margin: 8px 0 0 39px; padding: 6px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 5px; overflow: hidden; container-type: inline-size; }
     .object-detail-grid { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: 1fr; gap: 5px; align-items: start; }
     .object-detail-grid > button { flex: 0 0 auto; width: auto; }
-    .object-name-edit { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: minmax(220px, 1fr) auto; align-items: end; gap: 6px; }
+    .object-name-edit { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; gap: 6px; }
     .object-name-edit label { width: auto; min-width: 0; max-width: none; }
     .object-name-edit button { flex: 0 0 auto; width: auto; }
     .object-lock-control { min-height: 24px; justify-self: start; align-self: start; padding: 0 2px; white-space: nowrap; }
@@ -163,7 +167,7 @@
     .object-line-width-edit { min-width: 0; display: grid; grid-template-columns: auto 4.5ch auto; align-items: end; justify-content: start; gap: 5px; }
     .object-line-width-edit label { width: 4.5ch; min-width: 0; }
     .object-line-width-edit input { text-align: center; }
-    .object-actions-row { min-width: 0; display: grid; grid-template-columns: max-content max-content; align-items: end; justify-content: start; gap: 6px; }
+    .object-actions-row { min-width: 0; display: flex; flex-wrap: wrap; align-items: end; justify-content: start; gap: 6px; }
     .object-details .summary { margin-top: 5px; }
     .export-width-row { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 5px; }
     .export-width-row label { min-width: 0; }
@@ -222,7 +226,7 @@
       .compact-grid .color-control, .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
       .ddm { grid-template-columns: 1fr 1fr 64px; }
       .object-detail-grid { display: grid; grid-template-columns: 1fr; }
-      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr); }
       .object-name-edit label { width: auto; max-width: none; }
       .custom-offset-controls { display: grid; grid-template-columns: 1fr; }
       .custom-offset-controls label { width: auto; max-width: none; }
@@ -235,7 +239,7 @@
       #bull-spider-settings { grid-template-columns: 1fr; }
     }
     @container (max-width: 380px) {
-      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+      .object-name-edit { display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; }
       .object-name-edit label { flex-basis: auto; max-width: none; }
       .object-line-width-edit { display: grid; grid-template-columns: auto 4.5ch auto; justify-content: start; }
       .object-detail-grid > button { justify-self: start; }
@@ -490,6 +494,7 @@
         <div class="preview-toolbar">
           <h2>Preview</h2>
           <div class="preview-zoom-controls">
+            <button id="toggle-input-pane" type="button" class="secondary" aria-label="Hide controls" title="Hide controls">&#9776;</button>
             <div class="preview-rotation-controls">
               <button id="preview-compass" type="button" class="secondary" aria-label="Reset Preview to North Up">N</button>
               <input id="preview-bearing" type="text" inputmode="decimal" placeholder="BRG" aria-label="Preview top bearing">
@@ -505,11 +510,13 @@
                  <button id="preview-save-png" type="button" class="secondary">Save PNG</button>
                </div>
              </div>
-            <button id="preview-zoom-reset" type="button" aria-label="Reset preview zoom">⌂</button>
+            <button id="preview-zoom-reset" type="button" aria-label="Reset preview zoom">&#8962;</button>
           </div>
           <span id="preview-message" class="message" role="status"></span>
         </div>
         <div id="preview-stage" class="preview-stage">
+          <div id="preview-position-readout" class="preview-position-readout" hidden></div>
+          <div id="preview-center-crosshair" class="preview-center-crosshair" hidden aria-hidden="true">+</div>
           <svg id="kml-preview" class="preview" viewBox="0 0 600 300" role="img" aria-label="KML geometry preview"><g id="preview-grid-layer"></g><g id="preview-gsi-range-layer"></g><g id="preview-snap-layer" aria-hidden="true"></g><g id="preview-context-cross-layer" aria-hidden="true"></g><g id="preview-measure-layer" aria-label="Preview measure route"></g><g id="preview-ruler-layer" aria-hidden="true"></g></svg>
           <div id="preview-scale-bar" aria-hidden="true"><div class="scale-line"></div><div class="scale-label"></div></div>
           <div id="preview-rotation-indicator" hidden aria-label="Preview rotation compass"><svg id="preview-rotation-rose" class="preview-rose" viewBox="0 0 120 140" aria-hidden="true"><path class="preview-rose-line" d="M60 38 V132 M18 86 H102 M18 86 L60 38"></path><text class="preview-rose-label" x="60" y="16">N</text></svg></div>
@@ -525,7 +532,7 @@
   </main>
 
   <script id="core-logic">
-    var APP_VERSION = "2.1.1";
+    var APP_VERSION = "2.2.0";
     var AXIS_GRID_DEFAULT_COLOR = "#b8c0c7";
     var AXIS_GRID_DEFAULT_KML_WIDTH = 3;
     var EARTH_RADIUS_NM = 3440.065;
@@ -1292,7 +1299,8 @@
       for (let range = settings.startRangeNm + settings.ringIntervalNm; range < settings.endRangeNm - 1e-9; range += settings.ringIntervalNm) {
         addRange(range);
       }
-      for (let range = 50; range < settings.endRangeNm - 1e-9; range += 50) {
+      const majorRingInterval = Math.abs(settings.endRangeNm - 10) < 1e-9 ? 5 : 50;
+      for (let range = majorRingInterval; range < settings.endRangeNm - 1e-9; range += majorRingInterval) {
         if (range > settings.startRangeNm + 1e-9) addRange(range);
       }
       addRange(settings.endRangeNm);
@@ -1321,7 +1329,7 @@
       const { cardinalRadials, majorRadials, minorRadials } = classifySpiderRadials(settings);
       const ringRangesNm = generateSpiderRingRanges(settings);
       const cardinalRingRangesNm = ringRangesNm.filter(rangeNm => {
-        const multiple = rangeNm / 50;
+        const multiple = rangeNm / (Math.abs(settings.endRangeNm - 10) < 1e-9 ? 5 : 50);
         return Math.abs(multiple - Math.round(multiple)) < 1e-9;
       });
       const normalRingRangesNm = ringRangesNm.filter(rangeNm => !cardinalRingRangesNm.some(value => Math.abs(value - rangeNm) < 1e-9));
@@ -1912,70 +1920,9 @@
       return imported;
     }
 
-    function htmlColorFromRgba(value, fallback = "#455a64") {
-      const match = String(value || "").match(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
-      if (!match) return fallback;
-      const parts = match.slice(1, 4).map(Number);
-      if (parts.some(part => !Number.isFinite(part) || part < 0 || part > 255)) return fallback;
-      return `#${parts.map(part => part.toString(16).padStart(2, "0")).join("")}`;
-    }
-
-    function parseWebGisCoordinate(value) {
-      if (Array.isArray(value) && value.length >= 2) return validateLatLon(Number(value[1]), Number(value[0]));
-      return parseCoordinatePair(String(value || ""));
-    }
-
-    function parseWebGisJsonObjects(root) {
-      const items = Array.isArray(root) ? root : [root];
-      const output = [];
-      items.forEach((item, index) => {
-        if (!item || typeof item !== "object") return;
-        const type = String(item.type || "").toLowerCase();
-        const name = String(item.name || `Imported ${index + 1}`).trim() || `Imported ${index + 1}`;
-        const color = htmlColorFromRgba(item.color);
-        const fillColor = item.fill ? color : null;
-        if (type === "polyline" || type === "polygon") {
-          const points = Array.isArray(item.points) ? item.points.map(parseWebGisCoordinate) : [];
-          if (points.length < 2) return;
-          const closed = points.length >= 3 && Math.abs(points[0].lat - points.at(-1).lat) < 1e-10 && Math.abs(points[0].lon - points.at(-1).lon) < 1e-10;
-          const area = type === "polygon" || closed;
-          output.push({
-            name,
-            type: area ? "Imported Polygon" : "Imported Line",
-            color,
-            fillColor: area ? fillColor : null,
-            coordinates: points
-          });
-        } else if (type === "circle") {
-          const center = parseWebGisCoordinate(item.center);
-          const radius = Number(item.radius);
-          if (!Number.isFinite(radius) || radius <= 0) return;
-          output.push({
-            name,
-            type: "SAM Ring",
-            color,
-            fillColor,
-            center,
-            radius,
-            coordinates: generateCircle(center.lat, center.lon, radius, 72)
-          });
-        } else if (type === "symbol") {
-          const point = parseWebGisCoordinate(item.point);
-          output.push({
-            name,
-            type: "Imported Point",
-            color,
-            coordinates: [point]
-          });
-        }
-      });
-      return output;
-    }
-
     function parseGeometryJsonObjects(text) {
       const root = typeof text === "string" ? JSON.parse(text) : text;
-      const geoJsonObjects = parseGeoJsonObjects(root);
-      return geoJsonObjects.length ? geoJsonObjects : parseWebGisJsonObjects(root);
+      return parseGeoJsonObjects(root);
     }
 
     function previewBaseExtent(aspectRatio) {
@@ -2043,11 +1990,16 @@
       let previewRotationIndicatorSize = 112;
       let previewRulerMeasurement = null;
       let lastPreviewProjection = null;
+      let previewPositionMode = matchMedia("(hover: none) and (pointer: coarse)").matches ? "touch" : "mouse";
+      let previewMousePosition = null;
+      let previewGridStep = null;
+      let previewScalePosition = null;
       const previewMeasurePoints = [];
       let nextPreviewMeasureId = 1;
       const previewCoordinatePopups = [];
       let nextPreviewPopupId = 1;
       const expandedObjectIds = new Set();
+      let selectedVertexObjectId = null;
       const LINE_PRESET_COLORS = ["#1565C0","#D32F2F","#455A64","#2E7D32","#EF6C00","#FBC02D","#6A1B9A","#00838F","#111827"];
       const FILL_PRESET_COLORS = ["#F6D6D6","#D7E8F5","#DCEEDC","#F7E4CC","#FFF3C4"];
       const $ = id => document.getElementById(id);
@@ -2221,6 +2173,18 @@
       }
 
       function formatGridDegreeLabel(value, isLatitude, step) {
+        if (coordinateFormat !== "dd") {
+          const hemisphere = isLatitude ? (value < 0 ? "S" : "N") : (value < 0 ? "W" : "E");
+          const totalSeconds = Math.round(Math.abs(value) * 360000) / 100;
+          const degrees = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds - degrees * 3600) / 60);
+          const seconds = Math.round((totalSeconds - degrees * 3600 - minutes * 60) * 100) / 100;
+          if (coordinateFormat === "ddm") {
+            const totalMinutes = (totalSeconds - degrees * 3600) / 60;
+            return degrees + "\u00b0" + (totalMinutes ? Number(totalMinutes.toFixed(4)) + "\u2032" : "") + hemisphere;
+          }
+          return degrees + "\u00b0" + (minutes || seconds ? minutes + "\u2032" : "") + (seconds ? seconds + "\u2033" : "") + hemisphere;
+        }
         const decimals = step < 1 ? 2 : 0;
         const abs = Math.abs(value);
         const degrees = Number.isInteger(abs) || decimals === 0 ? String(Math.round(abs)) : abs.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
@@ -2268,8 +2232,11 @@
         const [viewX, viewY, viewWidth, viewHeight] = values;
         const viewBox = { x: viewX, y: viewY, width: viewWidth, height: viewHeight };
         const ns = "http://www.w3.org/2000/svg";
-        const lonStep = niceGridStep(bounds.maxLon - bounds.minLon);
-        const latStep = niceGridStep(bounds.maxLat - bounds.minLat);
+        const span = Math.max(bounds.maxLon - bounds.minLon, bounds.maxLat - bounds.minLat);
+        const candidateStep = niceGridStep(span);
+        if (previewGridStep === null || (candidateStep > previewGridStep && span / 6 > previewGridStep * 1.1) || (candidateStep < previewGridStep && span / 6 < candidateStep * 0.9)) previewGridStep = candidateStep;
+        const lonStep = previewGridStep;
+        const latStep = previewGridStep;
         const fontSize = 10 / previewZoom;
         const strokeWidth = 3 / previewZoom;
         const inset = 6 / previewZoom;
@@ -2445,7 +2412,56 @@
         bar.querySelector(".scale-line").style.width = `${pixelWidth}px`;
         bar.querySelector(".scale-label").textContent = `${distanceNm} NM`;
         bar.hidden = false;
+        placePreviewScaleBar();
       }
+
+      function placePreviewScaleBar() {
+        const bar = $("preview-scale-bar");
+        const stage = $("preview-stage");
+        if (!previewScalePosition) {
+          bar.style.left = ""; bar.style.top = ""; bar.style.right = ""; bar.style.bottom = "";
+          return;
+        }
+        previewScalePosition.x = Math.max(0, Math.min(previewScalePosition.x, stage.clientWidth - bar.offsetWidth));
+        previewScalePosition.y = Math.max(0, Math.min(previewScalePosition.y, stage.clientHeight - bar.offsetHeight));
+        bar.style.left = previewScalePosition.x + "px";
+        bar.style.top = previewScalePosition.y + "px";
+        bar.style.right = "auto"; bar.style.bottom = "auto";
+      }
+
+      function bindPreviewScaleBar() {
+        const bar = $("preview-scale-bar");
+        let drag = null, lastTap = 0;
+        const reset = () => { previewScalePosition = null; placePreviewScaleBar(); };
+        bar.addEventListener("dblclick", event => { event.preventDefault(); reset(); });
+        bar.addEventListener("pointerdown", event => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          const stageRect = $("preview-stage").getBoundingClientRect();
+          const rect = bar.getBoundingClientRect();
+          drag = { id: event.pointerId, x: event.clientX, y: event.clientY, left: rect.left - stageRect.left, top: rect.top - stageRect.top, moved: false };
+          bar.setPointerCapture(event.pointerId);
+        });
+        bar.addEventListener("pointermove", event => {
+          if (!drag || drag.id !== event.pointerId) return;
+          const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+          if (Math.hypot(dx, dy) > 4) drag.moved = true;
+          if (!drag.moved) return;
+          previewScalePosition = { x: drag.left + dx, y: drag.top + dy };
+          placePreviewScaleBar();
+        });
+        const end = event => {
+          if (!drag || drag.id !== event.pointerId) return;
+          if (event.type === "pointerup" && event.pointerType === "touch" && !drag.moved) {
+            const now = Date.now();
+            if (now - lastTap < 350) { reset(); lastTap = 0; } else lastTap = now;
+          } else lastTap = 0;
+          drag = null;
+        };
+        bar.addEventListener("pointerup", end);
+        bar.addEventListener("pointercancel", end);
+      }
+      bindPreviewScaleBar();
 
       function moveArrayItem(array, fromIndex, toIndex) {
         if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
@@ -2512,13 +2528,43 @@
         const height = base.height / previewZoom;
         const viewBox = `${300 - width / 2 + previewPanX} ${150 - height / 2 + previewPanY} ${width} ${height}`;
         $("kml-preview").setAttribute("viewBox", viewBox);
+        const pointWidth = Math.max(1, Number($("kml-line-width").value) || 4);
+        const pointRadius = Math.max(2 / previewZoom, Math.min(4 / previewZoom, pointWidth * 0.9));
+        $("kml-preview").querySelectorAll("circle[data-preview-point]").forEach(circle => {
+          circle.setAttribute("r", String(pointRadius));
+        });
         updatePreviewRulerScale();
         drawPreviewGrid();
         drawPreviewGsiRange();
         updatePreviewScaleBar();
         refreshPreviewCoastline();
         applyPreviewRotation();
+        drawSelectedVertices();
         renderPreviewCoordinatePopups();
+        updatePreviewPositionReadout();
+      }
+
+      function drawSelectedVertices() {
+        const group = $("preview-vertex-label-layer");
+        if (!group || !lastPreviewProjection) return;
+        group.replaceChildren();
+        const object = objects.find(item => item.id === selectedVertexObjectId);
+        if (!object || !expandedObjectIds.has(object.id)) return;
+        const generated = object.type === "B/E Spider" || object.type === "Grid Group" || object.type === "SAM Ring" || Boolean(object.previewArcCenter);
+        const center = object.previewArcCenter || (object.type === "Grid Group" ? object.origin : object.type === "B/E Spider" ? object.createdBullseye : object.type === "SAM Ring" ? object.center : null);
+        const coordinates = generated ? (center ? [center] : []) : object.coordinates;
+        if (coordinates.length > 100) return;
+        coordinates.forEach((coordinate, index) => {
+          const point = previewDisplayPoint(lastPreviewProjection.project(coordinate));
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          label.setAttribute("x", point.x + 5 / previewZoom);
+          label.setAttribute("y", point.y - 5 / previewZoom);
+          label.setAttribute("font-size", 10 / previewZoom);
+          label.setAttribute("stroke-width", 3 / previewZoom);
+          label.setAttribute("class", "preview-grid-label");
+          label.textContent = generated ? "C" : String(index + 1);
+          group.append(label);
+        });
       }
 
       function applyPreviewZoom() {
@@ -2753,6 +2799,9 @@
         const gridLabelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         gridLabelGroup.id = "preview-grid-label-layer";
         svg.append(gridLabelGroup);
+        const vertexLabelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        vertexLabelGroup.id = "preview-vertex-label-layer";
+        svg.append(vertexLabelGroup);
         const snapGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         snapGroup.id = "preview-snap-layer";
         svg.append(snapGroup);
@@ -2799,6 +2848,7 @@
             circle.setAttribute("cx", points[0].x);
             circle.setAttribute("cy", points[0].y);
             circle.setAttribute("r", String(pointRadius));
+            circle.dataset.previewPoint = "true";
             circle.setAttribute("fill", object.color);
             circle.setAttribute("fill-opacity", String(strokeOpacity));
             if (className) circle.setAttribute("class", className);
@@ -2824,6 +2874,7 @@
             circle.setAttribute("cx", points[0].x);
             circle.setAttribute("cy", points[0].y);
             circle.setAttribute("r", String(pointRadius));
+            circle.dataset.previewPoint = "true";
             circle.setAttribute("fill", object.color);
             geographicGroup.append(circle);
             continue;
@@ -2856,6 +2907,7 @@
             circle.setAttribute("cx", point.x);
             circle.setAttribute("cy", point.y);
             circle.setAttribute("r", String(pointRadius));
+            circle.dataset.previewPoint = "true";
             circle.setAttribute("fill", object.color);
             circle.setAttribute("fill-opacity", String(opacity));
             geographicGroup.append(circle);
@@ -2934,7 +2986,7 @@
           const handle = document.createElement("button");
           handle.type = "button";
           handle.className = "drag-handle";
-          handle.textContent = "☰";
+          handle.textContent = "\u2630";
           handle.draggable = false;
           handle.setAttribute("aria-label", `Reorder ${object.name}`);
           handle.addEventListener("click", event => event.stopPropagation());
@@ -2978,8 +3030,13 @@
               tableSelect.dispatchEvent(new Event("change"));
               return;
             }
-            if (expandedObjectIds.has(object.id)) expandedObjectIds.delete(object.id);
-            else expandedObjectIds.add(object.id);
+            if (expandedObjectIds.has(object.id)) {
+              expandedObjectIds.delete(object.id);
+              if (selectedVertexObjectId === object.id) selectedVertexObjectId = null;
+            } else {
+              expandedObjectIds.add(object.id);
+              selectedVertexObjectId = object.id;
+            }
             renderObjects();
           });
           if (objectTableMode) row.append(tableSelect);
@@ -3376,21 +3433,20 @@
         const input = document.createElement("input");
         input.type = "text";
         input.value = object.name;
-        const save = document.createElement("button");
-        save.type = "button";
-        save.className = "secondary small";
-        save.textContent = "Rename";
-        save.addEventListener("click", () => {
+        const saveName = () => {
           const name = input.value.trim();
-          if (!name) {
-            input.setCustomValidity("Name cannot be blank.");
-            input.reportValidity();
-            return;
-          }
-          input.setCustomValidity("");
+          if (!name) { input.value = object.name; return; }
+          if (name === object.name) return;
           object.name = name;
-          renderObjects();
-        });
+          input.value = name;
+          const heading = input.closest("li")?.querySelector(".object-text strong");
+          if (heading) heading.textContent = name;
+          objectTableBlob = null;
+          closeObjectTableMenu();
+          renderAxisOptions();
+        };
+        input.addEventListener("blur", saveName);
+        input.addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); input.blur(); } });
         const lockToggle = document.createElement("label");
         lockToggle.className = "check object-lock-control";
         const lockInput = document.createElement("input");
@@ -3401,7 +3457,7 @@
           renderObjects();
         });
         label.append(input);
-        nameEdit.append(label, save);
+        nameEdit.append(label);
         detailGrid.append(nameEdit);
         lockToggle.append(lockInput, document.createTextNode(" Lock"));
         detailGrid.append(lockToggle);
@@ -3682,7 +3738,7 @@
           const handle = document.createElement("button");
           handle.type = "button";
           handle.className = "drag-handle";
-          handle.textContent = "☰";
+          handle.textContent = "\u2630";
           handle.draggable = false;
           handle.setAttribute("aria-label", `Reorder point ${index + 1}`);
           const text = createCoordinateEntry(index, point);
@@ -3949,6 +4005,7 @@
             ...(closeShape && pendingCustomCenter ? { center: { ...pendingCustomCenter } } : {}),
             ...(pendingCustomCreatedBullseye ? { createdBullseye: pendingCustomCreatedBullseye } : {}),
             ...(pendingCustomCenterVariation ? { centerVariation: pendingCustomCenterVariation } : {}),
+            ...($("custom-point-mode").value === "arc" && pendingCustomCenter ? { previewArcCenter: { ...pendingCustomCenter } } : {}),
             ...(customPoints.gridSegments?.length ? { gridSegments: customPoints.gridSegments.map(segment => segment.map(point => ({ ...point }))) } : {}),
             coordinates
           });
@@ -4143,6 +4200,9 @@
             createdBullseye: createdBullseyeSnapshot(bull),
             coordinates: [{ lat: bull.lat, lon: bull.lon }]
           });
+          $("bull-spider-enabled").checked = false;
+          updateSpiderSettingsVisibility();
+          renderPreview();
           setSpiderMessage("");
         } catch (error) {
           setSpiderMessage("Error. Enter valid radial / distance.");
@@ -4260,6 +4320,7 @@
         updateAxisNamePlaceholder();
         renderObjects();
         renderCustomPoints();
+        updatePreviewPositionReadout();
       }
 
       function handleCoordinateFormatClick(event) {
@@ -4612,6 +4673,39 @@
         const point = inverseRotatePreviewPoint(previewEventPoint(event), previewViewCenter(), previewRotationDeg);
         return lastPreviewProjection.unproject(point);
       }
+
+      function updatePreviewPositionReadout() {
+        const stage = $("preview-stage");
+        const rect = stage.getBoundingClientRect();
+        const touch = previewPositionMode === "touch";
+        const position = touch ? { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 } : previewMousePosition;
+        const readout = $("preview-position-readout");
+        $("preview-center-crosshair").hidden = !touch;
+        const coordinate = position && previewCoordinateAtEvent(position);
+        readout.hidden = !coordinate;
+        if (coordinate) readout.textContent = formatCoordinatePair(coordinate, coordinateFormat);
+      }
+
+      $("preview-stage").addEventListener("pointermove", event => {
+        if (event.pointerType === "mouse") {
+          previewPositionMode = "mouse";
+          previewMousePosition = { clientX: event.clientX, clientY: event.clientY };
+          updatePreviewPositionReadout();
+        }
+      });
+      $("preview-stage").addEventListener("pointerdown", event => {
+        if (event.pointerType === "touch") {
+          previewPositionMode = "touch";
+          previewMousePosition = null;
+          updatePreviewPositionReadout();
+        }
+      }, true);
+      $("preview-stage").addEventListener("pointerleave", event => {
+        if (event.pointerType === "mouse" && previewPositionMode === "mouse") {
+          previewMousePosition = null;
+          updatePreviewPositionReadout();
+        }
+      });
 
       function measurementLabel(start, end) {
         const measurement = calculateRangeBearing(start, end);
@@ -4973,6 +5067,9 @@
       }
 
       function copyPreviewMeasureToCustom() {
+        $("workspace-layout").classList.remove("input-hidden");
+        $("toggle-input-pane").setAttribute("aria-label", "Hide controls");
+        $("toggle-input-pane").title = "Hide controls";
         $("custom-panel").open = true;
         $("custom-point-mode").value = "direct";
         $("custom-point-mode").dispatchEvent(new Event("change"));
@@ -5095,12 +5192,14 @@
           deleteButton.type = "button";
           deleteButton.className = "small danger";
           deleteButton.dataset.action = "remove-coordinate-popup";
-          deleteButton.textContent = "−";
+          deleteButton.textContent = "\u2212";
           popup.append(deleteButton);
           container.append(popup);
           const position = choosePreviewPopupPosition(cssPoint, popup.offsetWidth, popup.offsetHeight, stage.clientWidth, stage.clientHeight, obstacles);
-          popup.style.left = `${position.x}px`;
-          popup.style.top = `${position.y}px`;
+          const x = position.x + (item.offsetX || 0);
+          const y = position.y + (item.offsetY || 0);
+          popup.style.left = `${x}px`;
+          popup.style.top = `${y}px`;
           obstacles.push({ x: position.x - 4, y: position.y - 4, width: popup.offsetWidth + 8, height: popup.offsetHeight + 8 });
         }
       }
@@ -5146,6 +5245,27 @@
         }
         $("preview-clear-measure").addEventListener("click", clearAllPreviewMeasurements);
         $("preview-to-custom").addEventListener("click", copyPreviewMeasureToCustom);
+        let popupDrag = null;
+        popupContainer.addEventListener("pointerdown", event => {
+          const popup = event.target.closest(".preview-coordinate-popup");
+          if (!popup || event.target.closest("button") || event.button !== 0) return;
+          const item = previewCoordinatePopups.find(candidate => candidate.id === Number(popup.dataset.popupId));
+          if (!item) return;
+          event.preventDefault();
+          popupDrag = { popup, item, x: event.clientX, y: event.clientY, left: parseFloat(popup.style.left), top: parseFloat(popup.style.top), offsetX: item.offsetX || 0, offsetY: item.offsetY || 0, pointerId: event.pointerId };
+          popup.setPointerCapture(event.pointerId);
+        });
+        popupContainer.addEventListener("pointermove", event => {
+          if (!popupDrag || popupDrag.pointerId !== event.pointerId) return;
+          const dx = event.clientX - popupDrag.x, dy = event.clientY - popupDrag.y;
+          popupDrag.item.offsetX = popupDrag.offsetX + dx;
+          popupDrag.item.offsetY = popupDrag.offsetY + dy;
+          popupDrag.popup.style.left = `${popupDrag.left + dx}px`;
+          popupDrag.popup.style.top = `${popupDrag.top + dy}px`;
+        });
+        const endPopupDrag = event => { if (popupDrag?.pointerId === event.pointerId) popupDrag = null; };
+        popupContainer.addEventListener("pointerup", endPopupDrag);
+        popupContainer.addEventListener("pointercancel", endPopupDrag);
         popupContainer.addEventListener("click", async event => {
           const button = event.target?.closest?.("button[data-action]");
           const popup = event.target?.closest?.(".preview-coordinate-popup");
@@ -5381,7 +5501,10 @@
           const rect = popup.getBoundingClientRect();
           const x = (rect.left - stageRect.left) * scaleX;
           const y = (rect.top - stageRect.top) * scaleY;
-          const width = rect.width * scaleX;
+          const coordinateButton = popup.querySelector("[data-action='copy-coordinate']");
+          if (!coordinateButton) return;
+          const buttonRect = coordinateButton.getBoundingClientRect();
+          const width = (buttonRect.right - rect.left + 6) * scaleX;
           const height = rect.height * scaleY;
           context.save();
           context.fillStyle = "#152536";
@@ -5391,11 +5514,16 @@
           context.roundRect(x, y, width, height, 7 * Math.min(scaleX, scaleY));
           context.fill();
           context.stroke();
-          const coordinateButton = popup.querySelector("[data-action='copy-coordinate']");
+          const buttonX = (buttonRect.left - stageRect.left) * scaleX;
+          const buttonY = (buttonRect.top - stageRect.top) * scaleY;
+          context.fillStyle = getComputedStyle(coordinateButton).backgroundColor;
+          context.beginPath();
+          context.roundRect(buttonX, buttonY, buttonRect.width * scaleX, buttonRect.height * scaleY, 5 * Math.min(scaleX, scaleY));
+          context.fill();
           context.fillStyle = "white";
           context.font = `${Math.max(12, 13 * scaleY)}px system-ui, sans-serif`;
           context.textBaseline = "middle";
-          context.fillText(coordinateButton?.textContent || "", x + 7 * scaleX, y + height / 2, Math.max(0, width - 50 * scaleX));
+          context.fillText(coordinateButton.textContent || "", buttonX + 10 * scaleX, y + height / 2, Math.max(0, buttonRect.width * scaleX - 20 * scaleX));
           context.restore();
         });
       }
@@ -5540,6 +5668,14 @@
         let indicatorDrag = null;
         const indicatorPointers = new Map();
         let indicatorPinch = null;
+        let lastIndicatorTap = 0;
+        let indicatorTapStart = null;
+        const resetIndicator = () => {
+          previewRotationIndicatorPosition = { x: 12, y: 12 };
+          previewRotationIndicatorSize = 112;
+          renderPreviewRotationIndicator();
+        };
+        rotationIndicator.addEventListener("dblclick", event => { event.preventDefault(); resetIndicator(); });
         let suppressApplyClick = false;
         const pointerAngle = event => {
           const rect = $("kml-preview").getBoundingClientRect();
@@ -5575,6 +5711,7 @@
         });
         rotationIndicator.addEventListener("pointerdown", event => {
           event.preventDefault();
+          indicatorTapStart = event.pointerType === "touch" && indicatorPointers.size === 0 ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
           indicatorPointers.set(event.pointerId, event);
           const stageRect = $("preview-stage").getBoundingClientRect();
           if (event.pointerType === "touch" && indicatorPointers.size >= 2) {
@@ -5617,6 +5754,11 @@
           renderPreviewRotationIndicator();
         });
         const finishIndicatorDrag = event => {
+          if (event.type === "pointerup" && indicatorTapStart?.id === event.pointerId && Math.hypot(event.clientX - indicatorTapStart.x, event.clientY - indicatorTapStart.y) < 8 && !indicatorPinch) {
+            const now = Date.now();
+            if (now - lastIndicatorTap < 350) { resetIndicator(); lastIndicatorTap = 0; } else lastIndicatorTap = now;
+          } else if (event.pointerType === "touch") lastIndicatorTap = 0;
+          indicatorTapStart = null;
           indicatorPointers.delete(event.pointerId);
           if (indicatorDrag?.pointerId === event.pointerId) indicatorDrag = null;
           if (indicatorPinch?.pointerIds.includes(event.pointerId)) indicatorPinch = null;
@@ -5685,6 +5827,11 @@
         });
       }
       bindWorkspaceDivider();
+      $("toggle-input-pane").addEventListener("click", event => {
+        const hidden = $("workspace-layout").classList.toggle("input-hidden");
+        event.currentTarget.setAttribute("aria-label", hidden ? "Show controls" : "Hide controls");
+        event.currentTarget.title = hidden ? "Show controls" : "Hide controls";
+      });
       let previewResizeFrame = 0;
       let previewStageSize = "";
       const previewResizeObserver = new ResizeObserver(entries => {
