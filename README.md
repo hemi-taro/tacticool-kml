@@ -1,4 +1,4 @@
-# Tacticool KML v2.2.0
+# Tacticool KML v2.3.0
 
 Stable release.
 
@@ -37,7 +37,11 @@ Color欄は小さいネイティブカラーピッカーとプリセット色か
 
 Axis、Mission Line、SAM Ring、Custom Point / Line / Areaは折りたたみ式です。各Addボタン横の下矢印でObject Listへ移動できます。Object Listで詳細が開いている時は右下の上矢印ですべて閉じられます。SAM RingとCustom Areaのpolygon fillは初期状態では無効です。ONにするとFill colorが表示されます。
 
-SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}`になります。BoxとArcは生成時にNameが空なら`BOX {中心座標}`または`ARC {中心座標}`を自動入力します。Axisの既定名は`AXIS {方位/反方位} {B/E座標}`です。これらの短い名前やB/E表示では、入力されていない小数や分秒のゼロ埋めを省略します。内部計算とKML/GeoJSON出力の精度は維持します。
+SAM Ringは`At B/E`を選択でき、名前を省略すると`SAM {中心座標}`になります。BoxとArcは生成時にNameが空なら`BOX {中心座標}`または`ARC {中心座標}`を自動入力します。Axisの既定名は`AXIS {方位/反方位} {B/E座標}`です。
+
+Settingsの`Coordinate precision`は、座標の表示と新しく生成するMission Line、Box、通常のCustom頂点の丸めを制御します。`Less`、`NML`、`Fine`から選択でき、既存Objectの座標値は変更しません。`Resolution`は緯度方向のおおよその刻み幅です。
+
+確定前のB/E、Axis、SAM Ring、Box、Arcはプレビュー上で調整できます。Object Listでは、地図上の表示切り替えと、削除やClear AllのUndoを利用できます。非表示はプレビューだけに適用され、出力には含まれます。
 
 ## Coordinate Input
 

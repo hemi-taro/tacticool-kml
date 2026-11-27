@@ -21,7 +21,7 @@
     #update-app { flex: 0 0 auto; width: 34px; min-height: 34px; padding: 0; border: 1px solid #ffffff55; border-radius: 50%; background: #ffffff18; font-size: 1.25rem; line-height: 1; }
     main { padding: 14px; }
     #workspace-layout { display: grid; gap: 14px; }
-    #input-pane { display: grid; gap: 14px; min-width: 0; }
+    #input-pane { display: grid; gap: 14px; min-width: 0; container-type: inline-size; }
     #workspace-layout.input-hidden { grid-template-columns: minmax(0, 1fr); }
     #workspace-layout.input-hidden #input-pane, #workspace-layout.input-hidden #workspace-divider { display: none; }
     #preview-pane { min-width: 0; }
@@ -49,6 +49,7 @@
     section { background: white; border: 1px solid #d7dde3; border-radius: 9px; padding: 14px; }
     h2 { margin: 0 0 12px; font-size: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .grid > .coordinate-control { grid-column: 1 / -1; min-width: 0; }
     .ddm { display: grid; grid-template-columns: 1fr 1fr 70px; gap: 7px; }
     label { display: grid; gap: 4px; font-size: .78rem; font-weight: 650; color: #3d4b59; container-type: inline-size; }
     input, select, textarea, button { font: inherit; min-height: 42px; border-radius: 6px; border: 1px solid #aeb9c4; }
@@ -65,6 +66,7 @@
     button { border: 0; padding: 9px 14px; background: #1769aa; color: white; font-weight: 700; cursor: pointer; }
     button.secondary { background: #52616f; }
     button.danger { background: #a63232; }
+    #undo-object-delete:disabled { opacity: .4; cursor: default; }
     button.small { min-height: 34px; padding: 5px 10px; }
     .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
     .spider-actions { grid-column: 1 / -1; justify-content: flex-start; }
@@ -83,18 +85,27 @@
     .object-text span { font-size: .78rem; color: #65727e; margin-top: 2px; }
     .empty { color: #6a7680; font-size: .88rem; }
     .preview-layer-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
-    .preview-layer-list li { display: flex; align-items: center; gap: 10px; padding: 9px; border: 1px solid #d8dee4; border-radius: 6px; }
-    .preview-layer-list .object-text { flex: 1; }
-    .map-layer-style { display: grid; grid-template-columns: auto minmax(54px, 72px); gap: 5px; align-items: center; }
+    .preview-layer-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border: 1px solid #d8dee4; border-radius: 6px; }
+    .preview-layer-list .object-text { flex: 1 1 120px; }
+    .map-layer-style { display: grid; grid-template-columns: 42px 34px minmax(54px, 64px) 34px; gap: 4px; align-items: center; }
     .map-layer-style input[type="color"] { width: 42px; min-height: 32px; padding: 2px; }
     .map-layer-style input[type="text"] { min-height: 32px; padding: 5px; }
+    .map-layer-style button { width: 34px; min-height: 34px; padding: 0; }
     .preview-layer-geometry { pointer-events: none; }
     .preview { width: 100%; height: auto; background: #ffffff; border: 0; border-radius: 0; }
     .preview-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #ffffff; }
     .preview-position-readout { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 5; padding: 4px 8px; background: #152536; color: white; border-radius: 4px; font-size: .8rem; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
     .preview-center-crosshair { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; color: #a12828; font-size: 26px; line-height: 1; text-shadow: 0 0 2px white; pointer-events: none; }
     .preview { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
-    .pending-custom-preview, .pending-preview { pointer-events: none; }
+    .pending-custom-preview, .pending-preview, .pending-sam-preview, .pending-axis-preview { pointer-events: none; }
+    .pending-sam-hit { fill: none; stroke: transparent; stroke-width: 18; vector-effect: non-scaling-stroke; pointer-events: stroke; cursor: grab; }
+    .pending-axis-hit { fill: none; stroke: transparent; stroke-width: 18; vector-effect: non-scaling-stroke; pointer-events: stroke; cursor: grab; }
+    .pending-bull-hit { fill: transparent; stroke: none; pointer-events: all; cursor: grab; }
+    .pending-sam-center { fill: white; stroke: #1565c0; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: grab; }
+    .pending-custom-hit { fill: none; stroke: transparent; stroke-width: 18; vector-effect: non-scaling-stroke; pointer-events: stroke; cursor: grab; }
+    .pending-custom-point-hit { fill: transparent; stroke: none; pointer-events: all; cursor: grab; }
+    .pending-arc-radial { stroke: #526777; stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+    .pending-arc-handle { fill: #fff; stroke: #1565c0; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: grab; }
     #preview-coordinate-popups { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
     .preview-coordinate-popup { position: absolute; display: flex; gap: 4px; max-width: 320px; padding: 6px; border: 1px solid #8b98a5; border-radius: 7px; background: #152536; color: white; box-shadow: 0 3px 12px #0004; font-size: .82rem; pointer-events: auto; touch-action: none; cursor: grab; }
     .preview-coordinate-popup button { margin: 0; }
@@ -113,7 +124,7 @@
     .preview-ruler-end { stroke: #d32f2f; stroke-width: 2; vector-effect: non-scaling-stroke; }
     .preview-ruler-label { fill: #fff; stroke: #152536; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; font-family: system-ui, sans-serif; text-anchor: middle; }
     .preview-ruler-start { fill: #d32f2f; stroke: #fff; vector-effect: non-scaling-stroke; }
-    .preview-grid-line { stroke: #8ea1b2; stroke-width: 0.6; stroke-opacity: 0.28; vector-effect: non-scaling-stroke; }
+    .preview-grid-line { stroke: #8ea1b2; stroke-width: 0.6; stroke-opacity: 0.28; vector-effect: non-scaling-stroke; pointer-events: none; }
     .preview-grid-label { fill: #52616f; stroke: #fff; paint-order: stroke; font-family: system-ui, sans-serif; font-weight: 700; pointer-events: none; }
     .preview-gsi-range { fill: none; stroke: #d32f2f; stroke-width: 1.2; stroke-opacity: 0.45; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; pointer-events: none; }
     #preview-scale-bar { position: absolute; right: 14px; bottom: 24px; z-index: 2; display: grid; gap: 3px; justify-items: start; padding: 4px 6px; border-radius: 5px; background: #ffffffcc; color: #152536; font-size: .72rem; font-weight: 700; pointer-events: auto; touch-action: none; cursor: grab; user-select: none; text-shadow: 0 1px 2px #fff; }
@@ -129,7 +140,9 @@
     .setting-row { display: inline-grid; justify-self: start; gap: 4px; }
     .setting-row .format-toggle { width: max-content; }
     .setting-label { font-size: .78rem; font-weight: 650; color: #6a7680; }
-    .compact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: 10px 12px; justify-content: start; align-items: end; }
+    .compact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; justify-content: start; align-items: end; }
+    .box-bearing-adjust { grid-column: 1 / -1; display: flex; align-items: end; gap: 5px; }
+    .box-bearing-adjust button { width: 34px; flex: 0 0 34px; }
     .short-field { justify-self: start; width: min(100%, 14ch); }
     #bull-spider-settings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     #bull-spider-settings .short-field { width: 100%; min-width: 0; }
@@ -140,12 +153,14 @@
     .short-field input, .short-field select { width: 100%; }
     .compact-grid .check { justify-self: start; }
     .compact-grid .summary, .compact-grid .actions { grid-column: 1 / -1; }
-    .compact-grid .color-control { grid-column: span 3; min-width: min(100%, 360px); }
+    .compact-grid .color-control { grid-column: 1 / -1; min-width: min(100%, 360px); }
     .color-control input[type="color"] { width: 48px; }
     .color-picker-row { min-width: 0; display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; }
     .color-presets { min-width: 0; display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
     .color-preset { width: 24px; min-height: 24px; border-radius: 5px; border: 1px solid #8b98a5; padding: 0; background: var(--preset-color); }
     .object-row { min-width: 0; display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; }
+    .object-delete { flex: 0 0 34px; width: 34px; min-height: 34px; padding: 7px; display: inline-grid; place-items: center; }
+    .object-delete svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     #object-list button, #object-list .object-row { touch-action: manipulation; }
     .object-table-select { flex: 0 0 auto; width: 22px; min-height: 22px; }
     .object-table-control { position: relative; }
@@ -155,7 +170,7 @@
     .object-table-menu button { white-space: nowrap; }
     .swatch-button { width: 34px; min-height: 34px; padding: 3px; background: white; }
     .swatch-button input { width: 100%; height: 26px; min-height: 26px; padding: 0; border: 0; }
-    .object-details { box-sizing: border-box; width: min(540px, calc(100% - 39px)); min-width: 0; margin: 8px 0 0 39px; padding: 6px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 5px; overflow: hidden; container-type: inline-size; }
+    .object-details { box-sizing: border-box; width: min(540px, 100%); min-width: 0; margin: 8px 0 0; padding: 8px; background: #f7f9fb; border-radius: 5px; display: grid; gap: 5px; overflow: hidden; container-type: inline-size; }
     .object-detail-grid { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: 1fr; gap: 5px; align-items: start; }
     .object-detail-grid > button { flex: 0 0 auto; width: auto; }
     .object-name-edit { width: min(540px, 100%); min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; gap: 6px; }
@@ -164,14 +179,16 @@
     .object-lock-control { min-height: 24px; justify-self: start; align-self: start; padding: 0 2px; white-space: nowrap; }
     .object-style-row { min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .object-style-row strong { color: #3d4b59; font-size: .78rem; font-weight: 650; white-space: nowrap; }
-    .object-line-width-edit { min-width: 0; display: grid; grid-template-columns: auto 4.5ch auto; align-items: end; justify-content: start; gap: 5px; }
-    .object-line-width-edit label { width: 4.5ch; min-width: 0; }
-    .object-line-width-edit input { text-align: center; }
+    .object-line-width-edit { min-width: 0; display: grid; grid-template-columns: auto 5ch auto; align-items: end; justify-content: start; gap: 5px; }
+    .object-line-width-edit label { width: 5ch; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+    .object-line-width-edit input { min-width: 0; text-align: center; font-size: .85rem; }
+    .object-line-width-edit::before { content: "KML width"; grid-column: 1 / -1; color: #3d4b59; font-size: .78rem; font-weight: 650; }
     .object-actions-row { min-width: 0; display: flex; flex-wrap: wrap; align-items: end; justify-content: start; gap: 6px; }
     .object-details .summary { margin-top: 5px; }
-    .export-width-row { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 5px; }
-    .export-width-row label { min-width: 0; }
-    .export-width-row input { text-align: center; }
+    .export-width-row { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 8ch) auto; align-items: end; justify-content: start; gap: 5px; }
+    .export-width-row label { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+    .export-width-row label { white-space: nowrap; }
+    .export-width-row input { min-width: 0; text-align: center; }
     .export-width-actions { align-items: end; }
     .preview-snap-marker { fill: none; stroke: #ff9800; stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; }
     .custom-offset-tool { flex: 1 1 100%; display: grid; gap: 7px; padding-top: 8px; border-top: 1px solid #d8dee4; }
@@ -243,8 +260,29 @@
       .object-name-edit label { flex-basis: auto; max-width: none; }
       .object-line-width-edit { display: grid; grid-template-columns: auto 4.5ch auto; justify-content: start; }
       .object-detail-grid > button { justify-self: start; }
-      .object-style-row { display: grid; grid-template-columns: 1fr; align-items: start; gap: 3px; }
+      .object-style-row { display: flex; align-items: center; gap: 6px; }
       .color-picker-row { align-items: flex-start; }
+    }
+    @container (max-width: 560px) {
+      #input-pane .compact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #input-pane #bull-spider-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #input-pane .compact-grid .short-field,
+      #input-pane .compact-grid .ratio-field,
+      #input-pane .compact-grid .select-field { width: 100%; min-width: 0; }
+      #input-pane .compact-grid .color-control,
+      #input-pane .compact-grid .summary,
+      #input-pane .compact-grid .actions { grid-column: 1 / -1; min-width: 0; }
+      #input-pane .compact-grid .check { white-space: nowrap; }
+      #input-pane .add-with-name { flex-wrap: wrap; }
+      #input-pane .add-with-name label { flex: 1 1 100%; order: 1; }
+      #input-pane .section-toolbar { justify-content: flex-start; }
+      #input-pane .section-toolbar h2 { flex: 1; }
+      #input-pane .settings-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    @container (max-width: 340px) {
+      #input-pane .compact-grid,
+      #input-pane #bull-spider-settings { grid-template-columns: minmax(0, 1fr); }
+      #input-pane .add-with-name button[type="submit"] { flex: 1 1 auto; }
     }
   </style>
 </head>
@@ -269,7 +307,13 @@
           </div>
         </div>
         <div class="setting-row">
-          <label class="check"><input id="less-digits" type="checkbox"> Less digits</label>
+          <span class="setting-label">Coordinate precision</span>
+          <div id="coordinate-precision" class="format-toggle" aria-label="Coordinate precision">
+            <button type="button" data-precision="less" aria-pressed="false">Less</button>
+            <button type="button" data-precision="standard" class="active" aria-pressed="true">NML</button>
+            <button type="button" data-precision="fine" aria-pressed="false">Fine</button>
+          </div>
+          <span id="coordinate-resolution" class="setting-label"></span>
           <span class="setting-label">Mission Line, Box, and Custom vertices</span>
         </div>
       </div>
@@ -278,7 +322,7 @@
     <section>
       <h2>Bullseye</h2>
       <div class="grid">
-        <label>Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+        <label class="coordinate-control">Coordinates (Lat / Lon)<textarea id="bull-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         <div class="spider-toggle-row">
           <label class="check"><input id="bull-spider-enabled" type="checkbox"> Add Spider</label>
           <label id="bull-spider-full-row" class="check" hidden><input id="bull-spider-full" type="checkbox" checked> Full circle</label>
@@ -362,7 +406,7 @@
           <label class="short-field">Range (NM)<input id="sam-range" type="text" inputmode="decimal"></label>
         </div>
         <div id="sam-direct-center" class="grid">
-          <label>Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label class="coordinate-control">Center coordinates (Lat / Lon)<textarea id="sam-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div class="compact-grid">
           <label class="short-field">Ring radius (NM)<input id="sam-radius" type="text" inputmode="decimal"></label>
@@ -383,7 +427,7 @@
           <label>Point method<select id="custom-point-mode"><option value="direct">Direct coordinates</option><option value="bullseye">B/E Bearing / Range</option><option value="arc">Arc</option><option value="box">Box</option></select></label>
         </div>
         <div id="custom-direct-point" class="grid">
-          <label>Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+          <label class="coordinate-control">Point coordinates (Lat / Lon)<textarea id="custom-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
         </div>
         <div id="custom-bullseye-point" class="compact-grid" hidden>
           <label class="short-field">Bearing<input id="custom-bearing" type="text" inputmode="decimal"></label>
@@ -395,17 +439,18 @@
             <label class="check"><input id="custom-arc-at-bullseye" type="checkbox"> At B/E</label>
           </div>
           <div id="custom-arc-direct-center" class="grid">
-            <label>Center coordinates (Lat / Lon)<textarea id="custom-arc-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+            <label class="coordinate-control">Center coordinates (Lat / Lon)<textarea id="custom-arc-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div class="compact-grid">
-          <label class="short-field">Start radial<input id="custom-arc-start" type="text" inputmode="decimal"></label>
-          <label class="short-field">End radial<input id="custom-arc-end" type="text" inputmode="decimal"></label>
           <label class="short-field">Radius (NM)<input id="custom-arc-radius" type="text" inputmode="decimal"></label>
           <label class="select-field">Direction<select id="custom-arc-direction"><option value="cw">Clockwise</option><option value="ccw">Counterclockwise</option></select></label>
+          <label class="short-field">Start radial<input id="custom-arc-start" type="text" inputmode="decimal" value="000"></label>
+          <label class="short-field">End radial<input id="custom-arc-end" type="text" inputmode="decimal" value="090"></label>
           <label class="select-field">Point count<select id="custom-arc-count-mode"><option value="auto">Auto</option><option value="manual">Manual</option></select></label>
           <label id="custom-arc-count-field" class="short-field" hidden>Manual points<input id="custom-arc-count" type="text" inputmode="numeric" placeholder="3–181"></label>
           <p id="custom-arc-summary" class="summary"></p>
           </div>
+          <label class="check"><input id="custom-arc-include-center" type="checkbox"> Include center in vertices</label>
         </div>
         <div id="custom-box-point" hidden>
           <div class="grid">
@@ -413,7 +458,7 @@
             <label class="check"><input id="custom-box-at-bullseye" type="checkbox"> At B/E</label>
           </div>
           <div id="custom-box-direct-center" class="grid">
-            <label>Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
+            <label class="coordinate-control">Center coordinates (Lat / Lon)<textarea id="custom-box-coordinates" class="coordinate-field" name="coordinate-entry" rows="1" inputmode="text" placeholder="DD / DDM / DMS / GEOREF" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></textarea></label>
           </div>
           <div id="custom-box-bullseye-center" class="compact-grid" hidden>
             <label class="short-field">Bearing<input id="custom-box-bearing" type="text" inputmode="decimal"></label>
@@ -422,7 +467,7 @@
           <div class="compact-grid">
             <label class="short-field">Width (NM)<input id="custom-box-x" type="text" inputmode="decimal"></label>
             <label class="short-field">Depth (NM)<input id="custom-box-y" type="text" inputmode="decimal"></label>
-            <label class="short-field">Depth bearing<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label>
+            <div class="box-bearing-adjust"><button id="custom-box-bearing-minus" type="button" class="secondary small" aria-label="Decrease box bearing by one degree">−</button><label class="short-field">Depth bearing<input id="custom-box-y-bearing" type="text" inputmode="decimal"></label><button id="custom-box-bearing-plus" type="button" class="secondary small" aria-label="Increase box bearing by one degree">+</button></div>
             <label class="ratio-field">Width ratio<input id="custom-box-width-ratio" type="text" inputmode="text" placeholder="Ex) 1:1:1"></label>
             <label class="ratio-field">Depth ratio<input id="custom-box-depth-ratio" type="text" inputmode="text" placeholder="Ex) 1:1:1"></label>
           </div>
@@ -460,6 +505,7 @@
           </div>
           <label id="object-table-columns-row" class="object-table-columns" hidden>Columns<select id="object-table-columns"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
           <button id="object-table-cancel" type="button" class="secondary" hidden>Done</button>
+          <button id="undo-object-delete" type="button" class="secondary" aria-label="Undo object deletion" title="Undo object deletion" disabled>&#8630;</button>
           <button id="clear-all" class="danger" type="button">Clear All</button>
         </div>
       </div>
@@ -532,7 +578,7 @@
   </main>
 
   <script id="core-logic">
-    var APP_VERSION = "2.2.0";
+    var APP_VERSION = "2.3.0";
     var AXIS_GRID_DEFAULT_COLOR = "#b8c0c7";
     var AXIS_GRID_DEFAULT_KML_WIDTH = 3;
     var EARTH_RADIUS_NM = 3440.065;
@@ -701,6 +747,10 @@
       return number === 1 ? "BULLS" : `BULLS${number}`;
     }
 
+    function createCenterPointObject(name, center, color) {
+      return { name: name + " Center", type: "Custom Point", color, fillColor: null, coordinates: [{ lat: center.lat, lon: center.lon }] };
+    }
+
     function formatCoordinate(value, isLat, format) {
       const hemisphere = value < 0 ? (isLat ? "S" : "W") : (isLat ? "N" : "E");
       const absolute = Math.abs(value);
@@ -721,26 +771,68 @@
       return `${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`;
     }
 
-    function formatGridSegmentCoordinates(segments, format) {
+    function coordinatePrecisionPlaces(format, precision) {
+      const places = { dd: { less: 2, standard: 5, fine: 6 }, ddm: { less: 0, standard: 3, fine: 4 }, dms: { less: 0, standard: 1, fine: 2 } };
+      return (places[format] || places.ddm)[precision] ?? (places[format] || places.ddm).standard;
+    }
+
+    function coordinateResolutionText(format, precision) {
+      const unitsPerDegree = format === "dd" ? 1 : format === "dms" ? 3600 : 60;
+      const nauticalMiles = 60 / (unitsPerDegree * 10 ** coordinatePrecisionPlaces(format, precision));
+      if (nauticalMiles >= 0.1) return `${nauticalMiles.toFixed(2)} NM`;
+      const feet = nauticalMiles * 6076.11549;
+      return `${feet.toFixed(feet >= 10 ? 0 : feet >= 1 ? 1 : 2)} ft`;
+    }
+
+    function coordinatePrecisionParts(value, format, precision) {
+      const places = coordinatePrecisionPlaces(format, precision);
+      const scale = 10 ** places;
+      const absolute = Math.abs(value);
+      if (format === "dd") return { places, decimal: absolute.toFixed(places) };
+      const unitsPerDegree = format === "dms" ? 3600 : 60;
+      const units = Math.round(absolute * unitsPerDegree * scale);
+      const degrees = Math.floor(units / (unitsPerDegree * scale));
+      const remainder = units - degrees * unitsPerDegree * scale;
+      if (format === "ddm") return { places, degrees, minutes: (remainder / scale).toFixed(places).padStart(places ? places + 3 : 2, "0") };
+      const minutes = Math.floor(remainder / (60 * scale));
+      const seconds = ((remainder - minutes * 60 * scale) / scale).toFixed(places).padStart(places ? places + 3 : 2, "0");
+      return { places, degrees, minutes: String(minutes).padStart(2, "0"), seconds };
+    }
+
+    function formatCoordinatePrecision(value, isLat, format, precision) {
+      const hemisphere = value < 0 ? (isLat ? "S" : "W") : (isLat ? "N" : "E");
+      const parts = coordinatePrecisionParts(value, format, precision);
+      if (format === "dd") return `${parts.decimal}${hemisphere}`;
+      if (format === "ddm") return `${parts.degrees}° ${parts.minutes}' ${hemisphere}`;
+      return `${parts.degrees}° ${parts.minutes}' ${parts.seconds}" ${hemisphere}`;
+    }
+
+    function formatCoordinatePairPrecision(point, format, precision) {
+      return `${formatCoordinatePrecision(point.lat, true, format, precision)} / ${formatCoordinatePrecision(point.lon, false, format, precision)}`;
+    }
+
+    function formatGridSegmentCoordinates(segments, format, precision) {
       if (!segments?.length) return "";
       const lines = ["Internal lines"];
       segments.forEach((segment, segmentIndex) => {
         lines.push(`Line ${segmentIndex + 1}`);
         segment.forEach((point, pointIndex) => {
-          lines.push(`${pointIndex + 1}: ${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`);
+          const text = precision ? formatCoordinatePairPrecision(point, format, precision) : formatCoordinatePair(point, format);
+          lines.push(`${pointIndex + 1}: ${text}`);
         });
       });
       return lines.join("\n");
     }
 
-    function formatTickmarkCoordinates(tickmarks, format) {
+    function formatTickmarkCoordinates(tickmarks, format, precision) {
       if (!tickmarks?.length) return "";
       const lines = ["Tickmark lines"];
       tickmarks.forEach(mark => {
         const label = `${Number(mark.distanceNm.toFixed(6))}NM`;
         lines.push(label);
         mark.coordinates.forEach((point, pointIndex) => {
-          lines.push(`${pointIndex + 1}: ${formatCoordinate(point.lat, true, format)} / ${formatCoordinate(point.lon, false, format)}`);
+          const text = precision ? formatCoordinatePairPrecision(point, format, precision) : formatCoordinatePair(point, format);
+          lines.push(`${pointIndex + 1}: ${text}`);
         });
       });
       return lines.join("\n");
@@ -796,6 +888,16 @@
       const roundValue = value => {
         const rounded = Math.round(value / step) * step;
         return Object.is(rounded, -0) ? 0 : Number(rounded.toFixed(10));
+      };
+      return validateLatLon(roundValue(coordinate.lat), roundValue(coordinate.lon));
+    }
+
+    function roundCoordinateForPrecision(coordinate, format, precision) {
+      const places = coordinatePrecisionPlaces(format, precision);
+      const multiplier = (format === "dd" ? 1 : format === "dms" ? 3600 : 60) * 10 ** places;
+      const roundValue = value => {
+        const rounded = Math.round(value * multiplier) / multiplier;
+        return Object.is(rounded, -0) ? 0 : Number(rounded.toFixed(12));
       };
       return validateLatLon(roundValue(coordinate.lat), roundValue(coordinate.lon));
     }
@@ -1004,6 +1106,12 @@
       return { lat: toDegrees(lat2), lon: ((toDegrees(lon2) + 540) % 360) - 180 };
     }
 
+    function pointFromBullReference(bull, reference) {
+      const bearing = resolveTrueBearing(reference.bearing, { mode: bull.mode, magVar: bull.magVar });
+      const point = destinationPoint(bull.lat, bull.lon, bearing, reference.range);
+      return reference.roundedFormat ? roundCoordinateForPrecision(point, reference.roundedFormat, reference.roundedPrecision || "less") : point;
+    }
+
     function calculateRangeBearing(start, end) {
       const lat1 = toRadians(start.lat);
       const lat2 = toRadians(end.lat);
@@ -1117,6 +1225,20 @@
         destinationPoint(center.lat, center.lon, axisBearingTrue - 90, widthNm / 2),
         destinationPoint(center.lat, center.lon, axisBearingTrue + 90, widthNm / 2)
       ];
+    }
+
+    function previewAxisCoordinates(object) {
+      if (object.type !== "Axis" || !object.origin || !Number.isFinite(object.trueBearing) || !Number.isFinite(object.length) || object.length <= 0) return object.coordinates;
+      const count = Math.min(2048, Math.max(1, Math.ceil(object.length)));
+      return Array.from({ length: count + 1 }, (_, index) =>
+        destinationPoint(object.origin.lat, object.origin.lon, object.trueBearing, object.length * index / count)
+      );
+    }
+
+    function restoreDeletedObjects(objects, removed) {
+      removed.forEach(({ object, index }) => {
+        if (!objects.some(existing => existing.id === object.id)) objects.splice(Math.min(index, objects.length), 0, object);
+      });
     }
 
     function axisGridOffsets(halfWidthNm, intervalNm) {
@@ -1436,6 +1558,14 @@
       const first = coordinates[0];
       const last = coordinates.at(-1);
       return first.lat === last.lat && first.lon === last.lon ? coordinates.slice(0, -1) : coordinates.slice();
+    }
+
+    function previewVertexLabels(object) {
+      const generated = object.type === "B/E Spider" || object.type === "Grid Group" || object.type === "SAM Ring" || Boolean(object.previewArcCenter);
+      const center = object.previewArcCenter || (object.type === "Grid Group" ? object.origin : object.type === "B/E Spider" ? object.createdBullseye : object.type === "SAM Ring" ? object.center : null);
+      const coordinates = generated ? (center ? [center] : []) : object.coordinates.length >= 3 ? withoutClosingCoordinate(object.coordinates) : object.coordinates;
+      if (coordinates.length > 100) return [];
+      return coordinates.map((coordinate, index) => ({ coordinate, label: generated ? "C" : String(index + 1) }));
     }
 
     function polygonApproxCenter(coordinates) {
@@ -1920,11 +2050,6 @@
       return imported;
     }
 
-    function parseGeometryJsonObjects(text) {
-      const root = typeof text === "string" ? JSON.parse(text) : text;
-      return parseGeoJsonObjects(root);
-    }
-
     function previewBaseExtent(aspectRatio) {
       const aspect = Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : 2;
       return aspect >= 2
@@ -1961,6 +2086,8 @@
   <script>
     (() => {
       const objects = [];
+      const hiddenPreviewObjectIds = new Set();
+      const deletedObjectHistory = [];
       const previewLayers = [];
       // Replace these embedded KML entries when the bundled AIP map layer source changes.
       const DEFAULT_PREVIEW_LAYER_SOURCES = [
@@ -1970,13 +2097,18 @@
         { name: "AIP Temp Area", visible: true, color: "#455a64", lineWidth: 1, kmlBase64: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGttbCB4bWxucz0iaHR0cDovL3d3dy5vcGVuZ2lzLm5ldC9rbWwvMi4yIj48RG9jdW1lbnQ+PG5hbWU+QUlQIFRlbXAgQXJlYSAoU1VQKTwvbmFtZT4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+mdmea1nOiHqOaZguiok+e3tOepuuWfnyAvIFNoaXp1aGFtYSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIxNDIvMjUgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM4LjY5MTk0NCwzNS4xNDExMTEsMCAxMzguNTgwMjc4LDM1LjEzNjY2NywwIDEzOC4yMzcyMjIsMzUuMDUxNjY3LDAgMTM4LjI2NTI3OCwzNC45MzExMTEsMCAxMzguMzgxMTExLDM0Ljg2ODYxMSwwIDEzOC43ODAyNzgsMzQuODQxNjY3LDAgMTM4Ljc4MDI3OCwzNC44NzY2NjcsMCAxMzguNjkxOTQ0LDM1LjE0MTExMSwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb55m+6YeMIOiHqOaZguiok+e3tOepuuWfn05SLjEgLyBIeWFrdXJpIHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5SLjFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMTY0LzI1IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0Mi45OTYzODksMzYuNzAzMzMzLDAgMTQyLjk5NjY2NywzNi4yNTE2NjcsMCAxNDIuMDU2Mzg5LDM2LjI1MTY2NywwIDE0Mi4zNTU4MzMsMzYuNjg0NDQ0LDAgMTQyLjk5NjM4OSwzNi43MDMzMzMsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+eZvumHjCDoh6jmmYLoqJPnt7Tnqbrln59OUi4yIC8gSHlha3VyaSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOUi4yXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjE2NC8yNSB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xNDIuMzU1ODMzLDM2LjY4NDQ0NCwwIDE0Mi4xODA4MzMsMzYuNjc4NjExLDAgMTQxLjk5Nzc3OCwzNi4xNjYzODksMCAxNDIuMDU2Mzg5LDM2LjI1MTY2NywwIDE0Mi4zNTU4MzMsMzYuNjg0NDQ0LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvnmb7ph4wg6Ieo5pmC6KiT57e056m65Z+fTlIuMyAvIEh5YWt1cmkgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTlIuM11dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIxNjQvMjUgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTQyLjk5NjM4OSwzNy4zMjIyMjIsMCAxNDIuOTk2Mzg5LDM2LjcwMzMzMywwIDE0Mi4zNTU4MzMsMzYuNjg0NDQ0LDAgMTQyLjY4NzIyMiwzNy4xNTYzODksMCAxNDIuNjg3MjIyLDM3LjI0ODg4OSwwIDE0Mi45OTYzODksMzcuMzIyMjIyLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvnmb7ph4wg6Ieo5pmC6KiT57e056m65Z+fTlIuNCAvIEh5YWt1cmkgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTlIuNF1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIxNjQvMjUgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTQyLjM1NTgzMywzNi42ODQ0NDQsMCAxNDIuNjg3MjIyLDM3LjE1NjM4OSwwIDE0Mi42ODcyMjIsMzcuMjQ4ODg5LDAgMTQyLjM1ODA1NiwzNy4xNywwIDE0Mi4xODA4MzMsMzYuNjc4NjExLDAgMTQyLjM1NTgzMywzNi42ODQ0NDQsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+eZvumHjCDoh6jmmYLoqJPnt7Tnqbrln59OUi41IC8gSHlha3VyaSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOUi41XV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjE2NC8yNSB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xNDIuMTc3MjIyLDM3LjgzMjUsMCAxNDIuNjkyNSwzOC4xNywwIDE0Mi45OTYzODksMzguMTY5NzIyLDAgMTQyLjk5NjM4OSwzNy4zMjIyMjIsMCAxNDIuNjg3MjIyLDM3LjI0ODg4OSwwIDE0Mi42ODcyMjIsMzcuNzc5NDQ0LDAgMTQyLjU4NSwzNy43OSwwIDE0Mi4xNzcyMjIsMzcuODMyNSwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb55m+6YeMIOiHqOaZguiok+e3tOepuuWfn05SLjYgLyBIeWFrdXJpIHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5SLjZdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMTY0LzI1IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0Mi42ODcyMjIsMzcuMjQ4ODg5LDAgMTQyLjY4NzIyMiwzNy43Nzk0NDQsMCAxNDIuNTg1LDM3Ljc5LDAgMTQyLjM1ODA1NiwzNy4xNywwIDE0Mi42ODcyMjIsMzcuMjQ4ODg5LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtNT09TRSAtTk9SVEhdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDA1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEyNC45NTU4MzMsMjYuOTc1ODMzLDAgMTI3LjA1NDE2NywyOC40Nzg2MTEsMCAxMjcuMzIxMTExLDI3LjgwMzMzMywwIDEyNy4yMjA4MzMsMjcuMjk4NjExLDAgMTI2Ljk5NDE2NywyNy4wODQxNjcsMCAxMjUuMjExMTExLDI2LjY5NTI3OCwwIDEyNC45NTU4MzMsMjYuOTc1ODMzLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtNT09TRSAtU09VVEggLUxPXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMjUuMjExMTExLDI2LjY5NTI3OCwwIDEyNi45OTQxNjcsMjcuMDg0MTY3LDAgMTI2LjE0MzA1NiwyNi4yNjc1LDAgMTI1LjYyMTk0NCwyNi4yMzg4ODksMCAxMjUuMjExMTExLDI2LjY5NTI3OCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbTU9PU0UgLVNPVVRIIC1ISV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMDUvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTI1LjIxMTExMSwyNi42OTUyNzgsMCAxMjYuOTk0MTY3LDI3LjA4NDE2NywwIDEyNi4xNDMwNTYsMjYuMjY3NSwwIDEyNS42MjE5NDQsMjYuMjM4ODg5LDAgMTI1LjIxMTExMSwyNi42OTUyNzgsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW1RJR0VSIC1DRU5URVJdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDA1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEyOC41NzgzMzMsMjYuMzY5MTY3LDAgMTI5LjA2NzIyMiwyNi43OSwwIDEzMC41NjQxNjcsMjcuNjQ2MTExLDAgMTMwLjkzMTY2NywyNy42NDMwNTYsMCAxMzIuMDM3NSwyNy42MjgwNTYsMCAxMzEuOTk0NzIyLDI3LjQ0MzYxMSwwIDEzMC44NDMzMzMsMjYuMTgyMjIyLDAgMTI4LjU3ODMzMywyNi4zNjkxNjcsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW1RJR0VSIC1XRVNUXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMjkuMDY3MjIyLDI2Ljc5LDAgMTI5LjUwNjM4OSwyNy40Njg2MTEsMCAxMzAuNTY0MTY3LDI3LjY0NjExMSwwIDEyOS4wNjcyMjIsMjYuNzksMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW1RJR0VSIC1FQVNUXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzEuOTk0NzIyLDI3LjQ0MzYxMSwwIDEzMS44NDU1NTYsMjYuNzk2MTExLDAgMTMxLjU3MTY2NywyNi40NTcyMjIsMCAxMzEuMjgxMzg5LDI2LjE0MTY2NywwIDEzMC44NDMzMzMsMjYuMTgyMjIyLDAgMTMxLjk5NDcyMiwyNy40NDM2MTEsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0VBR0xFIC1DRU5URVJdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDA1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEyOC41LDI1Ljg5MzA1NiwwIDEyOS4wMzg2MTEsMjUuODEwMjc4LDAgMTI5LjQzMTExMSwyNS43Mzc1LDAgMTMwLjQwMzYxMSwyNS43NDU4MzMsMCAxMzAuNTAwMjc4LDI1LjczOTcyMiwwIDEyOS42NjUyNzgsMjQuNjYzODg5LDAgMTI5LjQ2MDI3OCwyNC4zOTExMTEsMCAxMjguMTY0NzIyLDI1LjUxODYxMSwwIDEyOC41LDI1Ljg5MzA1NiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbRUFHTEUgLUVBU1RdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDA1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMC41MDAyNzgsMjUuNzM5NzIyLDAgMTMwLjkyNDQ0NCwyNS43MTA4MzMsMCAxMzAuNDkxMzg5LDI1LjE1Mzg4OSwwIDEzMC4yOTgwNTYsMjQuOTQxMTExLDAgMTI5LjY2NTI3OCwyNC42NjM4ODksMCAxMzAuNTAwMjc4LDI1LjczOTcyMiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbTElPTiAtQ0VOVEVSXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMjguMTY0NzIyLDI1LjUxODYxMSwwIDEyOS40NjAyNzgsMjQuMzkxMTExLDAgMTI4Ljk0NjM4OSwyMy43MDAyNzgsMCAxMjcuMzA2MTExLDI0LjM3OTcyMiwwIDEyOC4wNiwyNS40NjI1LDAgMTI4LjE2NDcyMiwyNS41MTg2MTEsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0xJT04gLVdFU1RdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDA1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEyOC4wNiwyNS40NjI1LDAgMTI3LjMwNjExMSwyNC4zNzk3MjIsMCAxMjcuMDk1Mjc4LDI0LjQ2NTI3OCwwIDEyNy43MjYzODksMjUuMzc2MTExLDAgMTI4LjA2LDI1LjQ2MjUsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0VESVggLVRJR0VSXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzAuOTM4NjExLDI4LjIwNDcyMiwwIDEzMi4wNTAyNzgsMjguMTg5MTY3LDAgMTMyLjAzNzUsMjcuNjI4MDU2LDAgMTMwLjkzMTY2NywyNy42NDMwNTYsMCAxMzAuOTM4NjExLDI4LjIwNDcyMiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbRURJWCAtTElPTl1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMDUvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTI3LjA0NSwyNC40ODU1NTYsMCAxMjguMDI3NSwyNC4wODM4ODksMCAxMjcuNzc2OTQ0LDIzLjU3MTExMSwwIDEyNi43OTc3NzgsMjMuOTcxMzg5LDAgMTI3LjA0NSwyNC40ODU1NTYsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0VESVggLU1PT1NFXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAwNS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMjYuNDI3Nzc4LDI4LjY5MTk0NCwwIDEyNi43ODg2MTEsMjguMjkyMjIyLDAgMTI1LjkyMjUsMjcuNjc2NjY3LDAgMTI1LjU2NDcyMiwyOC4wNywwIDEyNi40Mjc3NzgsMjguNjkxOTQ0LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLUVdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDIzLzI2IHwgRkwyNTAvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzEuNTc1Mjc4LDM2LjE1MzYxMSwwIDEzMi4yMjIyMjIsMzUuODI4NjExLDAgMTMyLjE3NTI3OCwzNS41NzA1NTYsMCAxMzAuNzYzODg5LDM1LjU1MjUsMCAxMzEuNTc1Mjc4LDM2LjE1MzYxMSwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1OMV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBGTDE4MC9TRkNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi4xNzUyNzgsMzUuNTcwNTU2LDAgMTMyLjEzNTI3OCwzNS4zNSwwIDEzMi4yNjUyNzgsMzUuMzI2OTQ0LDAgMTMwLjE4OTE2NywzNS4xMTYzODksMCAxMzAuNzYzODg5LDM1LjU1MjUsMCAxMzIuMTc1Mjc4LDM1LjU3MDU1NiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1OMl1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBGTDgwMC9TRkMgfCBFeGNsdWRpbmc6IElUUkEtTjNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi4zMTM4ODksMzUuMzAxMzg5LDAgMTMyLjIwMDI3OCwzNS4yOTA1NTYsMCAxMzEuNzM5MTY3LDM1LjIxMDI3OCwwIDEzMS42OTEzODksMzUuMDM1Mjc4LDAgMTMxLjY3NTc5MywzNS4wMzI1NjksMCAxMzEuNjYwMzU4LDM1LjAyOTI5MiwwIDEzMS42NDUwNzcsMzUuMDI1NTY1LDAgMTMxLjYyOTk3LDM1LjAyMTM5MywwIDEzMS42MTUwNTUsMzUuMDE2NzgxLDAgMTMxLjYwMDM1MywzNS4wMTE3MzUsMCAxMzEuNTg1ODgxLDM1LjAwNjI2MSwwIDEzMS41NzE2NTgsMzUuMDAwMzY3LDAgMTMxLjU1NzcwMywzNC45OTQwNiwwIDEzMS41NDQwMzMsMzQuOTg3MzQ4LDAgMTMxLjUzMDY2NiwzNC45ODAyNCwwIDEzMS41MTc2MTksMzQuOTcyNzQ1LDAgMTMxLjUwNDkwOCwzNC45NjQ4NzIsMCAxMzEuNDkyNTUxLDM0Ljk1NjYzMiwwIDEzMS40ODA1NjIsMzQuOTQ4MDM2LDAgMTMxLjQ2ODk1NiwzNC45MzkwOTMsMCAxMzEuNDU3NzUsMzQuOTI5ODE3LDAgMTMxLjQ0Njk1NiwzNC45MjAyMTgsMCAxMzEuNDM2NTg4LDM0LjkxMDMwOCwwIDEzMS40MjY2NiwzNC45MDAxMDIsMCAxMzEuNDE3MTg0LDM0Ljg4OTYxMSwwIDEzMS40MDgxNzMsMzQuODc4ODQ5LDAgMTMxLjM5OTYzNiwzNC44Njc4MywwIDEzMS4zOTE1ODYsMzQuODU2NTY4LDAgMTMxLjM4NDAzMiwzNC44NDUwNzcsMCAxMzEuMzc2OTg0LDM0LjgzMzM3MiwwIDEzMS4zNzA0NSwzNC44MjE0NjksMCAxMzEuMzY0NDM5LDM0LjgwOTM4MSwwIDEzMS4zNTg5NTcsMzQuNzk3MTI1LDAgMTMxLjM1NDAxMywzNC43ODQ3MTcsMCAxMzEuMzQ5NjExLDM0Ljc3MjE3MSwwIDEzMS4zNDU3NTcsMzQuNzU5NTA0LDAgMTMxLjM0MjQ1NywzNC43NDY3MzMsMCAxMzEuMzM5NzEzLDM0LjczMzg3MywwIDEzMS4zMzg2MTEsMzQuNzIwODMzLDAgMTMxLjM3Njk0NCwzNC43MjM2MTEsMCAxMzAuODgwODMzLDM0LjY4NjM4OSwwIDEzMC44NjY5NDQsMzQuNzI1Mjc4LDAgMTMwLjU4NSwzNC44NTMwNTYsMCAxMzAuNTMwODMzLDM0Ljc2OTcyMiwwIDEzMC4wMzExMTEsMzQuOTk1Mjc4LDAgMTMwLjE4OTE2NywzNS4xMTYzODksMCAxMzIuMjY1Mjc4LDM1LjMyNjk0NCwwIDEzMi4zMTM4ODksMzUuMzAxMzg5LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLU4yXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMODAwL0ZMMjQwXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzIuMzM3MjIyLDM1LjI5MTk0NCwwIDEzMS45ODk3MjIsMzUuMDM3NSwwIDEzMS45NTA2ODQsMzUuMDI3MDE0LDAgMTMxLjkxMTMzNCwzNS4wMTc4ODksMCAxMzEuODcyNDI4LDM1LjAwNzU3OSwwIDEzMS44MzQwMTgsMzQuOTk2MSwwIDEzMS43OTYxNTcsMzQuOTgzNDY3LDAgMTMxLjc1ODg5OCwzNC45Njk2OTYsMCAxMzEuNzIyMjkxLDM0Ljk1NDgwOCwwIDEzMS42ODYzODcsMzQuOTM4ODIzLDAgMTMxLjY1MTIzMywzNC45MjE3NjIsMCAxMzEuNjE2ODc5LDM0LjkwMzY1LDAgMTMxLjU4MzM3MSwzNC44ODQ1MTEsMCAxMzEuNTUwNzU0LDM0Ljg2NDM3MSwwIDEzMS41MTkwNzIsMzQuODQzMjU4LDAgMTMxLjQ4ODM2OCwzNC44MjEyMDEsMCAxMzEuNDU4NjgzLDM0Ljc5ODIzLDAgMTMxLjQzMDA1OCwzNC43NzQzNzcsMCAxMzEuNDAyNTI5LDM0Ljc0OTY3NCwwIDEzMS4zNzY5NDQsMzQuNzIzNjExLDAgMTMxLjMzODYxMSwzNC43MjA4MzMsMCAxMzEuMzM5NzEzLDM0LjczMzg3MywwIDEzMS4zNDI0NTcsMzQuNzQ2NzMzLDAgMTMxLjM0NTc1NywzNC43NTk1MDQsMCAxMzEuMzQ5NjExLDM0Ljc3MjE3MSwwIDEzMS4zNTQwMTMsMzQuNzg0NzE3LDAgMTMxLjM1ODk1NywzNC43OTcxMjUsMCAxMzEuMzY0NDM5LDM0LjgwOTM4MSwwIDEzMS4zNzA0NSwzNC44MjE0NjksMCAxMzEuMzc2OTg0LDM0LjgzMzM3MiwwIDEzMS4zODQwMzIsMzQuODQ1MDc3LDAgMTMxLjM5MTU4NiwzNC44NTY1NjgsMCAxMzEuMzk5NjM2LDM0Ljg2NzgzLDAgMTMxLjQwODE3MywzNC44Nzg4NDksMCAxMzEuNDE3MTg0LDM0Ljg4OTYxMSwwIDEzMS40MjY2NiwzNC45MDAxMDIsMCAxMzEuNDM2NTg4LDM0LjkxMDMwOCwwIDEzMS40NDY5NTYsMzQuOTIwMjE4LDAgMTMxLjQ1Nzc1LDM0LjkyOTgxNywwIDEzMS40Njg5NTYsMzQuOTM5MDkzLDAgMTMxLjQ4MDU2MiwzNC45NDgwMzYsMCAxMzEuNDkyNTUxLDM0Ljk1NjYzMiwwIDEzMS41MDQ5MDgsMzQuOTY0ODcyLDAgMTMxLjUxNzYxOSwzNC45NzI3NDUsMCAxMzEuNTMwNjY2LDM0Ljk4MDI0LDAgMTMxLjU0NDAzMywzNC45ODczNDgsMCAxMzEuNTU3NzAzLDM0Ljk5NDA2LDAgMTMxLjU3MTY1OCwzNS4wMDAzNjcsMCAxMzEuNTg1ODgxLDM1LjAwNjI2MSwwIDEzMS42MDAzNTMsMzUuMDExNzM1LDAgMTMxLjYxNTA1NSwzNS4wMTY3ODEsMCAxMzEuNjI5OTcsMzUuMDIxMzkzLDAgMTMxLjY0NTA3NywzNS4wMjU1NjUsMCAxMzEuNjYwMzU4LDM1LjAyOTI5MiwwIDEzMS42NzU3OTMsMzUuMDMyNTY5LDAgMTMxLjY5MTM4OSwzNS4wMzUyNzgsMCAxMzEuNzM5MTY3LDM1LjIxMDI3OCwwIDEzMi4yMDAyNzgsMzUuMjkwNTU2LDAgMTMyLjMxMzg4OSwzNS4zMDEzODksMCAxMzIuMzM3MjIyLDM1LjI5MTk0NCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1OM11dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBGTDI0MC9TRkNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi4zMTM4ODksMzUuMzAxMzg5LDAgMTMyLjMzNzIyMiwzNS4yOTE5NDQsMCAxMzEuOTg5NzIyLDM1LjAzNzUsMCAxMzEuOTUwNjg0LDM1LjAyNzAxNCwwIDEzMS45MTEzMzQsMzUuMDE3ODg5LDAgMTMxLjg3MjQyOCwzNS4wMDc1NzksMCAxMzEuODM0MDE4LDM0Ljk5NjEsMCAxMzEuNzk2MTU3LDM0Ljk4MzQ2NywwIDEzMS43NTg4OTgsMzQuOTY5Njk2LDAgMTMxLjcyMjI5MSwzNC45NTQ4MDgsMCAxMzEuNjg2Mzg3LDM0LjkzODgyMywwIDEzMS42NTEyMzMsMzQuOTIxNzYyLDAgMTMxLjYxNjg3OSwzNC45MDM2NSwwIDEzMS41ODMzNzEsMzQuODg0NTExLDAgMTMxLjU1MDc1NCwzNC44NjQzNzEsMCAxMzEuNTE5MDcyLDM0Ljg0MzI1OCwwIDEzMS40ODgzNjgsMzQuODIxMjAxLDAgMTMxLjQ1ODY4MywzNC43OTgyMywwIDEzMS40MzAwNTgsMzQuNzc0Mzc3LDAgMTMxLjQwMjUyOSwzNC43NDk2NzQsMCAxMzEuMzc2OTQ0LDM0LjcyMzYxMSwwIDEzMS4zMzg2MTEsMzQuNzIwODMzLDAgMTMxLjMzOTcxMywzNC43MzM4NzMsMCAxMzEuMzQyNDU3LDM0Ljc0NjczMywwIDEzMS4zNDU3NTcsMzQuNzU5NTA0LDAgMTMxLjM0OTYxMSwzNC43NzIxNzEsMCAxMzEuMzU0MDEzLDM0Ljc4NDcxNywwIDEzMS4zNTg5NTcsMzQuNzk3MTI1LDAgMTMxLjM2NDQzOSwzNC44MDkzODEsMCAxMzEuMzcwNDUsMzQuODIxNDY5LDAgMTMxLjM3Njk4NCwzNC44MzMzNzIsMCAxMzEuMzg0MDMyLDM0Ljg0NTA3NywwIDEzMS4zOTE1ODYsMzQuODU2NTY4LDAgMTMxLjM5OTYzNiwzNC44Njc4MywwIDEzMS40MDgxNzMsMzQuODc4ODQ5LDAgMTMxLjQxNzE4NCwzNC44ODk2MTEsMCAxMzEuNDI2NjYsMzQuOTAwMTAyLDAgMTMxLjQzNjU4OCwzNC45MTAzMDgsMCAxMzEuNDQ2OTU2LDM0LjkyMDIxOCwwIDEzMS40NTc3NSwzNC45Mjk4MTcsMCAxMzEuNDY4OTU2LDM0LjkzOTA5MywwIDEzMS40ODA1NjIsMzQuOTQ4MDM2LDAgMTMxLjQ5MjU1MSwzNC45NTY2MzIsMCAxMzEuNTA0OTA4LDM0Ljk2NDg3MiwwIDEzMS41MTc2MTksMzQuOTcyNzQ1LDAgMTMxLjUzMDY2NiwzNC45ODAyNCwwIDEzMS41NDQwMzMsMzQuOTg3MzQ4LDAgMTMxLjU1NzcwMywzNC45OTQwNiwwIDEzMS41NzE2NTgsMzUuMDAwMzY3LDAgMTMxLjU4NTg4MSwzNS4wMDYyNjEsMCAxMzEuNjAwMzUzLDM1LjAxMTczNSwwIDEzMS42MTUwNTUsMzUuMDE2NzgxLDAgMTMxLjYyOTk3LDM1LjAyMTM5MywwIDEzMS42NDUwNzcsMzUuMDI1NTY1LDAgMTMxLjY2MDM1OCwzNS4wMjkyOTIsMCAxMzEuNjc1NzkzLDM1LjAzMjU2OSwwIDEzMS42OTEzODksMzUuMDM1Mjc4LDAgMTMxLjczOTE2NywzNS4yMTAyNzgsMCAxMzIuMjAwMjc4LDM1LjI5MDU1NiwwIDEzMi4zMTM4ODksMzUuMzAxMzg5LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMxMF1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBGTDgwMC9TRkNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi4xNTU4MzMsMzEuNTExOTQ0LDAgMTMyLjEzMDgzMywzMS40MjAyNzgsMCAxMzIuMTMwODMzLDMxLjA3MDI3OCwwIDEzMi4zNzc1LDMwLjgwNzIyMiwwIDEzMS41MDExMTEsMzAuMjAwODMzLDAgMTMxLjI4NjY2NywzMC40ODc1LDAgMTMxLjY0NjY2NywzMC45NTE5NDQsMCAxMzIuMTU1ODMzLDMxLjUxMTk0NCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1TMTFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDIzLzI2IHwgVU5ML1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMyLjQ2MDU1NiwzMS44NjUyNzgsMCAxMzIuOTU0MTY3LDMxLjE5OTQ0NCwwIDEzMi4zNzc1LDMwLjgwNzIyMiwwIDEzMi4xMzA4MzMsMzEuMDcwMjc4LDAgMTMyLjEzMDgzMywzMS40MjAyNzgsMCAxMzIuMTU1ODMzLDMxLjUxMTk0NCwwIDEzMi40NjA1NTYsMzEuODY1Mjc4LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMxMl1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBVTkwvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzIuNjMwODMzLDMyLjA1MzYxMSwwIDEzMi42MzA4MzMsMzIuMDI4NjExLDAgMTMyLjc4NzIyMiwzMi4wODIyMjIsMCAxMzMuMjgzODg5LDMxLjQyMTExMSwwIDEzMi45NTQxNjcsMzEuMTk5NDQ0LDAgMTMyLjQ2MDU1NiwzMS44NjUyNzgsMCAxMzIuNTgwODMzLDMyLjAwMzYxMSwwIDEzMi42MzA4MzMsMzIuMDUzNjExLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMxM11dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBVTkwvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzMuNDM4MDU2LDMyLjMwMTk0NCwwIDEzMy44MjU4MzMsMzEuNzgxMzg5LDAgMTMzLjI4Mzg4OSwzMS40MjExMTEsMCAxMzIuNzg3MjIyLDMyLjA4MjIyMiwwIDEzMy40MzgwNTYsMzIuMzAxOTQ0LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMxNF1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBVTkwvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzMuOTM5NzIyLDMyLjU2NjY2NywwIDEzNC4yOTM2MTEsMzIuMDg4MzMzLDAgMTMzLjgyNTgzMywzMS43ODEzODksMCAxMzMuNDM4MDU2LDMyLjMwMTk0NCwwIDEzMy45Mzk3MjIsMzIuNTY2NjY3LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMxNV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBVTkwvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzUuMDEzODg5LDMyLjU5MTExMSwwIDEzNS4wMTM4ODksMzIuNTUzNjExLDAgMTM0LjI5MzYxMSwzMi4wODgzMzMsMCAxMzMuOTM5NzIyLDMyLjU2NjY2NywwIDEzMy45ODY2NjcsMzIuNTg5NzIyLDAgMTM1LjAxMzg4OSwzMi41OTExMTEsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzE2XV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IFVOTC9TRkNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzNS4wMTM4ODksMzIuODk4MDU2LDAgMTM1LjAxMzg4OSwzMi41OTExMTEsMCAxMzMuOTg2NjY3LDMyLjU4OTcyMiwwIDEzNC4wNDc1LDMyLjYyLDAgMTM0LjUzMzMzMywzMi43ODAyNzgsMCAxMzUuMDEzODg5LDMyLjg5ODA1NiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1TMjBdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDIzLzI2IHwgRkw0NTAvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzIuMzc3NSwzMC44MDcyMjIsMCAxMzIuNTg2NjY3LDMwLjUyMjIyMiwwIDEzMS43MzgwNTYsMjkuOTI3MjIyLDAgMTMxLjUwMTExMSwzMC4yMDA4MzMsMCAxMzIuMzc3NSwzMC44MDcyMjIsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzIxXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMNDUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMyLjk1NDE2NywzMS4xOTk0NDQsMCAxMzMuMTYwNTU2LDMwLjkxNzc3OCwwIDEzMi41ODY2NjcsMzAuNTIyMjIyLDAgMTMyLjM3NzUsMzAuODA3MjIyLDAgMTMyLjk1NDE2NywzMS4xOTk0NDQsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzIyXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMNDUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMzLjI4Mzg4OSwzMS40MjExMTEsMCAxMzMuNDkwNTU2LDMxLjE0MjUsMCAxMzMuMTYwNTU2LDMwLjkxNzc3OCwwIDEzMi45NTQxNjcsMzEuMTk5NDQ0LDAgMTMzLjI4Mzg4OSwzMS40MjExMTEsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzIzXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMNDUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMzLjgyNTgzMywzMS43ODEzODksMCAxMzQuMDI4ODg5LDMxLjUwNTU1NiwwIDEzMy40OTA1NTYsMzEuMTQyNSwwIDEzMy4yODM4ODksMzEuNDIxMTExLDAgMTMzLjgyNTgzMywzMS43ODEzODksMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzI0XV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMNDUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM0LjI5MzYxMSwzMi4wODgzMzMsMCAxMzQuNDkzODg5LDMxLjgxNDcyMiwwIDEzNC4wMjg4ODksMzEuNTA1NTU2LDAgMTMzLjgyNTgzMywzMS43ODEzODksMCAxMzQuMjkzNjExLDMyLjA4ODMzMywwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1TMjVdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDIzLzI2IHwgRkw0NTAvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzUuMDEzODg5LDMyLjU1MzYxMSwwIDEzNS4wMDk0NDQsMzIuMTUzMzMzLDAgMTM0LjQ5Mzg4OSwzMS44MTQ3MjIsMCAxMzQuMjkzNjExLDMyLjA4ODMzMywwIDEzNS4wMTM4ODksMzIuNTUzNjExLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVtJVFJBLVMzMF1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjMvMjYgfCBGTDI1MC9TRkNdXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi41ODY2NjcsMzAuNTIyMjIyLDAgMTMzLjAyNSwyOS45MTgzMzMsMCAxMzIuNDAzODg5LDI5LjQ2ODg4OSwwIDEzMS43MzgwNTYsMjkuOTI3MjIyLDAgMTMyLjU4NjY2NywzMC41MjIyMjIsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzMxXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMMjUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMzLjE2MDU1NiwzMC45MTc3NzgsMCAxMzMuNTkxNjY3LDMwLjMyMjIyMiwwIDEzMy4wMjUsMjkuOTE4MzMzLDAgMTMyLjU4NjY2NywzMC41MjIyMjIsMCAxMzMuMTYwNTU2LDMwLjkxNzc3OCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFbSVRSQS1TMzJdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDIzLzI2IHwgRkwyNTAvU0ZDXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzMuNDkwNTU2LDMxLjE0MjUsMCAxMzMuOTIxNjY3LDMwLjU1NDcyMiwwIDEzMy41OTE2NjcsMzAuMzIyMjIyLDAgMTMzLjE2MDU1NiwzMC45MTc3NzgsMCAxMzMuNDkwNTU2LDMxLjE0MjUsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW0lUUkEtUzMzXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjAyMy8yNiB8IEZMMjUwL1NGQ11dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM1LjAwOTQ0NCwzMi4xNTMzMzMsMCAxMzUuMCwzMS4zMDE5NDQsMCAxMzMuOTIxNjY3LDMwLjU1NDcyMiwwIDEzMy40OTA1NTYsMzEuMTQyNSwwIDEzNS4wMDk0NDQsMzIuMTUzMzMzLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvkuZ3lt57opb/mlrnmspYg6Ieo5pmC6KiT57e056m65Z+fIC8gV2VzdCBvZiBLeXVzaHUgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDI0LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEyNy4zODc1LDMyLjAwMjIyMiwwIDEyNi4zMTY5NDQsMzEuNjAzNjExLDAgMTI1LjQxODYxMSwzMC4wMDM2MTEsMCAxMjcuMzkxMTExLDMwLjAwNTI3OCwwIDEyNy45OTgwNTYsMzAuMzcwMjc4LDAgMTI3LjM4NzUsMzIuMDAyMjIyLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfopb/mlrnoh6jmmYLoqJPnt7Qg56m65Z+fTnIuMSAvIFdlc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDI1LzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzOS4xMjE5NDQsNDQuNzAxOTQ0LDAgMTM4LjUyNzUsNDAuMzc4NjExLDAgMTM4LjM4MDI3OCw0MC4wLDAgMTM3LjE0NjY2Nyw0Mi4xNTI1LDAgMTM5LjEyMTk0NCw0NC43MDE5NDQsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+adseWMl+ilv+aWueiHqOaZguiok+e3tCDnqbrln59Oci4yIC8gV2VzdCBvZiBUb2hva3UgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTnIuMl1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjUvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM3LjE0NjY2Nyw0Mi4xNTI1LDAgMTM4LjM4MDI3OCw0MC4wLDAgMTM2Ljk5Njk0NCw0MC4wMDI3NzgsMCAxMzUuMzI2MTExLDQwLjAwMjUsMCAxMzUuOTk2OTQ0LDQwLjU1MjUsMCAxMzcuMTQ2NjY3LDQyLjE1MjUsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+adseWMl+ilv+aWueiHqOaZguiok+e3tCDnqbrln59Oci4zIC8gV2VzdCBvZiBUb2hva3UgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTnIuM11dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwMjUvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM4LjM4MDI3OCw0MC4wLDAgMTM4LjA5MzYxMSwzOS4yNDk0NDQsMCAxMzguNDEzMzMzLDM5LjAwMjc3OCwwIDEzNy45OTY2NjcsMzguNTAyNzc4LDAgMTM2Ljk5Njk0NCwzOS4wMDI3NzgsMCAxMzYuOTk2OTQ0LDQwLjAwMjc3OCwwIDEzOC4zODAyNzgsNDAuMCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5p2x5YyX5Y2X5p2x5rKWIOiHqOaZguiok+e3tOepuuWfn05yLjEgLyBTb3V0aGVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUxLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0Mi45OTYzODksMzYuNzAzMzMzLDAgMTQ0Ljk5Njk0NCwzNi43NDAyNzgsMCAxNDQuOTk2Mzg5LDM3LjMyLDAgMTQzLjk5NjM4OSwzNy4zMTk3MjIsMCAxNDIuOTk2Mzg5LDM3LjIxOTcyMiwwIDE0Mi45OTYzODksMzYuNzAzMzMzLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfljZfmnbHmspYg6Ieo5pmC6KiT57e056m65Z+fTnIuMiAvIFNvdXRoZWFzdCBvZiBUb2hva3UgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTnIuMl1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwNTEvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTQ0Ljk5NjM4OSwzNy4zMiwwIDE0My45OTYzODksMzcuMzE5NzIyLDAgMTQyLjk5NjM4OSwzNy4yMTk3MjIsMCAxNDIuOTk2Mzg5LDM4LjE2OTcyMiwwIDE0NC45OTYzODksMzguMTY5NzIyLDAgMTQ0Ljk5NjM4OSwzNy4zMiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5p2x5YyX5Y2X5p2x5rKWIOiHqOaZguiok+e3tOepuuWfn05yLjMgLyBTb3V0aGVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjNdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUxLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0My4zNDU4MzMsMzkuMCwwIDE0NS45ODUyNzgsMzkuMCwwIDE0NS42NjI3NzgsMzguMDAzMDU2LDAgMTQ0Ljk5NjM4OSwzNy4zMiwwIDE0NC45OTYzODksMzguMTY5NzIyLDAgMTQyLjk5NjM4OSwzOC4xNjk3MjIsMCAxNDMuMzQ1ODMzLDM5LjAsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+adseWMl+WNl+adseayliDoh6jmmYLoqJPnt7Tnqbrln59Oci40IC8gU291dGhlYXN0IG9mIFRvaG9rdSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOci40XV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjA1MS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xNDIuOTk2Mzg5LDM4LjE2OTcyMiwwIDE0Mi42OTI1LDM4LjE3LDAgMTQxLjkxOTQ0NCwzOC4xOTE2NjcsMCAxNDIuNzgxOTQ0LDM5LjAsMCAxNDMuMzQ1ODMzLDM5LjAsMCAxNDIuOTk2Mzg5LDM4LjE2OTcyMiwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5p2x5YyX5Y2X5p2x5rKWIOiHqOaZguiok+e3tOepuuWfn05yLjUgLyBTb3V0aGVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjVdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUxLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0Mi42OTI1LDM4LjE3LDAgMTQyLjM3OTcyMiwzNy45Njk3MjIsMCAxNDEuODI5NzIyLDM3Ljk2OTcyMiwwIDE0MS44Mjk3MjIsMzguMTY5NzIyLDAgMTQxLjg5NjM4OSwzOC4xNjk3MjIsMCAxNDEuOTE5NDQ0LDM4LjE5MTY2NywwIDE0Mi42OTI1LDM4LjE3LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfmnbHmlrnmspboh6jmmYLoqJMg57e056m65Z+fTnIuMSAvIEVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjFdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0NC45OTYxMTEsNDEuODAyNzc4LDAgMTQ1LjYxMjc3OCw0MS4yMzYxMTEsMCAxNDYuNjYyNSw0MS4wMDI3NzgsMCAxNDYuMzE5MTY3LDQwLjAwMjc3OCwwIDE0My43Nzk0NDQsNDAuMDAyNzc4LDAgMTQzLjg5NjExMSw0MC41MzYxMTEsMCAxNDQuOTk2MTExLDQwLjUzNjExMSwwIDE0NC45OTYxMTEsNDEuODAyNzc4LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfmnbHmlrnmspboh6jmmYLoqJMg57e056m65Z+fTnIuMiAvIEVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjJdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0Ni42NjI1LDQxLjAwMjc3OCwwIDE0NS42MTI3NzgsNDEuMjM2MTExLDAgMTQ0LjUzODYxMSw0Mi4yMTQ0NDQsMCAxNDQuODQ2MTExLDQyLjM4NTgzMywwIDE0Ni45OTU4MzMsNDIuMDAyNzc4LDAgMTQ2LjY2MjUsNDEuMDAyNzc4LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfmnbHmlrnmspboh6jmmYLoqJMg57e056m65Z+fTnIuMyAvIEVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjNdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0NC41NTEzODksNDIuMzg2NjY3LDAgMTQ0Ljg0NjExMSw0Mi4zODU4MzMsMCAxNDQuNDYwMjc4LDQyLjE3MDU1NiwwIDE0NC41NTEzODksNDIuMzg2NjY3LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfmnbHmlrnmspboh6jmmYLoqJMg57e056m65Z+fTnIuNCAvIEVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjRdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0My44OTYxMTEsNDAuNTM2MTExLDAgMTQzLjk3OTQ0NCw0MS4wMDI3NzgsMCAxNDQuNDYwMjc4LDQyLjE3MDU1NiwwIDE0NC41Mzg2MTEsNDIuMjE0NDQ0LDAgMTQ0Ljk5NjExMSw0MS44MDI3NzgsMCAxNDQuOTk2MTExLDQwLjUzNjExMSwwIDE0My44OTYxMTEsNDAuNTM2MTExLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvmnbHljJfmnbHmlrnmspboh6jmmYLoqJMg57e056m65Z+fTnIuNSAvIEVhc3Qgb2YgVG9ob2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjVdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDUyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjE0My40OTYxMTEsNDEuNTUyNzc4LDAgMTQzLjMzNjk0NCw0MS45MjIyMjIsMCAxNDMuNjQxOTQ0LDQxLjkyMjIyMiwwIDE0My42NDI3NzgsNDEuOTIyMjIyLDAgMTQzLjQ5NjExMSw0MS41NTI3NzgsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+Wbm+WbveayluiHqOaZguiok+e3tOepuuWfnyAvIFNoaWtva3UgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTnIuMV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIwNzIvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMyLjYzMDgzMywzMi4wMjg2MTEsMCAxMzIuOTk3NSwzMi4xNTM2MTEsMCAxMzIuOTk3NSwzMS44MDM2MTEsMCAxMzMuNDk3NSwzMi4wMzY5NDQsMCAxMzMuNDk3NSwzMS43MDM2MTEsMCAxMzIuMTMwODMzLDMxLjA3MDI3OCwwIDEzMi4xMzA4MzMsMzEuNDIwMjc4LDAgMTMyLjYzMDgzMywzMS42MzY5NDQsMCAxMzIuNjMwODMzLDMyLjAyODYxMSwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5Zub5Zu95rKW6Ieo5pmC6KiT57e056m65Z+fIC8gU2hpa29rdSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOci4yXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjA3Mi8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzIuMTU1ODMzLDMxLjUxMTk0NCwwIDEzMi4xMzA4MzMsMzEuNDIwMjc4LDAgMTMyLjEzMDgzMywzMS4xNzUsMCAxMzEuNjc1NTU2LDMwLjk4Mzg4OSwwIDEzMi4xNTU4MzMsMzEuNTExOTQ0LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvlm5vlm73mspboh6jmmYLoqJPnt7Tnqbrln58gLyBTaGlrb2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjNdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDcyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzMi4xMzA4MzMsMzEuMTc1LDAgMTMyLjEzMDgzMywzMS4wNzAyNzgsMCAxMzIuMzgwODMzLDMwLjgwMzYxMSwwIDEzMS41MDExMTEsMzAuMjAwODMzLDAgMTMxLjI4NjY2NywzMC40ODc1LDAgMTMxLjY0NjY2NywzMC45NTE5NDQsMCAxMzEuNjc1NTU2LDMwLjk4Mzg4OSwwIDEzMi4xMzA4MzMsMzEuMTc1LDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CiAgPFBsYWNlbWFyaz48bmFtZT48IVtDREFUQVvlm5vlm73mspboh6jmmYLoqJPnt7Tnqbrln58gLyBTaGlrb2t1IHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhIE5yLjRdXT48L25hbWU+PGRlc2NyaXB0aW9uPjwhW0NEQVRBW0dyb3VwOk5SMDcyLzI2IHwgTk9UQU0vTk9UQU1dXT48L2Rlc2NyaXB0aW9uPjxQb2x5Z29uPjxvdXRlckJvdW5kYXJ5SXM+PExpbmVhclJpbmc+PGNvb3JkaW5hdGVzPjEzNS42MTM4ODksMzIuOTUzMzMzLDAgMTM1Ljk5NzIyMiwzMi4wMDM2MTEsMCAxMzUuMCwzMS4zMDE5NDQsMCAxMzUuMDA5NDQ0LDMyLjE1MzMzMywwIDEzNS4wMTM4ODksMzIuNTUzNjExLDAgMTM1LjQ5NzIyMiwzMi44ODY2NjcsMCAxMzUuNjEzODg5LDMyLjk1MzMzMywwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5Zub5Zu95rKW6Ieo5pmC6KiT57e056m65Z+fIC8gU2hpa29rdSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOci41XV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjA3Mi8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzUuMCwzMS4zMDE5NDQsMCAxMzIuNDAzODg5LDI5LjQ2ODg4OSwwIDEzMS44OTc1LDI5Ljc2NDcyMiwwIDEzMS42MDQxNjcsMzAuMDYyNzc4LDAgMTMxLjUwMTExMSwzMC4yMDA4MzMsMCAxMzIuMzgwODMzLDMwLjgwMzYxMSwwIDEzNS4wMTM4ODksMzIuNTUzNjExLDAgMTM1LjAwOTQ0NCwzMi4xNTMzMzMsMCAxMzUuMCwzMS4zMDE5NDQsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+aylue4hOadseaWueayliDoh6jmmYLoqJPnt7Tnqbrln58gLyAoRWFzdCBvZiBPa2luYXdhIHRlbXBvcmFyeSB0cmFpbmluZyBhcmVhKV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIxMDEvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTMwLjg3OTQ0NCwyNS42NTMzMzMsMCAxMzAuNDkxMzg5LDI1LjE1Mzg4OSwwIDEzMC4yOTgwNTYsMjQuOTQxMTExLDAgMTMwLjEwNzUsMjQuODU4NjExLDAgMTMwLjc5Nzc3OCwyNC4zODc1LDAgMTMxLjY5Nzc3OCwyNS40Mzc1LDAgMTMwLjg3OTQ0NCwyNS42NTMzMzMsMDwvY29vcmRpbmF0ZXM+PC9MaW5lYXJSaW5nPjwvb3V0ZXJCb3VuZGFyeUlzPjwvUG9seWdvbj48L1BsYWNlbWFyaz4KICA8UGxhY2VtYXJrPjxuYW1lPjwhW0NEQVRBW+adseWMl+ilv+aWueayluiHqOaZguiokyDnt7Tnqbrln59Oci4xIC8gV2VzdCBvZiBUb2hva3UgdGVtcG9yYXJ5IHRyYWluaW5nIGFyZWEgTnIuMV1dPjwvbmFtZT48ZGVzY3JpcHRpb24+PCFbQ0RBVEFbR3JvdXA6TlIxMzkvMjYgfCBOT1RBTS9OT1RBTV1dPjwvZGVzY3JpcHRpb24+PFBvbHlnb24+PG91dGVyQm91bmRhcnlJcz48TGluZWFyUmluZz48Y29vcmRpbmF0ZXM+MTM5LjEyMTk0NCw0NC43MDE5NDQsMCAxMzguNTI3NSw0MC4zNzg2MTEsMCAxMzguMzgwMjc4LDQwLjAsMCAxMzcuMTQ2NjY3LDQyLjE1MjUsMCAxMzkuMTIxOTQ0LDQ0LjcwMTk0NCwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5p2x5YyX6KW/5pa55rKW6Ieo5pmC6KiTIOe3tOepuuWfn05yLjIgLyBXZXN0IG9mIFRvaG9rdSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOci4yXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjEzOS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzcuMTQ2NjY3LDQyLjE1MjUsMCAxMzguMzgwMjc4LDQwLjAsMCAxMzYuOTk2OTQ0LDQwLjAwMjc3OCwwIDEzNS4zMjYxMTEsNDAuMDAyNSwwIDEzNS45OTY5NDQsNDAuNTUyNSwwIDEzNy4xNDY2NjcsNDIuMTUyNSwwPC9jb29yZGluYXRlcz48L0xpbmVhclJpbmc+PC9vdXRlckJvdW5kYXJ5SXM+PC9Qb2x5Z29uPjwvUGxhY2VtYXJrPgogIDxQbGFjZW1hcms+PG5hbWU+PCFbQ0RBVEFb5p2x5YyX6KW/5pa55rKW6Ieo5pmC6KiTIOe3tOepuuWfn05yLjMgLyBXZXN0IG9mIFRvaG9rdSB0ZW1wb3JhcnkgdHJhaW5pbmcgYXJlYSBOci4zXV0+PC9uYW1lPjxkZXNjcmlwdGlvbj48IVtDREFUQVtHcm91cDpOUjEzOS8yNiB8IE5PVEFNL05PVEFNXV0+PC9kZXNjcmlwdGlvbj48UG9seWdvbj48b3V0ZXJCb3VuZGFyeUlzPjxMaW5lYXJSaW5nPjxjb29yZGluYXRlcz4xMzguMzgwMjc4LDQwLjAsMCAxMzguMDkzNjExLDM5LjI0OTQ0NCwwIDEzOC40MTMzMzMsMzkuMDAyNzc4LDAgMTM3Ljk5NjY2NywzOC41MDI3NzgsMCAxMzYuOTk2OTQ0LDM5LjAwMjc3OCwwIDEzNi45OTY5NDQsNDAuMDAyNzc4LDAgMTM4LjM4MDI3OCw0MC4wLDA8L2Nvb3JkaW5hdGVzPjwvTGluZWFyUmluZz48L291dGVyQm91bmRhcnlJcz48L1BvbHlnb24+PC9QbGFjZW1hcms+CjwvRG9jdW1lbnQ+PC9rbWw+" }
       ];
       const customPoints = [];
+      let generatedCustomDraft = null;
+      let automaticCustomName = null;
+      let customDragProjection = null;
       let pendingCustomCenter = null;
+      const pendingCustomCenters = [];
       let pendingCustomCreatedBullseye = null;
       let pendingCustomCenterVariation = null;
       let nextId = 1;
       let nextPreviewLayerId = 1;
       let nextCustomPointId = 1;
       let coordinateFormat = "ddm";
+      let coordinatePrecision = "standard";
       let objectTableMode = false;
       let objectTableBlob = null;
       let objectTableColumns = 1;
@@ -1999,10 +2131,10 @@
       const previewCoordinatePopups = [];
       let nextPreviewPopupId = 1;
       const expandedObjectIds = new Set();
-      let selectedVertexObjectId = null;
       const LINE_PRESET_COLORS = ["#1565C0","#D32F2F","#455A64","#2E7D32","#EF6C00","#FBC02D","#6A1B9A","#00838F","#111827"];
       const FILL_PRESET_COLORS = ["#F6D6D6","#D7E8F5","#DCEEDC","#F7E4CC","#FFF3C4"];
       const $ = id => document.getElementById(id);
+      $("coordinate-resolution").textContent = `Resolution: approx. ${coordinateResolutionText(coordinateFormat, coordinatePrecision)}`;
       const numberValue = id => Number($(id).value);
       const requiredNumber = (id, label) => parseRequiredNumber($(id).value, label);
       $("app-version").textContent = `v${APP_VERSION}`;
@@ -2059,7 +2191,7 @@
       }
 
       function bullseyeValueText(bull) {
-        return formatCoordinatePairCompact(bull, coordinateFormat);
+        return formatCoordinatePairPrecision(bull, coordinateFormat, coordinatePrecision);
       }
 
       function variationSourceText(mode) {
@@ -2075,7 +2207,7 @@
       }
 
       function formatCoordinateWithVariation(label, point, variation) {
-        return `${label} ${formatCoordinatePairCompact(point, coordinateFormat)}${variationSuffix(variation)}`;
+        return `${label} ${formatCoordinatePairPrecision(point, coordinateFormat, coordinatePrecision)}${variationSuffix(variation)}`;
       }
 
       function centerVariationFromContext(context, center) {
@@ -2517,7 +2649,7 @@
         number.textContent = `${index + 1}:`;
         const value = document.createElement("span");
         value.className = "coordinate-value";
-        value.textContent = `${formatCoordinate(point.lat, true, coordinateFormat)} / ${formatCoordinate(point.lon, false, coordinateFormat)}`;
+        value.textContent = formatCoordinatePairPrecision(point, coordinateFormat, coordinatePrecision);
         entry.append(number, value);
         return entry;
       }
@@ -2533,6 +2665,12 @@
         $("kml-preview").querySelectorAll("circle[data-preview-point]").forEach(circle => {
           circle.setAttribute("r", String(pointRadius));
         });
+        $("kml-preview").querySelectorAll(".pending-custom-point-hit").forEach(circle => {
+          circle.setAttribute("r", String(12 / previewZoom));
+        });
+        $("kml-preview").querySelectorAll(".pending-arc-handle").forEach(circle => circle.setAttribute("r", String(5 / previewZoom)));
+        $("kml-preview").querySelectorAll(".pending-sam-center").forEach(circle => circle.setAttribute("r", String(5 / previewZoom)));
+        $("kml-preview").querySelectorAll(".pending-bull-hit").forEach(circle => circle.setAttribute("r", String(10 / previewZoom)));
         updatePreviewRulerScale();
         drawPreviewGrid();
         drawPreviewGsiRange();
@@ -2548,13 +2686,8 @@
         const group = $("preview-vertex-label-layer");
         if (!group || !lastPreviewProjection) return;
         group.replaceChildren();
-        const object = objects.find(item => item.id === selectedVertexObjectId);
-        if (!object || !expandedObjectIds.has(object.id)) return;
-        const generated = object.type === "B/E Spider" || object.type === "Grid Group" || object.type === "SAM Ring" || Boolean(object.previewArcCenter);
-        const center = object.previewArcCenter || (object.type === "Grid Group" ? object.origin : object.type === "B/E Spider" ? object.createdBullseye : object.type === "SAM Ring" ? object.center : null);
-        const coordinates = generated ? (center ? [center] : []) : object.coordinates;
-        if (coordinates.length > 100) return;
-        coordinates.forEach((coordinate, index) => {
+        objects.filter(object => expandedObjectIds.has(object.id) && !hiddenPreviewObjectIds.has(object.id)).forEach(object => {
+          previewVertexLabels(object).forEach(({ coordinate, label: labelText }) => {
           const point = previewDisplayPoint(lastPreviewProjection.project(coordinate));
           const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
           label.setAttribute("x", point.x + 5 / previewZoom);
@@ -2562,8 +2695,9 @@
           label.setAttribute("font-size", 10 / previewZoom);
           label.setAttribute("stroke-width", 3 / previewZoom);
           label.setAttribute("class", "preview-grid-label");
-          label.textContent = generated ? "C" : String(index + 1);
+          label.textContent = labelText;
           group.append(label);
+          });
         });
       }
 
@@ -2707,6 +2841,7 @@
         try {
           if (!$("sam-radius").value.trim()) return null;
           const radius = requiredNumber("sam-radius", "Radius");
+          requireFinitePositive(radius, "Radius", false);
           let center;
           if ($("sam-at-bullseye").checked) {
             const bull = getBullseye();
@@ -2722,6 +2857,7 @@
           return {
             name: "Pending SAM Ring",
             type: "SAM Ring",
+            center: { ...center }, radius,
             color: $("sam-color").value,
             fillColor: $("sam-fill-enabled").checked ? $("sam-fill-color").value : null,
             coordinates: generateCircle(center.lat, center.lon, radius, 72)
@@ -2819,7 +2955,7 @@
           ...layerObjects.flatMap(object => object.coordinates),
           ...projectionCoordinates
         ];
-        const projection = createPreviewProjection(previewProjectionCoordinates(projectionCoordinates), 600, 300, 20);
+        const projection = customDragProjection || createPreviewProjection(previewProjectionCoordinates(projectionCoordinates), 600, 300, 20);
         lastPreviewProjection = projection;
         const projected = geometryCoordinates.map(projection.project);
         let offset = 0;
@@ -2840,6 +2976,15 @@
             polyline.setAttribute("vector-effect", "non-scaling-stroke");
             if (className) polyline.setAttribute("class", className);
             geographicGroup.append(polyline);
+            if (["pending-custom-preview", "pending-sam-preview", "pending-axis-preview"].includes(className) && segmentPoints.length >= 2) {
+              const hit = polyline.cloneNode();
+              hit.setAttribute("class", className === "pending-sam-preview" ? "pending-sam-hit" : className === "pending-axis-preview" ? "pending-axis-hit" : "pending-custom-hit");
+              hit.setAttribute("fill", "none");
+              hit.setAttribute("stroke", "transparent");
+              hit.setAttribute("stroke-opacity", "1");
+              hit.setAttribute("stroke-width", "18");
+              geographicGroup.append(hit);
+            }
           }
         };
         const drawObject = (object, points, strokeOpacity = 1, className = "") => {
@@ -2869,6 +3014,7 @@
         for (const object of objects) {
           const points = projected.slice(offset, offset + object.coordinates.length);
           offset += object.coordinates.length;
+          if (hiddenPreviewObjectIds.has(object.id)) continue;
           if (objectGeometryKind(object) === "Point") {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", points[0].x);
@@ -2892,7 +3038,9 @@
             drawSegments(object.cardinalRangeRingSegments || [], points.slice(majorLength + minorLength + cardinalLength + ringLength), object.cardinalColor || object.color, null, objectWidth * (object.ringLineWidthFactor || object.lineWidthFactor || 1));
           } else {
             const objectWidth = objectKmlWidth(object, previewWidth);
-            drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, objectWidth);
+            const axisCoordinates = object.type === "Axis" ? previewAxisCoordinates(object) : null;
+            if (axisCoordinates) drawSegments([axisCoordinates], axisCoordinates.map(projection.project), object.color, object.fillColor, objectWidth);
+            else drawSegments(objectCoordinateSegments(object), points, object.color, object.fillColor, objectWidth);
             if (object.gridSegments?.length) {
               drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, objectWidth * 0.75, 0.8);
             }
@@ -2920,13 +3068,43 @@
             drawSegments(object.rangeRingSegments || [], (object.rangeRingSegments || []).flat().map(projection.project), object.color, null, previewWidth * 0.5, opacity, "pending-preview");
             drawSegments(object.cardinalRangeRingSegments || [], (object.cardinalRangeRingSegments || []).flat().map(projection.project), object.cardinalColor || object.color, null, previewWidth * 0.5, opacity, "pending-preview");
           } else {
-            drawSegments(objectCoordinateSegments(object), object.coordinates.map(projection.project), object.color, object.fillColor, previewWidth, opacity, "pending-preview");
+            const axisCoordinates = object.type === "Axis" ? previewAxisCoordinates(object) : null;
+            if (axisCoordinates) drawSegments([axisCoordinates], axisCoordinates.map(projection.project), object.color, object.fillColor, previewWidth, opacity, "pending-axis-preview");
+            else drawSegments(objectCoordinateSegments(object), object.coordinates.map(projection.project), object.color, object.fillColor, previewWidth, opacity, object.type === "SAM Ring" ? "pending-sam-preview" : "pending-preview");
             if (object.gridSegments?.length) drawSegments(object.gridSegments, object.gridSegments.flat().map(projection.project), object.color, null, previewWidth * 0.75, opacity, "pending-preview");
+            if (object.type === "SAM Ring" && !$("sam-at-bullseye").checked && $("sam-center-mode").value === "direct") {
+              const point = projection.project(object.center);
+              const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+              handle.setAttribute("cx", point.x); handle.setAttribute("cy", point.y);
+              handle.setAttribute("r", String(5 / previewZoom));
+              handle.setAttribute("class", "pending-sam-center");
+              const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+              title.textContent = "Move center and adjust radius";
+              handle.append(title);
+              geographicGroup.append(handle);
+            }
           }
         };
         pendingObjects.forEach(drawPendingObject);
         if (pendingCoordinates.length) {
           const pending = pendingCoordinates.map(projection.project);
+          if (pending.length === 1) {
+            const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            point.setAttribute("cx", pending[0].x);
+            point.setAttribute("cy", pending[0].y);
+            point.setAttribute("r", String(pointRadius));
+            point.setAttribute("fill", $("custom-line-color").value);
+            point.setAttribute("fill-opacity", "0.5");
+            point.setAttribute("class", "pending-custom-preview");
+            point.dataset.previewPoint = "true";
+            geographicGroup.append(point);
+            const hit = point.cloneNode();
+            hit.removeAttribute("data-preview-point");
+            hit.setAttribute("class", "pending-custom-point-hit");
+            hit.setAttribute("r", String(12 / previewZoom));
+            hit.setAttribute("fill", "transparent");
+            geographicGroup.append(hit);
+          }
           const closeShape = $("custom-close-shape").checked && pendingCoordinates.length >= 3;
           if (closeShape && (pendingCoordinates[0].lat !== pendingCoordinates.at(-1).lat || pendingCoordinates[0].lon !== pendingCoordinates.at(-1).lon)) {
             pending.push(pending[0]);
@@ -2940,6 +3118,36 @@
             0.5,
             "pending-custom-preview"
           );
+          if (generatedCustomDraft?.type === "arc" && pendingCoordinates.length >= 2) {
+            const center = projection.project(generatedCustomDraft.center);
+            const arcEnd = pendingCoordinates.length - 1 - (generatedCustomDraft.includeCenter ? 1 : 0);
+            [pending[0], pending[arcEnd]].forEach((endpoint, index) => {
+              const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+              line.setAttribute("x1", center.x); line.setAttribute("y1", center.y);
+              line.setAttribute("x2", endpoint.x); line.setAttribute("y2", endpoint.y);
+              line.setAttribute("class", "pending-arc-radial");
+              geographicGroup.append(line);
+              const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+              handle.setAttribute("cx", endpoint.x); handle.setAttribute("cy", endpoint.y);
+              handle.setAttribute("r", String(5 / previewZoom));
+              handle.setAttribute("class", "pending-arc-handle");
+              handle.dataset.arcEnd = index ? "end" : "start";
+              const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+              title.textContent = index ? "Adjust end radial" : "Adjust start radial";
+              handle.append(title);
+              geographicGroup.append(handle);
+            });
+            if (!generatedCustomDraft.atBullseye) {
+              const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+              handle.setAttribute("cx", center.x); handle.setAttribute("cy", center.y);
+              handle.setAttribute("r", String(5 / previewZoom));
+              handle.setAttribute("class", "pending-arc-handle pending-arc-center");
+              const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+              title.textContent = "Move center and adjust radius";
+              handle.append(title);
+              geographicGroup.append(handle);
+            }
+          }
           if (customPoints.gridSegments?.length) {
             drawSegments(
               customPoints.gridSegments,
@@ -2951,6 +3159,18 @@
               "pending-custom-preview"
             );
           }
+        }
+        const pendingBull = pendingObjects.find(object => object.type === "B/E Point");
+        if (pendingBull) {
+          const point = projection.project(pendingBull.coordinates[0]);
+          const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          hit.setAttribute("cx", point.x); hit.setAttribute("cy", point.y);
+          hit.setAttribute("r", String(10 / previewZoom));
+          hit.setAttribute("class", "pending-bull-hit");
+          const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          title.textContent = "Move B/E";
+          hit.append(title);
+          geographicGroup.append(hit);
         }
         const contextCrossGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         contextCrossGroup.id = "preview-context-cross-layer";
@@ -2970,6 +3190,7 @@
 
       function renderObjects() {
         const list = $("object-list");
+        $("undo-object-delete").disabled = deletedObjectHistory.length === 0;
         list.replaceChildren();
         if (!objects.length) {
           const empty = document.createElement("li");
@@ -3012,11 +3233,16 @@
           text.append(strong, detail);
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.className = "danger small";
-          remove.textContent = "Delete";
+          remove.className = "danger object-delete";
+          remove.setAttribute("aria-label", `Delete ${object.name}`);
+          remove.title = `Delete ${object.name}`;
+          remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v5M14 11v5"/></svg>';
           remove.addEventListener("click", event => {
             event.stopPropagation();
-            objects.splice(objects.findIndex(candidate => candidate.id === object.id), 1);
+            const index = objects.findIndex(candidate => candidate.id === object.id);
+            if (index < 0) return;
+            deletedObjectHistory.push([{ index, object }]);
+            objects.splice(index, 1);
             expandedObjectIds.delete(object.id);
             objectTableSelectedIds.delete(object.id);
             objectTableBlob = null;
@@ -3032,10 +3258,8 @@
             }
             if (expandedObjectIds.has(object.id)) {
               expandedObjectIds.delete(object.id);
-              if (selectedVertexObjectId === object.id) selectedVertexObjectId = null;
             } else {
               expandedObjectIds.add(object.id);
-              selectedVertexObjectId = object.id;
             }
             renderObjects();
           });
@@ -3075,32 +3299,16 @@
         $("object-table-message").textContent = enabled ? "Select Object List entries for table PNG." : "";
       }
 
-      function trimTableNumber(value, decimals) {
-        return Number(value.toFixed(decimals)).toString();
-      }
-
       function formatTableCoordinate(value, isLat, format) {
-        const absolute = Math.abs(value);
         const sign = value < 0 ? "-" : "";
-        if (format === "dd") return `${sign}${trimTableNumber(absolute, 6)}`;
-        const degrees = Math.floor(absolute);
-        const minutesFull = (absolute - degrees) * 60;
-        if (format === "ddm") {
-          const degreeDigits = isLat ? 2 : 3;
-          const minuteText = trimTableNumber(minutesFull, 4);
-          const [wholeMinutes, fraction] = minuteText.split(".");
-          return `${sign}${String(degrees).padStart(degreeDigits, "0")}${wholeMinutes.padStart(2, "0")}${fraction === undefined ? "" : `.${fraction}`}`;
-        }
-        let minutes = Math.floor(minutesFull);
-        let seconds = Number(((minutesFull - minutes) * 60).toFixed(2));
-        if (seconds >= 60) {
-          minutes += 1;
-          seconds = 0;
-        }
+        const parts = coordinatePrecisionParts(value, format, coordinatePrecision);
+        if (format === "dd") return `${sign}${parts.decimal}`;
+        const degrees = parts.degrees;
         const degreeDigits = isLat ? 2 : 3;
-        const secondText = trimTableNumber(seconds, 2);
-        const [wholeSeconds, fraction] = secondText.split(".");
-        return `${sign}${String(degrees).padStart(degreeDigits, "0")}${String(minutes).padStart(2, "0")}${wholeSeconds.padStart(2, "0")}${fraction === undefined ? "" : `.${fraction}`}`;
+        if (format === "ddm") {
+          return `${sign}${String(degrees).padStart(degreeDigits, "0")}${parts.minutes}`;
+        }
+        return `${sign}${String(degrees).padStart(degreeDigits, "0")}${parts.minutes}${parts.seconds}`;
       }
 
       function objectTableName(object) {
@@ -3460,7 +3668,22 @@
         nameEdit.append(label);
         detailGrid.append(nameEdit);
         lockToggle.append(lockInput, document.createTextNode(" Lock"));
-        detailGrid.append(lockToggle);
+        const visibilityToggle = document.createElement("label");
+        visibilityToggle.className = "check object-lock-control";
+        const visibilityInput = document.createElement("input");
+        visibilityInput.type = "checkbox";
+        visibilityInput.checked = !hiddenPreviewObjectIds.has(object.id);
+        visibilityInput.setAttribute("aria-label", "Show " + object.name + " on map");
+        visibilityInput.addEventListener("change", () => {
+          if (visibilityInput.checked) hiddenPreviewObjectIds.delete(object.id);
+          else hiddenPreviewObjectIds.add(object.id);
+          renderPreview();
+        });
+        visibilityToggle.append(visibilityInput, document.createTextNode(" Show on map"));
+        const toggles = document.createElement("div");
+        toggles.className = "object-style-row";
+        toggles.append(lockToggle, visibilityToggle);
+        detailGrid.append(toggles);
         const lineColorRow = document.createElement("div");
         lineColorRow.className = "object-style-row";
         const lineColorLabel = document.createElement("strong");
@@ -3475,7 +3698,7 @@
         widthMinus.textContent = "−";
         widthMinus.setAttribute("aria-label", `Decrease KML width for ${object.name}`);
         const widthLabel = document.createElement("label");
-        widthLabel.textContent = "KML width";
+        widthLabel.setAttribute("aria-label", "KML width");
         const widthInput = document.createElement("input");
         widthInput.type = "text";
         widthInput.inputMode = "decimal";
@@ -3612,7 +3835,7 @@
           details.append(tickmarkSummary);
           const tickmarkCoordinates = document.createElement("pre");
           tickmarkCoordinates.className = "coordinate-list";
-          tickmarkCoordinates.dataset.coordinateText = formatTickmarkCoordinates(object.tickmarks, coordinateFormat);
+          tickmarkCoordinates.dataset.coordinateText = formatTickmarkCoordinates(object.tickmarks, coordinateFormat, coordinatePrecision);
           tickmarkCoordinates.textContent = tickmarkCoordinates.dataset.coordinateText;
           details.append(tickmarkCoordinates);
           return details;
@@ -3669,7 +3892,7 @@
             gridCoordinates.append(lineHeader);
             segment.forEach((point, pointIndex) => gridCoordinates.append(createCoordinateEntry(pointIndex, point)));
           });
-          gridCoordinates.dataset.coordinateText = formatGridSegmentCoordinates(object.gridSegments, coordinateFormat);
+          gridCoordinates.dataset.coordinateText = formatGridSegmentCoordinates(object.gridSegments, coordinateFormat, coordinatePrecision);
           details.append(gridCoordinates);
         }
         return details;
@@ -3683,6 +3906,8 @@
           if (first.lat === last.lat && first.lon === last.lon) coordinates.pop();
         }
         customPoints.length = 0;
+        generatedCustomDraft = null;
+        pendingCustomCenters.length = 0;
         coordinates.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
         customPoints.gridSegments = object.gridSegments?.map(segment => segment.map(point => ({ ...point }))) || null;
         pendingCustomCenter = object.center ? { ...object.center } : null;
@@ -3691,6 +3916,16 @@
         $("custom-point-mode").value = "direct";
         $("custom-point-mode").dispatchEvent(new Event("change"));
         $("custom-name").value = object.name;
+        automaticCustomName = null;
+        const nameCenter = object.center || object.previewArcCenter;
+        if (nameCenter) {
+          for (const type of ["box", "arc"]) {
+            for (const format of ["dd", "ddm", "dms"]) {
+              const name = type === "box" ? formatBoxDefaultName(nameCenter, format) : formatArcDefaultName(nameCenter, format);
+              if (object.name === name) automaticCustomName = { name, type, format };
+            }
+          }
+        }
         $("custom-line-color").value = object.color || "#455a64";
         $("custom-close-shape").checked = object.type === "Custom Area";
         $("custom-fill-enabled").checked = Boolean(object.fillColor);
@@ -3716,6 +3951,8 @@
           $("custom-name").value = object.name ? `${object.name} Box` : "";
           $("custom-line-color").value = object.color || "#455a64";
           customPoints.length = 0;
+          generatedCustomDraft = null;
+          pendingCustomCenters.length = 0;
           customPoints.gridSegments = null;
           pendingCustomCenter = { ...center };
           pendingCustomCreatedBullseye = null;
@@ -3749,6 +3986,8 @@
           remove.addEventListener("click", () => {
             customPoints.splice(customPoints.findIndex(candidate => candidate.id === point.id), 1);
             pendingCustomCenter = null;
+            detachGeneratedBullReferences();
+            if (!customPoints.length) customDragProjection = null;
             renderCustomPoints();
           });
           item.append(handle, text, remove);
@@ -3756,10 +3995,27 @@
         });
         bindPointerReorder(list, customPoints, () => {
           pendingCustomCenter = null;
+          detachGeneratedBullReferences();
           renderCustomPoints();
         });
         updateCustomOptionState();
         renderPreview();
+      }
+
+      function detachGeneratedBullReferences() {
+        const draft = generatedCustomDraft;
+        const reference = draft?.type === "arc" && draft.atBullseye ? { atBullseye: true } : draft?.type === "box" ? draft.bullReference : null;
+        if (reference) {
+          try {
+            const bull = getBullseye();
+            customPoints.forEach(point => {
+              const relative = calculateRangeBearing(bull, point);
+              point.bullReference = { bearing: bull.mode === "none" ? relative.forwardTrue : trueToMag(relative.forwardTrue, bull.magVar), range: relative.distanceNm, roundedFormat: null };
+            });
+            pendingCustomCenters.forEach(entry => { entry.bullReference = { ...reference }; });
+          } catch (error) { setMessage($("custom-form"), error.message); }
+        }
+        generatedCustomDraft = null;
       }
 
       function updateCustomOptionState() {
@@ -3846,8 +4102,9 @@
             nameFormat = detectCoordinatePairFormat($("bull-coordinates").value);
             createdBullseye = createdBullseyeSnapshot(bull);
           }
+          const name = $("sam-name").value.trim() || formatSamDefaultName(center, nameFormat);
           addObject({
-            name: $("sam-name").value.trim() || formatSamDefaultName(center, nameFormat),
+            name,
             type: "SAM Ring",
             color: $("sam-color").value,
             fillColor: $("sam-fill-enabled").checked ? $("sam-fill-color").value : null,
@@ -3856,7 +4113,10 @@
             radius,
             coordinates: generateCircle(center.lat, center.lon, radius, 72)
           });
+          addObject(createCenterPointObject(name, center, $("sam-color").value));
           clearFields(["sam-name","sam-coordinates","sam-bearing","sam-range","sam-radius"]);
+          customDragProjection = null;
+          renderPreview();
           setMessage(event.currentTarget, "");
         } catch (error) { setMessage(event.currentTarget, error.message); }
       });
@@ -3910,6 +4170,103 @@
         return { center, bearingContext: bearingContextForPoint(globalBearingModeSource(), center), createdBullseye: null, nameFormat: coordinateFormat };
       }
 
+      function replaceGeneratedCustomDraft() {
+        if (customPoints.length && (!generatedCustomDraft || customPoints.some(point => !generatedCustomDraft.pointIds.includes(point.id)))) {
+          throw new Error("Finish or remove the existing custom points before generating a Box or Arc.");
+        }
+        customPoints.length = 0;
+        pendingCustomCenters.length = 0;
+        customPoints.gridSegments = null;
+      }
+
+      function updateAutomaticCustomName(type, center, format) {
+        const current = $("custom-name").value.trim();
+        if (current && (!automaticCustomName || current !== automaticCustomName.name)) return;
+        const name = type === "box" ? formatBoxDefaultName(center, format) : formatArcDefaultName(center, format);
+        $("custom-name").value = name;
+        automaticCustomName = { name, type, format };
+      }
+
+      function rebuildGeneratedCustomDraft(center, bearingContext) {
+        const draft = generatedCustomDraft;
+        if (!draft) return;
+        let points, gridSegments = null;
+        if (draft.type === "box") {
+          const geometry = lessDigitsBoxGeometry(generateBoxWithInternalLines(center, draft.xLength, draft.yLength, resolveTrueBearing(draft.bearing, bearingContext), {
+            widthRatio: draft.widthRatio, depthRatio: draft.depthRatio
+          }));
+          points = geometry.outline;
+          gridSegments = geometry.gridSegments;
+        } else {
+          points = generateArcPoints(center, resolveTrueBearing(draft.start, bearingContext), resolveTrueBearing(draft.end, bearingContext), draft.radius, draft.direction, draft.count);
+          if (draft.includeCenter) points.push({ ...center });
+        }
+        if (points.length !== draft.pointIds.length && draft.type !== "arc") throw new Error("Draft geometry changed unexpectedly.");
+        draft.pointIds = points.map((_, index) => draft.pointIds[index] ?? nextCustomPointId++);
+        customPoints.splice(0, customPoints.length, ...points.map((point, index) => ({ id: draft.pointIds[index], ...point })));
+        customPoints.gridSegments = gridSegments;
+        draft.center = { ...center };
+        draft.bearingContext = bearingContext;
+        pendingCustomCenter = { ...center };
+        pendingCustomCenters.splice(0, pendingCustomCenters.length, { center: { ...center }, pointIds: draft.pointIds.slice() });
+        pendingCustomCenterVariation = draft.type === "box" ? centerVariationFromContext(bearingContext, center) : null;
+        renderCustomPoints();
+      }
+
+      function updateBullDependentCustomDraft(bull) {
+        const draft = generatedCustomDraft;
+        const context = bullseyeBearingContext(bull);
+        if (draft && ((draft.type === "arc" && draft.atBullseye) || (draft.type === "box" && draft.bullReference))) {
+          const ref = draft.bullReference;
+          const center = ref && !ref.atBullseye
+            ? pointFromBullReference(bull, ref)
+            : { lat: bull.lat, lon: bull.lon };
+          if (draft.type === "arc") {
+            generateArcPoints(center, resolveTrueBearing(draft.start, context), resolveTrueBearing(draft.end, context), draft.radius, draft.direction, draft.count);
+          } else {
+            lessDigitsBoxGeometry(generateBoxWithInternalLines(center, draft.xLength, draft.yLength, resolveTrueBearing(draft.bearing, context), { widthRatio: draft.widthRatio, depthRatio: draft.depthRatio }));
+          }
+          rebuildGeneratedCustomDraft(center, context);
+          pendingCustomCreatedBullseye = createdBullseyeSnapshot(bull);
+          if (automaticCustomName) updateAutomaticCustomName(draft.type, center, automaticCustomName.format);
+          return true;
+        }
+        if (!customPoints.some(point => point.bullReference)) return false;
+        const points = customPoints.map(point => {
+          const ref = point.bullReference;
+          if (!ref) return point;
+          const coordinate = pointFromBullReference(bull, ref);
+          return { ...point, ...coordinate };
+        });
+        const centers = pendingCustomCenters.map(entry => {
+          const ref = entry.bullReference;
+          if (!ref) return entry;
+          return { ...entry, center: ref.atBullseye ? { lat: bull.lat, lon: bull.lon } : pointFromBullReference(bull, ref) };
+        });
+        customPoints.splice(0, customPoints.length, ...points);
+        pendingCustomCenters.splice(0, pendingCustomCenters.length, ...centers);
+        pendingCustomCreatedBullseye = createdBullseyeSnapshot(bull);
+        const nameCenter = centers.find(entry => entry.bullReference)?.center;
+        if (nameCenter && automaticCustomName) updateAutomaticCustomName(automaticCustomName.type, nameCenter, automaticCustomName.format);
+        renderCustomPoints();
+        return true;
+      }
+
+      function setDraftBoxBearing(value) {
+        const bearing = normalizeBearing(value);
+        $("custom-box-y-bearing").value = String(bearing).padStart(3, "0");
+        if (generatedCustomDraft?.type === "box") {
+          generatedCustomDraft.bearing = bearing;
+          rebuildGeneratedCustomDraft(generatedCustomDraft.center, generatedCustomDraft.bearingContext);
+        }
+      }
+      $("custom-box-bearing-minus").addEventListener("click", () => setDraftBoxBearing((Number($("custom-box-y-bearing").value) || 0) - 1));
+      $("custom-box-bearing-plus").addEventListener("click", () => setDraftBoxBearing((Number($("custom-box-y-bearing").value) || 0) + 1));
+      $("custom-box-y-bearing").addEventListener("change", () => {
+        const value = Number($("custom-box-y-bearing").value);
+        if ($("custom-box-y-bearing").value.trim() && Number.isFinite(value) && value >= 0) setDraftBoxBearing(value);
+      });
+
       $("custom-generate").addEventListener("click", () => {
         try {
           const mode = $("custom-point-mode").value;
@@ -3932,18 +4289,27 @@
               $("custom-arc-direction").value,
               arcPointCountSetting()
             );
+            const includeCenter = $("custom-arc-include-center").checked;
+            if (includeCenter) points.push({ ...arc.center });
+            replaceGeneratedCustomDraft();
+            const startIndex = customPoints.length;
             points.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
+            pendingCustomCenters.push({ center: { ...arc.center }, pointIds: customPoints.slice(startIndex).map(point => point.id) });
             customPoints.gridSegments = null;
             pendingCustomCenter = { ...arc.center };
             pendingCustomCreatedBullseye = arc.createdBullseye;
             pendingCustomCenterVariation = null;
-            if (!$("custom-name").value.trim()) $("custom-name").value = formatArcDefaultName(arc.center, arc.nameFormat);
+            generatedCustomDraft = {
+              type: "arc", center: { ...arc.center }, pointIds: customPoints.map(point => point.id),
+              start, end, radius, direction: $("custom-arc-direction").value, count: arcPointCountSetting(), bearingContext: arc.bearingContext,
+              atBullseye: Boolean(arc.createdBullseye), includeCenter
+            };
+            updateAutomaticCustomName("arc", arc.center, arc.nameFormat);
             renderCustomPoints();
             setMessage($("custom-form"), "");
             return;
           }
           if (mode === "box") {
-            const isStandaloneBox = customPoints.length === 0;
             const xLength = requiredNumber("custom-box-x", "Width");
             const yLength = requiredNumber("custom-box-y", "Depth");
             const yBearing = requiredNumber("custom-box-y-bearing", "Depth bearing");
@@ -3955,18 +4321,27 @@
               widthRatio: $("custom-box-width-ratio").value,
               depthRatio: $("custom-box-depth-ratio").value
             }));
+            replaceGeneratedCustomDraft();
+            const startIndex = customPoints.length;
             boxGeometry.outline.forEach(point => customPoints.push({ id: nextCustomPointId++, ...point }));
-            customPoints.gridSegments = isStandaloneBox ? boxGeometry.gridSegments : null;
-            pendingCustomCenter = isStandaloneBox ? { ...box.center } : null;
-            pendingCustomCreatedBullseye = isStandaloneBox ? box.createdBullseye : null;
-            pendingCustomCenterVariation = isStandaloneBox ? centerVariationFromContext(box.bearingContext, box.center) : null;
-            if (!$("custom-name").value.trim()) $("custom-name").value = formatBoxDefaultName(box.center, box.nameFormat);
+            pendingCustomCenters.push({ center: { ...box.center }, pointIds: customPoints.slice(startIndex).map(point => point.id) });
+            customPoints.gridSegments = boxGeometry.gridSegments;
+            pendingCustomCenter = { ...box.center };
+            pendingCustomCreatedBullseye = box.createdBullseye;
+            pendingCustomCenterVariation = centerVariationFromContext(box.bearingContext, box.center);
+            generatedCustomDraft = {
+              type: "box", center: { ...box.center }, pointIds: customPoints.map(point => point.id),
+              xLength, yLength, bearing: yBearing, widthRatio: $("custom-box-width-ratio").value,
+              depthRatio: $("custom-box-depth-ratio").value, bearingContext: box.bearingContext,
+              bullReference: box.createdBullseye ? { atBullseye: $("custom-box-at-bullseye").checked, bearing: Number($("custom-box-bearing").value), range: Number($("custom-box-range").value) } : null
+            };
+            updateAutomaticCustomName("box", box.center, box.nameFormat);
             $("custom-close-shape").checked = true;
             renderCustomPoints();
             setMessage($("custom-form"), "");
             return;
           }
-          let point;
+          let point, bullReference = null;
           if (mode === "direct") {
             point = parseCoordinatePair($("custom-coordinates").value);
           } else {
@@ -3977,9 +4352,11 @@
             requireFinitePositive(range, "Range", true);
             point = destinationPoint(bull.lat, bull.lon, resolveTrueBearing(bearing, bullseyeBearingContext(bull)), range);
             pendingCustomCreatedBullseye = createdBullseyeSnapshot(bull);
+            bullReference = { bearing, range, roundedFormat: coordinateFormat, roundedPrecision: coordinatePrecision };
           }
           point = lessDigitsCoordinate(point);
-          customPoints.push({ id: nextCustomPointId++, lat: point.lat, lon: point.lon });
+          generatedCustomDraft = null;
+          customPoints.push({ id: nextCustomPointId++, lat: point.lat, lon: point.lon, ...(bullReference ? { bullReference } : {}) });
           customPoints.gridSegments = null;
           clearFields(["custom-coordinates","custom-bearing","custom-range"]);
           renderCustomPoints();
@@ -3990,6 +4367,10 @@
       $("custom-form").addEventListener("submit", event => {
         event.preventDefault();
         try {
+          if (generatedCustomDraft?.type === "arc" && $("custom-point-mode").value === "arc") {
+            clearTimeout(arcPreviewTimer);
+            if (!updateArcPreview()) throw new Error("Enter valid Arc values before adding the shape.");
+          }
           const closeShape = $("custom-close-shape").checked;
           if (!customPoints.length) throw new Error("Generate at least one point.");
           if (closeShape && customPoints.length < 3) throw new Error("An area requires at least three points.");
@@ -4009,6 +4390,13 @@
             ...(customPoints.gridSegments?.length ? { gridSegments: customPoints.gridSegments.map(segment => segment.map(point => ({ ...point }))) } : {}),
             coordinates
           });
+          const customName = $("custom-name").value.trim() || type;
+          const currentPointIds = new Set(customPoints.map(point => point.id));
+          const centers = pendingCustomCenters.filter(entry => entry.pointIds.some(id => currentPointIds.has(id)));
+          centers.forEach((entry, index) => {
+            const centerName = centers.length > 1 ? customName + " " + (index + 1) : customName;
+            addObject(createCenterPointObject(centerName, entry.center, $("custom-line-color").value));
+          });
           if ($("custom-add-individual-points").checked && customPoints.length >= 2) {
             const baseName = $("custom-name").value.trim() || "Custom";
             customPoints.forEach((point, index) => {
@@ -4022,11 +4410,17 @@
             });
           }
           customPoints.length = 0;
+          generatedCustomDraft = null;
+          customDragProjection = null;
+          pendingCustomCenters.length = 0;
           customPoints.gridSegments = null;
           pendingCustomCenter = null;
           pendingCustomCreatedBullseye = null;
           pendingCustomCenterVariation = null;
           clearFields(["custom-name","custom-coordinates","custom-bearing","custom-range","custom-arc-coordinates","custom-arc-start","custom-arc-end","custom-arc-radius","custom-arc-count","custom-box-coordinates","custom-box-bearing","custom-box-range","custom-box-x","custom-box-y","custom-box-y-bearing","custom-box-width-ratio","custom-box-depth-ratio"]);
+          $("custom-arc-start").value = "000";
+          $("custom-arc-end").value = "090";
+          automaticCustomName = null;
           $("custom-close-shape").checked = false;
           $("custom-add-individual-points").checked = false;
           renderCustomPoints();
@@ -4218,11 +4612,13 @@
       });
 
       $("sam-center-mode").addEventListener("change", () => {
+        customDragProjection = null;
         const direct = $("sam-center-mode").value === "direct";
         $("sam-bullseye-center").hidden = $("sam-at-bullseye").checked || direct;
         $("sam-direct-center").hidden = $("sam-at-bullseye").checked || !direct;
       });
       $("sam-at-bullseye").addEventListener("change", () => {
+        customDragProjection = null;
         $("sam-center-mode").disabled = $("sam-at-bullseye").checked;
         const direct = $("sam-center-mode").value === "direct";
         $("sam-bullseye-center").hidden = $("sam-at-bullseye").checked || direct;
@@ -4236,21 +4632,75 @@
         $("custom-arc-point").hidden = mode !== "arc";
         $("custom-box-point").hidden = mode !== "box";
         updateCustomOptionState();
+        if (mode === "arc") scheduleArcPreview();
       });
+      let arcPreviewTimer = null;
+      function scheduleArcPreview() {
+        clearTimeout(arcPreviewTimer);
+        arcPreviewTimer = setTimeout(updateArcPreview, 250);
+      }
+      function updateArcPreview() {
+        if ($("custom-point-mode").value !== "arc") return true;
+        const draft = generatedCustomDraft?.type === "arc" ? generatedCustomDraft : null;
+        if (!draft && customPoints.length) {
+          if ($("custom-arc-radius").value.trim()) setMessage($("custom-form"), "Finish or remove the existing Custom draft before creating an Arc.");
+          return true;
+        }
+        try {
+          const radius = requiredNumber("custom-arc-radius", "Radius");
+          requireFinitePositive(radius, "Radius", false);
+          const start = requiredNumber("custom-arc-start", "Start radial");
+          const end = requiredNumber("custom-arc-end", "End radial");
+          const arc = getArcCenter();
+          const direction = $("custom-arc-direction").value;
+          const count = arcPointCountSetting();
+          generateArcPoints(arc.center, resolveTrueBearing(start, arc.bearingContext), resolveTrueBearing(end, arc.bearingContext), radius, direction, count);
+          if (!draft) {
+            $("custom-generate").click();
+            return Boolean(generatedCustomDraft?.type === "arc");
+          }
+          const previous = { start: draft.start, end: draft.end, radius: draft.radius, direction: draft.direction, count: draft.count, atBullseye: draft.atBullseye };
+          Object.assign(draft, { start, end, radius, direction, count, atBullseye: Boolean(arc.createdBullseye) });
+          try { rebuildGeneratedCustomDraft(arc.center, arc.bearingContext); }
+          catch (error) { Object.assign(draft, previous); throw error; }
+          pendingCustomCreatedBullseye = arc.createdBullseye;
+          if (automaticCustomName) updateAutomaticCustomName("arc", arc.center, arc.nameFormat);
+          setMessage($("custom-form"), "");
+          return true;
+        } catch (error) {
+          if (draft) setMessage($("custom-form"), `Arc preview unchanged: ${error.message}`);
+          return false;
+        }
+      }
       $("custom-arc-count-mode").addEventListener("change", () => {
         $("custom-arc-count-field").hidden = $("custom-arc-count-mode").value !== "manual";
         updateArcSummary();
+        scheduleArcPreview();
       });
-      ["custom-arc-start","custom-arc-end","custom-arc-count"].forEach(id => $(id).addEventListener("input", updateArcSummary));
-      $("custom-arc-direction").addEventListener("change", updateArcSummary);
+      ["custom-arc-radius","custom-arc-start","custom-arc-end","custom-arc-count","custom-arc-coordinates"].forEach(id => $(id).addEventListener("input", () => { updateArcSummary(); scheduleArcPreview(); }));
+      $("custom-arc-direction").addEventListener("change", () => { updateArcSummary(); scheduleArcPreview(); });
+      $("custom-arc-include-center").addEventListener("change", () => {
+        const draft = generatedCustomDraft;
+        if (draft?.type !== "arc") return;
+        const previous = draft.includeCenter;
+        draft.includeCenter = $("custom-arc-include-center").checked;
+        try { rebuildGeneratedCustomDraft(draft.center, draft.bearingContext); }
+        catch (error) {
+          draft.includeCenter = previous;
+          $("custom-arc-include-center").checked = previous;
+          setMessage($("custom-form"), error.message);
+        }
+      });
       $("custom-arc-center-mode").addEventListener("change", () => {
         const direct = $("custom-arc-center-mode").value === "direct";
         $("custom-arc-direct-center").hidden = $("custom-arc-at-bullseye").checked || !direct;
+        scheduleArcPreview();
       });
       $("custom-arc-at-bullseye").addEventListener("change", () => {
         $("custom-arc-center-mode").disabled = $("custom-arc-at-bullseye").checked;
         const direct = $("custom-arc-center-mode").value === "direct";
         $("custom-arc-direct-center").hidden = $("custom-arc-at-bullseye").checked || !direct;
+        scheduleArcPreview();
       });
       $("custom-box-center-mode").addEventListener("change", () => {
         const direct = $("custom-box-center-mode").value === "direct";
@@ -4289,14 +4739,26 @@
         "#bull-coordinates", "#bull-magvar-mode", "#bull-magvar",
         "#bull-spider-enabled", "#bull-spider-full", "#bull-spider-ring-interval", "#bull-spider-start-radial", "#bull-spider-end-radial", "#bull-spider-major-interval", "#bull-spider-minor-interval", "#bull-spider-start-range", "#bull-spider-end-range", "#bull-spider-color", "#bull-spider-cardinal-color",
         "#axis-heading", "#axis-length", "#axis-color", "#axis-grid-enabled", "#axis-grid-width", "#axis-grid-interval", "#axis-tick-enabled", "#tick-start", "#tick-end", "#tick-main-interval", "#tick-main-width", "#tick-sub-interval", "#tick-sub-width", "#tick-color",
-        "#mission-axis", "#mission-distance", "#mission-width", "#mission-color", "#less-digits",
+        "#mission-axis", "#mission-distance", "#mission-width", "#mission-color", "#coordinate-precision",
         "#sam-center-mode", "#sam-at-bullseye", "#sam-coordinates", "#sam-bearing", "#sam-range", "#sam-radius", "#sam-color", "#sam-fill-enabled", "#sam-fill-color"
       ].join(",")).forEach(field => {
         field.addEventListener("input", schedulePreviewRender);
         field.addEventListener("change", schedulePreviewRender);
       });
+      $("bull-coordinates").addEventListener("change", () => {
+        if (!generatedCustomDraft?.atBullseye && !generatedCustomDraft?.bullReference && !customPoints.some(point => point.bullReference)) return;
+        try {
+          const bull = getBullseye();
+          updateBullDependentCustomDraft(bull);
+        } catch (error) { setMessage($("custom-form"), error.message); }
+      });
+      $("bull-coordinates").addEventListener("input", () => {
+        if ($("custom-point-mode").value === "arc" && ($("custom-arc-at-bullseye").checked || $("custom-arc-center-mode").value === "bullseye")) scheduleArcPreview();
+      });
 
       $("clear-all").addEventListener("click", () => {
+        const removed = objects.map((object, index) => ({ object, index })).filter(entry => !entry.object.locked);
+        if (removed.length) deletedObjectHistory.push(removed);
         const locked = objects.filter(object => object.locked);
         objects.length = 0;
         objects.push(...locked);
@@ -4309,8 +4771,18 @@
         renderObjects();
       });
 
+      $("undo-object-delete").addEventListener("click", () => {
+        const removed = deletedObjectHistory.pop();
+        if (!removed) return;
+        restoreDeletedObjects(objects, removed);
+        objectTableBlob = null;
+        closeObjectTableMenu();
+        renderObjects();
+      });
+
       function setCoordinateFormat(format) {
         coordinateFormat = format;
+        $("coordinate-resolution").textContent = `Resolution: approx. ${coordinateResolutionText(coordinateFormat, coordinatePrecision)}`;
         objectTableBlob = null;
         closeObjectTableMenu();
         document.querySelectorAll(".format-toggle").forEach(toggle => {
@@ -4330,6 +4802,23 @@
       }
       $("coordinate-format").addEventListener("click", handleCoordinateFormatClick);
       $("settings-coordinate-format").addEventListener("click", handleCoordinateFormatClick);
+      $("coordinate-precision").addEventListener("click", event => {
+        const button = event.target.closest("button[data-precision]");
+        if (!button) return;
+        coordinatePrecision = button.dataset.precision;
+        $("coordinate-precision").querySelectorAll("button[data-precision]").forEach(option => {
+          const active = option === button;
+          option.classList.toggle("active", active);
+          option.setAttribute("aria-pressed", String(active));
+        });
+        $("coordinate-resolution").textContent = `Resolution: approx. ${coordinateResolutionText(coordinateFormat, coordinatePrecision)}`;
+        objectTableBlob = null;
+        closeObjectTableMenu();
+        updateBullSummary();
+        renderObjects();
+        renderCustomPoints();
+        updatePreviewPositionReadout();
+      });
 
       $("object-table-toggle").addEventListener("click", async () => {
         if (!objectTableMode) {
@@ -4424,11 +4913,35 @@
               renderPreview();
             }
           });
-          style.append(color, width);
+          const adjustLayerWidth = delta => {
+            const entered = Number(width.value);
+            const base = Number.isFinite(entered) && entered > 0 ? entered : (layer.lineWidth ?? 1);
+            const next = Math.max(0.1, Number((base + delta).toFixed(6)));
+            layer.lineWidth = next;
+            width.value = String(next);
+            renderPreview();
+          };
+          const minus = document.createElement("button");
+          minus.type = "button";
+          minus.className = "secondary small";
+          minus.textContent = "\u2212";
+          minus.setAttribute("aria-label", `Decrease line width for ${layer.name}`);
+          minus.title = "Decrease line width";
+          minus.addEventListener("click", () => adjustLayerWidth(-1));
+          const plus = document.createElement("button");
+          plus.type = "button";
+          plus.className = "secondary small";
+          plus.textContent = "+";
+          plus.setAttribute("aria-label", `Increase line width for ${layer.name}`);
+          plus.title = "Increase line width";
+          plus.addEventListener("click", () => adjustLayerWidth(1));
+          style.append(color, minus, width, plus);
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.className = "danger small";
-          remove.textContent = "Delete";
+          remove.className = "danger object-delete";
+          remove.setAttribute("aria-label", `Delete ${layer.name}`);
+          remove.title = `Delete ${layer.name}`;
+          remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v5M14 11v5"/></svg>';
           remove.addEventListener("click", () => {
             previewLayers.splice(previewLayers.findIndex(candidate => candidate.id === layer.id), 1);
             renderPreviewLayers();
@@ -4443,7 +4956,7 @@
         const looksJson = /\.geojson$/i.test(fileName) || /\.json$/i.test(fileName) || /^\s*[{[]/.test(text);
         if (looksJson) {
           const root = JSON.parse(text);
-          const parsed = parseGeometryJsonObjects(root);
+          const parsed = parseGeoJsonObjects(root);
           if (!parsed.length) throw new Error("No supported JSON map layer geometry found.");
           return parsed;
         }
@@ -4517,7 +5030,7 @@
             reader.readAsText(file);
           });
           if (/^\s*[\[{]/.test(text)) {
-            const importedObjects = parseGeometryJsonObjects(text);
+            const importedObjects = parseGeoJsonObjects(text);
             if (!importedObjects.length) throw new Error("No supported JSON geometry found.");
             importedObjects.forEach(addObject);
             return;
@@ -4683,7 +5196,7 @@
         $("preview-center-crosshair").hidden = !touch;
         const coordinate = position && previewCoordinateAtEvent(position);
         readout.hidden = !coordinate;
-        if (coordinate) readout.textContent = formatCoordinatePair(coordinate, coordinateFormat);
+        if (coordinate) readout.textContent = formatCoordinatePairPrecision(coordinate, coordinateFormat, coordinatePrecision);
       }
 
       $("preview-stage").addEventListener("pointermove", event => {
@@ -4954,14 +5467,15 @@
       }
 
       function previewSnapTargets(coordinate) {
-        const intersections = objects.flatMap(object => {
+        const visibleObjects = objects.filter(object => !hiddenPreviewObjectIds.has(object.id));
+        const intersections = visibleObjects.flatMap(object => {
           const gridIntersection = previewGridIntersection(object, coordinate);
           const spiderIntersection = previewSpiderIntersection(object, coordinate);
           return [gridIntersection, spiderIntersection]
             .filter(Boolean)
             .map(target => ({ coordinate: target, priority: 0 }));
         });
-        const vertices = objects.flatMap(object => [
+        const vertices = visibleObjects.flatMap(object => [
           ...object.coordinates,
           ...(object.gridSegments || []).flat()
         ]).map(target => ({ coordinate: target, priority: 1 }));
@@ -5011,22 +5525,17 @@
         return Object.is(rounded, -0) ? 0 : Number(rounded.toFixed(10));
       }
 
-      function lessDigitsEnabled() {
-        return Boolean($("less-digits")?.checked);
-      }
-
       function lessDigitsCoordinate(coordinate) {
-        return lessDigitsEnabled() ? roundCoordinateForFormat(coordinate, coordinateFormat) : coordinate;
+        return roundCoordinateForPrecision(coordinate, coordinateFormat, coordinatePrecision);
       }
 
       function lessDigitsCoordinates(coordinates) {
-        return lessDigitsEnabled() ? coordinates.map(point => roundCoordinateForFormat(point, coordinateFormat)) : coordinates;
+        return coordinates.map(point => roundCoordinateForPrecision(point, coordinateFormat, coordinatePrecision));
       }
 
       function lessDigitsBoxGeometry(geometry) {
-        if (!lessDigitsEnabled()) return geometry;
-        const outline = geometry.outline.map(point => roundCoordinateForFormat(point, coordinateFormat));
-        const gridSegments = geometry.gridSegments.map(segment => segment.map(point => roundCoordinateForFormat(point, coordinateFormat)));
+        const outline = geometry.outline.map(point => roundCoordinateForPrecision(point, coordinateFormat, coordinatePrecision));
+        const gridSegments = geometry.gridSegments.map(segment => segment.map(point => roundCoordinateForPrecision(point, coordinateFormat, coordinatePrecision)));
         return { outline, gridSegments, coordinates: [...outline, ...gridSegments.flat()] };
       }
 
@@ -5042,6 +5551,11 @@
           snapCoordinateValue(coordinate.lat, coordinateFormat),
           snapCoordinateValue(coordinate.lon, coordinateFormat)
         );
+      }
+
+      function snapPreviewCenter(coordinate) {
+        const valid = validateLatLon(coordinate.lat, coordinate.lon);
+        return previewMeasureSnapEnabled() ? roundCoordinateForFormat(valid, coordinateFormat) : valid;
       }
 
       function addPreviewMeasurePoint(coordinate) {
@@ -5079,6 +5593,8 @@
           return;
         }
         customPoints.length = 0;
+        generatedCustomDraft = null;
+        pendingCustomCenters.length = 0;
         previewMeasurePoints.forEach(point => {
           const coordinate = snapPreviewCoordinate(point.coordinate);
           customPoints.push({ id: nextCustomPointId++, lat: coordinate.lat, lon: coordinate.lon });
@@ -5173,11 +5689,12 @@
           const popup = document.createElement("div");
           popup.className = "preview-coordinate-popup";
           popup.dataset.popupId = String(item.id);
-          const text = formatCoordinatePairCompact(coordinate, coordinateFormat);
+          const text = formatCoordinatePairPrecision(coordinate, coordinateFormat, coordinatePrecision);
           const coordinateButton = document.createElement("button");
           coordinateButton.type = "button";
           coordinateButton.className = "small";
           coordinateButton.dataset.action = "copy-coordinate";
+          coordinateButton.dataset.coordinateText = text;
           coordinateButton.textContent = text;
           popup.append(coordinateButton);
           if (item.measurePointId == null) {
@@ -5230,6 +5747,11 @@
         let pinch = null;
         let measurePointDrag = null;
         let temporaryPopupDrag = null;
+        let customDraftDrag = null;
+        let arcRadialDrag = null;
+        let arcResizeDrag = null;
+        let samDrag = null;
+        let bullDrag = null;
         let longPressTimer = null;
         let touchRulerTimer = null;
         const cancelTimers = () => {
@@ -5289,7 +5811,7 @@
           }
           if (action !== "copy-coordinate") return;
           const measurePoint = item.measurePointId == null ? null : previewMeasurePoints.find(point => point.id === item.measurePointId);
-          const text = formatCoordinatePairCompact(measurePoint?.coordinate || item.coordinate, coordinateFormat);
+          const text = formatCoordinatePairPrecision(measurePoint?.coordinate || item.coordinate, coordinateFormat, coordinatePrecision);
           let copied = false;
           try {
             await navigator.clipboard.writeText(text);
@@ -5305,6 +5827,10 @@
             helper.remove();
           }
           button.textContent = `${text} · ${copied ? "Copied" : "Copy failed"}`;
+          clearTimeout(button.copyStatusTimer);
+          button.copyStatusTimer = setTimeout(() => {
+            if (button.isConnected) button.textContent = button.dataset.coordinateText || text;
+          }, 2000);
         });
         svg.addEventListener("contextmenu", event => {
           event.preventDefault();
@@ -5326,6 +5852,70 @@
           svg.setPointerCapture?.(event.pointerId);
           const measureTarget = event.target?.closest?.(".preview-measure-hit");
           const temporaryTarget = event.target?.closest?.(".preview-context-hit");
+          const customTarget = event.target?.closest?.(".pending-custom-hit, .pending-custom-point-hit");
+          const arcHandle = event.target?.closest?.(".pending-arc-handle");
+          const samTarget = event.target?.closest?.(".pending-sam-hit, .pending-sam-center");
+          const bullTarget = event.target?.closest?.(".pending-bull-hit, .pending-axis-hit");
+          if (event.button === 0 && bullTarget && lastPreviewProjection) {
+            try {
+              const bull = getBullseye();
+              event.preventDefault();
+              customDragProjection = lastPreviewProjection;
+              bullDrag = { pointerId: event.pointerId, start: previewGeographicPoint(previewEventPoint(event)), center: customDragProjection.project(bull) };
+            } catch (error) { $("bull-message").textContent = error.message; }
+            return;
+          }
+          if (event.button === 0 && samTarget && lastPreviewProjection) {
+            const draft = buildPendingSamDraft();
+            if (!draft) return;
+            event.preventDefault();
+            customDragProjection = lastPreviewProjection;
+            const start = previewGeographicPoint(previewEventPoint(event));
+            const cursor = customDragProjection.unproject(start);
+            samDrag = {
+              pointerId: event.pointerId,
+              mode: samTarget.classList.contains("pending-sam-center") ? "center" : $("sam-at-bullseye").checked ? "radius" : "move",
+              start, center: customDragProjection.project(draft.center), originalCenter: draft.center,
+              radius: draft.radius, startDistance: calculateRangeBearing(draft.center, cursor).distanceNm,
+              anchor: draft.coordinates[0], centerMode: $("sam-center-mode").value
+            };
+            return;
+          }
+          if (event.button === 0 && arcHandle && generatedCustomDraft?.type === "arc") {
+            event.preventDefault();
+            customDragProjection = lastPreviewProjection;
+            if (arcHandle.classList.contains("pending-arc-center")) {
+              const draft = generatedCustomDraft;
+              const arcCount = customPoints.length - (draft.includeCenter ? 1 : 0);
+              arcResizeDrag = { pointerId: event.pointerId, mode: "center", start: previewGeographicPoint(previewEventPoint(event)), center: customDragProjection.project(draft.center), anchor: { ...customPoints[Math.floor((arcCount - 1) / 2)] } };
+              return;
+            }
+            arcRadialDrag = { pointerId: event.pointerId, end: arcHandle.dataset.arcEnd };
+            return;
+          }
+          if (event.button === 0 && customTarget && customPoints.length && lastPreviewProjection) {
+            if (generatedCustomDraft?.type === "arc" && generatedCustomDraft.atBullseye) {
+              event.preventDefault();
+              customDragProjection = lastPreviewProjection;
+              const start = customDragProjection.unproject(previewGeographicPoint(previewEventPoint(event)));
+              arcResizeDrag = { pointerId: event.pointerId, mode: "radius", startDistance: calculateRangeBearing(generatedCustomDraft.center, start).distanceNm, radius: generatedCustomDraft.radius };
+              return;
+            }
+            event.preventDefault();
+            customDragProjection = lastPreviewProjection;
+            const start = previewGeographicPoint(previewEventPoint(event));
+            const center = generatedCustomDraft?.center || customPoints[0];
+            customDraftDrag = {
+              pointerId: event.pointerId, start,
+              center: customDragProjection.project(center),
+              points: customPoints.map(point => ({ ...point })),
+              grid: (customPoints.gridSegments || []).map(segment => segment.map(point => ({ ...point }))),
+              centers: pendingCustomCenters.map(entry => ({ center: { ...entry.center }, pointIds: entry.pointIds.slice() })),
+              priorCenter: pendingCustomCenter ? { ...pendingCustomCenter } : null
+            };
+            return;
+          }
+          if ((customDraftDrag || samDrag || bullDrag) && event.pointerType === "touch") { event.preventDefault(); return; }
           if (event.button === 0 && measureTarget) {
             event.preventDefault();
             measurePointDrag = { pointerId: event.pointerId, pointId: Number(measureTarget.dataset.measurePointId) };
@@ -5383,6 +5973,167 @@
           }
         });
         svg.addEventListener("pointermove", event => {
+          if (bullDrag?.pointerId === event.pointerId) {
+            const previous = $("bull-coordinates").value;
+            try {
+              const position = previewGeographicPoint(previewEventPoint(event));
+              const coordinate = customDragProjection.unproject({ x: bullDrag.center.x + position.x - bullDrag.start.x, y: bullDrag.center.y + position.y - bullDrag.start.y });
+              $("bull-coordinates").value = formatCoordinatePair(snapPreviewCenter(coordinate), coordinateFormat);
+              const bull = getBullseye();
+              const updated = updateBullDependentCustomDraft(bull);
+              updateBullSummary();
+              if (!updated) renderPreview();
+            } catch (error) {
+              $("bull-coordinates").value = previous;
+              $("bull-message").textContent = error.message;
+            }
+            return;
+          }
+          if (samDrag?.pointerId === event.pointerId) {
+            try {
+              const position = previewGeographicPoint(previewEventPoint(event));
+              let center = samDrag.originalCenter;
+              if (samDrag.mode === "radius") {
+                const cursor = customDragProjection.unproject(position);
+                const radius = Math.max(0.1, samDrag.radius + Math.round(calculateRangeBearing(center, cursor).distanceNm - samDrag.startDistance));
+                $("sam-radius").value = String(radius);
+              } else {
+                center = customDragProjection.unproject({ x: samDrag.center.x + position.x - samDrag.start.x, y: samDrag.center.y + position.y - samDrag.start.y });
+                center = snapPreviewCenter(center);
+                if (samDrag.centerMode === "direct") {
+                  const formatted = formatCoordinatePair(center, coordinateFormat);
+                  center = parseCoordinatePair(formatted);
+                  $("sam-coordinates").value = formatted;
+                } else {
+                  const bull = getBullseye();
+                  const relative = calculateRangeBearing(bull, center);
+                  const bearing = bull.mode === "none" ? relative.forwardTrue : trueToMag(relative.forwardTrue, bull.magVar);
+                  $("sam-bearing").value = String(Number(bearing.toFixed(6)));
+                  $("sam-range").value = String(Number(relative.distanceNm.toFixed(6)));
+                }
+                if (samDrag.mode === "center") $("sam-radius").value = String(Math.max(1, Math.round(calculateRangeBearing(center, samDrag.anchor).distanceNm)));
+              }
+              setMessage($("sam-form"), "");
+              renderPreview();
+            } catch (error) { setMessage($("sam-form"), error.message); }
+            return;
+          }
+          if (arcResizeDrag?.pointerId === event.pointerId && generatedCustomDraft?.type === "arc") {
+            try {
+              const draft = generatedCustomDraft;
+              const position = previewGeographicPoint(previewEventPoint(event));
+              let center = draft.center, radius;
+              if (arcResizeDrag.mode === "radius") {
+                const cursor = customDragProjection.unproject(position);
+                radius = Math.max(0.1, arcResizeDrag.radius + Math.round(calculateRangeBearing(center, cursor).distanceNm - arcResizeDrag.startDistance));
+              } else {
+                center = customDragProjection.unproject({ x: arcResizeDrag.center.x + position.x - arcResizeDrag.start.x, y: arcResizeDrag.center.y + position.y - arcResizeDrag.start.y });
+                center = parseCoordinatePair(formatCoordinatePair(snapPreviewCenter(center), coordinateFormat));
+                radius = Math.max(1, Math.round(calculateRangeBearing(center, arcResizeDrag.anchor).distanceNm));
+              }
+              const oldRadius = draft.radius;
+              draft.radius = radius;
+              try { rebuildGeneratedCustomDraft(center, draft.atBullseye ? draft.bearingContext : bearingContextForPoint(globalBearingModeSource(), center)); }
+              catch (error) { draft.radius = oldRadius; throw error; }
+              $("custom-arc-radius").value = String(radius);
+              if (!draft.atBullseye) {
+                $("custom-arc-coordinates").value = formatCoordinatePair(center, coordinateFormat);
+                if (automaticCustomName) updateAutomaticCustomName("arc", center, automaticCustomName.format);
+              }
+              setMessage($("custom-form"), "");
+            } catch (error) { setMessage($("custom-form"), error.message); }
+            return;
+          }
+          if (arcRadialDrag?.pointerId === event.pointerId && generatedCustomDraft?.type === "arc") {
+            try {
+              const point = customDragProjection.unproject(previewGeographicPoint(previewEventPoint(event)));
+              const draft = generatedCustomDraft;
+              const trueBearing = calculateRangeBearing(draft.center, point).forwardTrue;
+              const bearing = Math.round(draft.bearingContext.mode === "none" ? trueBearing : trueToMag(trueBearing, draft.bearingContext.magVar)) % 360;
+              const previous = draft[arcRadialDrag.end];
+              draft[arcRadialDrag.end] = bearing;
+              try { rebuildGeneratedCustomDraft(draft.center, draft.bearingContext); }
+              catch (error) { draft[arcRadialDrag.end] = previous; throw error; }
+              $("custom-arc-" + arcRadialDrag.end).value = String(bearing).padStart(3, "0");
+              updateArcSummary();
+            } catch (error) { setMessage($("custom-form"), error.message); }
+            return;
+          }
+          if (customDraftDrag?.pointerId === event.pointerId) {
+            const current = previewGeographicPoint(previewEventPoint(event));
+            const dx = current.x - customDraftDrag.start.x;
+            const dy = current.y - customDraftDrag.start.y;
+            try {
+              if (generatedCustomDraft) {
+                const proposed = customDragProjection.unproject({ x: customDraftDrag.center.x + dx, y: customDraftDrag.center.y + dy });
+                const field = generatedCustomDraft.type === "box" ? "custom-box" : "custom-arc";
+                const formatted = formatCoordinatePair(snapPreviewCenter(proposed), coordinateFormat);
+                let center = parseCoordinatePair(formatted);
+                const referencedBox = generatedCustomDraft.type === "box" && generatedCustomDraft.bullReference;
+                let bearingContext = bearingContextForPoint(globalBearingModeSource(), center);
+                let relative = null;
+                if (referencedBox) {
+                  const bull = getBullseye();
+                  const distance = calculateRangeBearing(bull, center);
+                  const magnetic = bull.mode === "none" ? distance.forwardTrue : trueToMag(distance.forwardTrue, bull.magVar);
+                  relative = { atBullseye: false, bearing: Number(magnetic.toFixed(6)), range: Number(distance.distanceNm.toFixed(6)) };
+                  bearingContext = bullseyeBearingContext(bull);
+                  center = destinationPoint(bull.lat, bull.lon, resolveTrueBearing(relative.bearing, bearingContext), relative.range);
+                  pendingCustomCreatedBullseye = createdBullseyeSnapshot(bull);
+                }
+                rebuildGeneratedCustomDraft(center, bearingContext);
+                if (referencedBox) generatedCustomDraft.bullReference = relative;
+                if (automaticCustomName) updateAutomaticCustomName(generatedCustomDraft.type, center, automaticCustomName.format);
+                $(field + "-at-bullseye").checked = false;
+                $(field + "-center-mode").disabled = false;
+                $(field + "-center-mode").value = referencedBox ? "bullseye" : "direct";
+                $(field + "-center-mode").dispatchEvent(new Event("change"));
+                if (referencedBox) {
+                  $("custom-box-bearing").value = String(relative.bearing);
+                  $("custom-box-range").value = String(relative.range);
+                } else {
+                  $(field + "-coordinates").value = formatted;
+                  pendingCustomCreatedBullseye = null;
+                }
+              } else {
+                const translate = point => {
+                  const projected = customDragProjection.project(point);
+                  const coordinate = customDragProjection.unproject({ x: projected.x + dx, y: projected.y + dy });
+                  return validateLatLon(coordinate.lat, coordinate.lon);
+                };
+                const moved = customDraftDrag.points.map(point => {
+                  const coordinate = translate(point);
+                  if (!point.bullReference) return { id: point.id, ...coordinate };
+                  const bull = getBullseye();
+                  const relative = calculateRangeBearing(bull, coordinate);
+                  const bearing = bull.mode === "none" ? relative.forwardTrue : trueToMag(relative.forwardTrue, bull.magVar);
+                  return { id: point.id, ...coordinate, bullReference: { ...point.bullReference, bearing, range: relative.distanceNm } };
+                });
+                const grid = customDraftDrag.grid.map(segment => segment.map(translate));
+                const centers = customDraftDrag.centers.map(entry => ({ center: translate(entry.center), pointIds: entry.pointIds }));
+                const center = customDraftDrag.priorCenter ? translate(customDraftDrag.priorCenter) : null;
+                customPoints.splice(0, customPoints.length, ...moved);
+                customPoints.gridSegments = grid;
+                pendingCustomCenters.splice(0, pendingCustomCenters.length, ...centers);
+                pendingCustomCenter = center;
+                if (center && automaticCustomName) updateAutomaticCustomName(automaticCustomName.type, center, automaticCustomName.format);
+                pendingCustomCreatedBullseye = moved.some(point => point.bullReference) ? createdBullseyeSnapshot(getBullseye()) : null;
+                if (moved.length === 1) {
+                  $("custom-point-mode").value = moved[0].bullReference ? "bullseye" : "direct";
+                  $("custom-point-mode").dispatchEvent(new Event("change"));
+                  if (moved[0].bullReference) {
+                    $("custom-bearing").value = String(Number(moved[0].bullReference.bearing.toFixed(4)));
+                    $("custom-range").value = String(Number(moved[0].bullReference.range.toFixed(4)));
+                  } else $("custom-coordinates").value = formatCoordinatePair(moved[0], coordinateFormat);
+                }
+                renderCustomPoints();
+              }
+              setMessage($("custom-form"), "");
+            } catch (error) {
+              setMessage($("custom-form"), error.message);
+            }
+            return;
+          }
           if (event.pointerType === "touch" && activeTouches.has(event.pointerId)) {
             const touch = activeTouches.get(event.pointerId);
             touch.event = event;
@@ -5452,6 +6203,11 @@
           if (ruler?.touch && activeTouches.size < 2) ruler = null;
           if (measurePointDrag?.pointerId === event.pointerId) measurePointDrag = null;
           if (temporaryPopupDrag?.pointerId === event.pointerId) temporaryPopupDrag = null;
+          if (customDraftDrag?.pointerId === event.pointerId) customDraftDrag = null;
+          if (arcRadialDrag?.pointerId === event.pointerId) arcRadialDrag = null;
+          if (arcResizeDrag?.pointerId === event.pointerId) arcResizeDrag = null;
+          if (samDrag?.pointerId === event.pointerId) samDrag = null;
+          if (bullDrag?.pointerId === event.pointerId) bullDrag = null;
           if (panPointer === event.pointerId) {
             if (!panMoved) clearPreviewRuler();
             panPointer = null;
@@ -5504,9 +6260,12 @@
           const coordinateButton = popup.querySelector("[data-action='copy-coordinate']");
           if (!coordinateButton) return;
           const buttonRect = coordinateButton.getBoundingClientRect();
-          const width = (buttonRect.right - rect.left + 6) * scaleX;
-          const height = rect.height * scaleY;
+          const text = coordinateButton.dataset.coordinateText || "";
           context.save();
+          context.font = `${Math.max(12, 13 * scaleY)}px system-ui, sans-serif`;
+          const buttonWidth = Math.min(buttonRect.width * scaleX, context.measureText(text).width + 20 * scaleX);
+          const width = (buttonRect.left - rect.left + 6) * scaleX + buttonWidth;
+          const height = rect.height * scaleY;
           context.fillStyle = "#152536";
           context.strokeStyle = "#8b98a5";
           context.lineWidth = Math.max(1, scaleX);
@@ -5518,12 +6277,12 @@
           const buttonY = (buttonRect.top - stageRect.top) * scaleY;
           context.fillStyle = getComputedStyle(coordinateButton).backgroundColor;
           context.beginPath();
-          context.roundRect(buttonX, buttonY, buttonRect.width * scaleX, buttonRect.height * scaleY, 5 * Math.min(scaleX, scaleY));
+          context.roundRect(buttonX, buttonY, buttonWidth, buttonRect.height * scaleY, 5 * Math.min(scaleX, scaleY));
           context.fill();
           context.fillStyle = "white";
           context.font = `${Math.max(12, 13 * scaleY)}px system-ui, sans-serif`;
           context.textBaseline = "middle";
-          context.fillText(coordinateButton.textContent || "", buttonX + 10 * scaleX, y + height / 2, Math.max(0, buttonRect.width * scaleX - 20 * scaleX));
+          context.fillText(text, buttonX + 10 * scaleX, y + height / 2, Math.max(0, buttonWidth - 20 * scaleX));
           context.restore();
         });
       }
